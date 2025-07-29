@@ -7,7 +7,6 @@ The set of tools are Raku library modules to help the user with some common GUI 
 ## Gtk Version 4
 
 * **GnomeTools::Gtk::Dialog**.
-* **GnomeTools::Gtk::DropDown**.
 * **GnomeTools::Gtk::MessageDialog**.
 * **GnomeTools::Gtk::Statusbar**.
 * **GnomeTools::Gtk::Theming**.
