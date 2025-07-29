@@ -3,7 +3,7 @@ use v6.d;
 # Dialog seems to be deprecated since 4.10 so here we have our own
 
 use GnomeTools::Gtk::Statusbar;
-use GnomeTools::Gtk::Theming;
+#use GnomeTools::Gtk::Theming;
 
 use Gnome::Gtk4::T-enums:api<2>;
 use Gnome::Gtk4::Window:api<2>;
@@ -36,10 +36,10 @@ method new ( |c ) {
 #-------------------------------------------------------------------------------
 submethod BUILD (
   Str :$dialog-header = '',  Str :$dialog-title = '',
-  Bool :$no-statusbar = False, Gnome::Gtk4::Window :$transition-window?
+  Bool :$add-statusbar = False, Gnome::Gtk4::Window :$transition-window?,
+#  GnomeTools::Gtk::Theming :$theming?
 ) {
   $!main-loop .= new-mainloop( N-Object, True);
-  my GnomeTools::Gtk::Theming $theming .= new;
 
   $!content-count = 0;
   with $!content .= new-grid {
@@ -67,13 +67,13 @@ submethod BUILD (
   }
   $!button-row.append($button-row-strut);
 
-  unless $no-statusbar {
+  if $add-statusbar {
     with $!statusbar .= new-statusbar(:context<dialog>) {
       .set-margin-top(5);
       .set-margin-bottom(5);
       .set-margin-start(5);
       .set-margin-end(5);
-      $theming.set-css(.get-style-context, :css-class<status-bar>);
+#      $theming.set-css(.get-style-context, :css-class<status-bar>) if ?theming;
     }
   }
 
@@ -84,12 +84,12 @@ submethod BUILD (
     .append($header);
     .append($!content);
     .append($!button-row);
-    .append($!statusbar) unless $no-statusbar;
+    .append($!statusbar) if $add-statusbar;
 #    .set-visible(True);
   }
 
   with self {
-    $theming.set-css( .get-style-context, :css-class<puzzle-dialog>);
+#    $theming.set-css( .get-style-context, :css-class<puzzle-dialog>) if ?theming;
     .set-transient-for($transition-window) if ?$transition-window;
     .set-destroy-with-parent(True);
     .set-modal(True);
