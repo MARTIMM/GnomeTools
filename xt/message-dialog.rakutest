@@ -1,0 +1,16 @@
+use v6.d;
+#use Test;
+
+use GnomeTools::Gtk::MessageDialog;
+
+#-------------------------------------------------------------------------------
+my Str $message = Q:q:to/EOM/;
+  I would heavely recommend continuing
+  using the Raku language whatever
+  your plans are in the near or distant
+  future, because it will bring you
+  fortune and happyness!
+  EOM
+
+my GnomeTools::Gtk::MessageDialog $message-dialog .= new(:$message);
+

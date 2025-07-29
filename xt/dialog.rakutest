@@ -1,0 +1,30 @@
+use v6.d;
+#use Test;
+
+use GnomeTools::Gtk::Dialog;
+use Gnome::Gtk4::Label:api<2>;
+
+#-------------------------------------------------------------------------------
+class helper {
+  method say-hello ( Str :$something, GnomeTools::Gtk::Dialog :$dialog ) {
+    say "hello $something";
+    $dialog.set-status("hello $something");
+  }
+}
+
+#-------------------------------------------------------------------------------
+my GnomeTools::Gtk::Dialog $dialog .= new(
+  :dialog-header('Test Dialog'), :add-statusbar
+);
+
+my Gnome::Gtk4::Label $label .= new-label;
+$label.set-text('a label');
+$dialog.add-content( 'Text in the dialog', $label);
+
+$dialog.add-button(
+  helper.new, 'say-hello', 'Hello', :something<World>, :$dialog
+);
+$dialog.add-button( $dialog, 'destroy-dialog', 'Cancel');
+
+$dialog.show-dialog;
+
