@@ -1,0 +1,33 @@
+use v6.d;
+#use Test;
+
+use GnomeTools::Gtk::DropDown;
+use GnomeTools::Gtk::Dialog;
+use Gnome::Gtk4::Label:api<2>;
+
+#-------------------------------------------------------------------------------
+class helper {
+  method show-select (
+    GnomeTools::Gtk::DropDown :$dropdown, GnomeTools::Gtk::Dialog :$dialog
+) {
+    my Str $selection = $dropdown.get-dropdown-text;
+    $dialog.set-status("'$selection' selected");
+  }
+}
+
+#-------------------------------------------------------------------------------
+my GnomeTools::Gtk::Dialog $dialog .= new(
+  :dialog-header('Test Dialog'), :add-statusbar
+);
+
+my GnomeTools::Gtk::DropDown $dropdown .= new;
+$dropdown.set-selection( <abc def ghi en nog wat dus>, :select-item<ghi>);
+$dialog.add-content( 'Select something', $dropdown);
+
+$dialog.add-button(
+  helper.new, 'show-select', 'Get Selection', :$dialog, :$dropdown
+);
+$dialog.add-button( $dialog, 'destroy-dialog', 'Cancel');
+
+$dialog.show-dialog;
+
