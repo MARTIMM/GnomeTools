@@ -1,4 +1,8 @@
+* 2025-07-30 0.0.2
+  * Bugfixes
+  * Add DropDown module.
 
 * 2025-07-29 0.0.1
   * Setup of project
   * Add modules Dialog, MessageDialog, Statusbar, Theming.
+

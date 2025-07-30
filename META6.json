@@ -1,7 +1,7 @@
 {
   "description": "",
   "name": "GnomeTools",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "auth": "zef:MARTIMM",
   "author": "Marcel Timmerman",
   "tags": [ "Tool", "Gnome", "Gtk"],
@@ -11,6 +11,7 @@
 
   "provides": {
     "GnomeTools::Gtk::Dialog": "lib/GnomeTools/Gtk/Dialog.rakumod",
+    "GnomeTools::Gtk::DropDown": "lib/GnomeTools/Gtk/DropDown.rakumod",
     "GnomeTools::Gtk::MessageDialog": "lib/GnomeTools/Gtk/MessageDialog.rakumod",
     "GnomeTools::Gtk::Statusbar": "lib/GnomeTools/Gtk/Statusbar.rakumod",
     "GnomeTools::Gtk::Theming": "lib/GnomeTools/Gtk/Theming.rakumod"
