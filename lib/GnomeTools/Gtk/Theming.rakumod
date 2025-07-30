@@ -12,13 +12,13 @@ unit class GnomeTools::Gtk::Theming;
 has Gnome::Gtk4::CssProvider $!css-provider;
 
 #-------------------------------------------------------------------------------
-submethod BUILD ( Str:D :$css-path ) {
+multi submethod BUILD ( Str:D :$css-path ) {
   $!css-provider .= new-cssprovider;
   $!css-provider.load-from-path($css-path);
 }
 
 #-------------------------------------------------------------------------------
-submethod BUILD ( Str:D :$css-text ) {
+multi submethod BUILD ( Str:D :$css-text ) {
   $!css-provider .= new-cssprovider;
   $!css-provider.load-from-string($css-text);
 }
