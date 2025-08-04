@@ -3,7 +3,7 @@ use v6.d;
 # Dialog seems to be deprecated since 4.10 so here we have our own
 
 use GnomeTools::Gtk::Statusbar;
-#use GnomeTools::Gtk::Theming;
+use GnomeTools::Gtk::Theming;
 
 use Gnome::Gtk4::T-enums:api<2>;
 use Gnome::Gtk4::Window:api<2>;
@@ -21,6 +21,8 @@ unit class GnomeTools::Gtk::Dialog:auth<github:MARTIMM>;
 also is Gnome::Gtk4::Window;
 
 has Gnome::Gtk4::Grid $!content;
+has GnomeTools::Gtk::Theming $!theme;
+
 has Int $!content-count;
 
 has Gnome::Gtk4::Box $!button-row;
@@ -37,9 +39,9 @@ method new ( |c ) {
 submethod BUILD (
   Str :$dialog-header = '',  Str :$dialog-title = '',
   Bool :$add-statusbar = False, Gnome::Gtk4::Window :$transition-window?,
-#  GnomeTools::Gtk::Theming :$theming?
 ) {
   $!main-loop .= new-mainloop( N-Object, True);
+  $!theme .= new(:css-text(''));
 
   $!content-count = 0;
   with $!content .= new-grid {
@@ -49,10 +51,14 @@ submethod BUILD (
     .set-margin-end(30);
     .set-row-spacing(10);
     .set-column-spacing(10);
+    $!theme.set-css( $!content, 'dialog-content');
   }
 
   # Make a button box with horizontal layout
-  $!button-row .= new-box( GTK_ORIENTATION_HORIZONTAL, 4);
+  with $!button-row .= new-box( GTK_ORIENTATION_HORIZONTAL, 4) {
+    .set-margin-end(10);
+#    .set-margin-bottom(10);
+  }
 
   # Make a label which wil push all buttons to the left. These are
   # added using add-button()
@@ -62,8 +68,8 @@ submethod BUILD (
     .set-hexpand(True);
     .set-wrap(False);
     .set-visible(True);
-    .set-margin-top(10);
-    .set-margin-bottom(10);
+#    .set-margin-top(10);
+#    .set-margin-bottom(10);
   }
   $!button-row.append($button-row-strut);
 
@@ -73,12 +79,14 @@ submethod BUILD (
       .set-margin-bottom(5);
       .set-margin-start(5);
       .set-margin-end(5);
-#      $theming.set-css(.get-style-context, :css-class<status-bar>) if ?theming;
+      $!theme.set-css( $!statusbar, 'dialog-statusbar');
     }
   }
 
-  my Gnome::Gtk4::Label $header .= new-label;
-  $header.set-text($dialog-header);
+  with my Gnome::Gtk4::Label $header .= new-label {
+    .set-markup($dialog-header);
+    $!theme.set-css( $header, 'dialog-header');
+  }
 
   with my Gnome::Gtk4::Box $box .= new-box( GTK_ORIENTATION_VERTICAL, 0) {
     .append($header);
@@ -89,7 +97,7 @@ submethod BUILD (
   }
 
   with self {
-#    $theming.set-css( .get-style-context, :css-class<puzzle-dialog>) if ?theming;
+    $!theme.set-css( self, 'dialog-tool');
     .set-transient-for($transition-window) if ?$transition-window;
     .set-destroy-with-parent(True);
     .set-modal(True);
@@ -120,6 +128,7 @@ method add-button ( Mu $object, Str $method, Str $button-label, *%options ) {
   $button.set-label($button-label);
   $button.register-signal( $object, $method, 'clicked', |%options);
   $!button-row.append($button);
+  $!theme.set-css( $button, 'dialog-button');
 }
 
 #-------------------------------------------------------------------------------
