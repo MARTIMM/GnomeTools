@@ -1,3 +1,6 @@
+* 2025-08-04 0.0.3
+  * Test theming module with `xt/dialog.rakutest`.
+
 * 2025-07-30 0.0.2
   * Bugfixes
   * Add DropDown module.
