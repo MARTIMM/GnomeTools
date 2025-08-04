@@ -1,7 +1,7 @@
 {
   "description": "",
   "name": "GnomeTools",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "auth": "zef:MARTIMM",
   "author": "Marcel Timmerman",
   "tags": [ "Tool", "Gnome", "Gtk"],
