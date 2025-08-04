@@ -124,13 +124,19 @@ method add-button ( Mu $object, Str $method, Str $button-label, *%options ) {
 
 #-------------------------------------------------------------------------------
 method clear-status ( ) {
-  $!statusbar.remove-message;
+  $!statusbar.remove-message if ?$!statusbar;
 }
 
 #-------------------------------------------------------------------------------
 method set-status ( Str $message ) {
-  $!statusbar.remove-message;
-  $!statusbar.set-status($message);
+  if ?$!statusbar {
+    $!statusbar.remove-message;
+    $!statusbar.set-status($message);
+  }
+
+  else {
+    note "No statusbar defined, use :add-statusbar option";
+  }
 }
 
 #-------------------------------------------------------------------------------

@@ -14,7 +14,7 @@ class helper {
 
 #-------------------------------------------------------------------------------
 my GnomeTools::Gtk::Dialog $dialog .= new(
-  :dialog-header('Test Dialog'), :add-statusbar
+  :dialog-header('Test Dialog'), :!add-statusbar
 );
 
 my Gnome::Gtk4::Label $label .= new-label;
