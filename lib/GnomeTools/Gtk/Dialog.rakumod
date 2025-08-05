@@ -41,7 +41,7 @@ submethod BUILD (
   Bool :$add-statusbar = False, Gnome::Gtk4::Window :$transition-window?,
 ) {
   $!main-loop .= new-mainloop( N-Object, True);
-  $!theme .= new(:css-text(''));
+  $!theme .= new;
 
   $!content-count = 0;
   with $!content .= new-grid {
@@ -57,7 +57,6 @@ submethod BUILD (
   # Make a button box with horizontal layout
   with $!button-row .= new-box( GTK_ORIENTATION_HORIZONTAL, 4) {
     .set-margin-end(10);
-#    .set-margin-bottom(10);
   }
 
   # Make a label which wil push all buttons to the left. These are
@@ -68,20 +67,9 @@ submethod BUILD (
     .set-hexpand(True);
     .set-wrap(False);
     .set-visible(True);
-#    .set-margin-top(10);
-#    .set-margin-bottom(10);
   }
   $!button-row.append($button-row-strut);
-
-  if $add-statusbar {
-    with $!statusbar .= new-statusbar(:context<dialog>) {
-      .set-margin-top(5);
-      .set-margin-bottom(5);
-      .set-margin-start(5);
-      .set-margin-end(5);
-      $!theme.add-css-class( $!statusbar, 'dialog-statusbar');
-    }
-  }
+  $!statusbar .= new if $add-statusbar;
 
   with my Gnome::Gtk4::Label $header .= new-label {
     .set-markup($dialog-header);
@@ -93,7 +81,6 @@ submethod BUILD (
     .append($!content);
     .append($!button-row);
     .append($!statusbar) if $add-statusbar;
-#    .set-visible(True);
   }
 
   with self {
@@ -132,14 +119,8 @@ method add-button ( Mu $object, Str $method, Str $button-label, *%options ) {
 }
 
 #-------------------------------------------------------------------------------
-method clear-status ( ) {
-  $!statusbar.remove-message if ?$!statusbar;
-}
-
-#-------------------------------------------------------------------------------
 method set-status ( Str $message ) {
   if ?$!statusbar {
-    $!statusbar.remove-message;
     $!statusbar.set-status($message);
   }
 
