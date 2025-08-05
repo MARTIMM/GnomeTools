@@ -27,7 +27,7 @@ multi submethod BUILD ( Str:D :$css-text ) {
 }
 
 #-------------------------------------------------------------------------------
-method set-css ( Gnome::Gtk4::Widget $context, Str:D $css-class ) {
+method add-css-class ( Gnome::Gtk4::Widget $context, Str:D $css-class ) {
   self.check-provider;
 
   my Gnome::Gdk4::Display() $display .= new;

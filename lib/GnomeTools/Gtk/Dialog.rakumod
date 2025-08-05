@@ -51,7 +51,7 @@ submethod BUILD (
     .set-margin-end(30);
     .set-row-spacing(10);
     .set-column-spacing(10);
-    $!theme.set-css( $!content, 'dialog-content');
+    $!theme.add-css-class( $!content, 'dialog-content');
   }
 
   # Make a button box with horizontal layout
@@ -79,13 +79,13 @@ submethod BUILD (
       .set-margin-bottom(5);
       .set-margin-start(5);
       .set-margin-end(5);
-      $!theme.set-css( $!statusbar, 'dialog-statusbar');
+      $!theme.add-css-class( $!statusbar, 'dialog-statusbar');
     }
   }
 
   with my Gnome::Gtk4::Label $header .= new-label {
     .set-markup($dialog-header);
-    $!theme.set-css( $header, 'dialog-header');
+    $!theme.add-css-class( $header, 'dialog-header');
   }
 
   with my Gnome::Gtk4::Box $box .= new-box( GTK_ORIENTATION_VERTICAL, 0) {
@@ -97,7 +97,7 @@ submethod BUILD (
   }
 
   with self {
-    $!theme.set-css( self, 'dialog-tool');
+    $!theme.add-css-class( self, 'dialog-tool');
     .set-transient-for($transition-window) if ?$transition-window;
     .set-destroy-with-parent(True);
     .set-modal(True);
@@ -128,7 +128,7 @@ method add-button ( Mu $object, Str $method, Str $button-label, *%options ) {
   $button.set-label($button-label);
   $button.register-signal( $object, $method, 'clicked', |%options);
   $!button-row.append($button);
-  $!theme.set-css( $button, 'dialog-button');
+  $!theme.add-css-class( $button, 'dialog-button');
 }
 
 #-------------------------------------------------------------------------------

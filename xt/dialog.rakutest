@@ -22,7 +22,7 @@ class helper {
 
 #-------------------------------------------------------------------------------
 my Str $dialog-header = Q:a:to/EOHEADER/;
-  This is a small test to show a dialog with aan entry and a
+  This is a small test to show a dialog with an entry and a
   few buttons. The <b>Hello</b> button shows some text in
   the statusbar when pressed. The <b>Cancel</b> button stops
   the program.
@@ -51,7 +51,7 @@ my GnomeTools::Gtk::Theming $theme .= new(:css-text(Q:q:to/EOCSS/));
     /*background-color:rgb(84, 10, 85);*/
     color:rgb(59, 1, 65);
     padding-left: 15px;
-    padding-rightt: 15px;
+    padding-right: 15px;
   }
 
   .dialog-content label {
@@ -81,8 +81,8 @@ my GnomeTools::Gtk::Theming $theme .= new(:css-text(Q:q:to/EOCSS/));
 
   EOCSS
 
-$theme.set-css( $entry, 'dialog-entry');
-#$theme.set-css( $dialog, 'my-dialog');
+$theme.add-css-class( $entry, 'dialog-entry');
+#$theme.add-css-class( $dialog, 'my-dialog');
 
 #-------------------------------------------------------------------------------
 $dialog.show-dialog;
