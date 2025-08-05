@@ -15,6 +15,11 @@ unit class GnomeTools::Gtk::Theming;
 my Gnome::Gtk4::CssProvider $css-provider;
 
 #-------------------------------------------------------------------------------
+multi submethod BUILD ( ) {
+  self.check-provider;
+}
+
+#-------------------------------------------------------------------------------
 multi submethod BUILD ( Str:D :$css-path ) {
   self.check-provider;
   $css-provider.load-from-path($css-path);
