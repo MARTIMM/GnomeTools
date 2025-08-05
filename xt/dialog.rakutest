@@ -16,16 +16,16 @@ class helper {
     Gnome::Gtk4::Entry :$entry
   ) {
     say "hello $entry.get-text()";
-    $dialog.set-status("hello $entry.get-text()");
+    $dialog.set-status("hello <b>$entry.get-text()\</b>");
   }
 }
 
 #-------------------------------------------------------------------------------
 my Str $dialog-header = Q:a:to/EOHEADER/;
-  This is a small test to show a dialog with an entry and a
-  few buttons. The <b>Hello</b> button shows some text in
-  the statusbar when pressed. The <b>Cancel</b> button stops
-  the program.
+  This is a small test to show a dialog with an entry
+  and a few buttons. The <b>Hello</b> button shows some
+  text in the statusbar when pressed. The <b>Cancel</b>
+  button stops the program.
   EOHEADER
 
 my GnomeTools::Gtk::Dialog $dialog .= new(
@@ -62,13 +62,14 @@ my GnomeTools::Gtk::Theming $theme .= new(:css-text(Q:q:to/EOCSS/));
     color:rgb(15, 165, 240);
   }
 
-  .dialog-statusbar {
+  .statusbar-tool {
+    background-color:rgb(84, 10, 85);
     border-width: 5px;
     border-style: groove;
     border-color:rgb(144, 0, 255);
   }
 
-  .dialog-statusbar > label, {
+  .statusbar-tool > label {
     color:rgb(0, 0, 90);
   }
 
