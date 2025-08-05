@@ -1,30 +1,48 @@
 use v6.d;
 
-use Gnome::Gtk4::Statusbar:api<2>;
+use Gnome::Gtk4::Label:api<2>;
 use Gnome::Gtk4::T-enums:api<2>;
 
 use Gnome::N::GlibToRakuTypes:api<2>;
 
+use GnomeTools::Gtk::Theming;
+
 #-------------------------------------------------------------------------------
 unit class GnomeTools::Gtk::Statusbar:auth<github:MARTIMM>;
-also is Gnome::Gtk4::Statusbar;
+also is Gnome::Gtk4::Label;
 
 #-------------------------------------------------------------------------------
-has guint $!context-id;
+has GnomeTools::Gtk::Theming $!theme;
 
 #-------------------------------------------------------------------------------
-submethod BUILD ( Str :$context ) {
-  $!context-id = self.get-context-id($context);
-  self.set-halign(GTK_ALIGN_FILL);
-  self.set-hexpand(True);
+method new ( |c ) {
+  self.new-label(|c);
+}
+
+#-------------------------------------------------------------------------------
+submethod BUILD ( ) {
+  $!theme .= new;
+
+  with self {
+    .set-text('');
+
+    .set-halign(GTK_ALIGN_FILL);
+    .set-hexpand(True);
+    .set-xalign(0);
+
+    .set-wrap(False);
+    .set-visible(True);
+
+    .set-margin-top(10);
+    .set-margin-bottom(10);
+    .set-margin-start(5);
+    .set-margin-end(5);
+
+    $!theme.add-css-class( self, 'statusbar-tool');
+  }
 }
 
 #-------------------------------------------------------------------------------
 method set-status ( Str $text ) {
-  self.push( $!context-id, $text);
-}
-
-#-------------------------------------------------------------------------------
-method remove-message ( ) {
-  self.remove-all($!context-id);
+  self.set-markup($text);
 }
