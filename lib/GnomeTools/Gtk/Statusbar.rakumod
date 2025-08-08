@@ -8,6 +8,13 @@ use Gnome::N::GlibToRakuTypes:api<2>;
 use GnomeTools::Gtk::Theming;
 
 #-------------------------------------------------------------------------------
+=begin pod
+=TITLE GnomeTools::Gtk::Statusbar
+=head1 Description
+
+The statusbar is just a label which is streched over the width of its container. To control its style you can use the defined css classname of th statusbar. This css classname is C<statusbar-tool>.
+=end pod
+
 unit class GnomeTools::Gtk::Statusbar:auth<github:MARTIMM>;
 also is Gnome::Gtk4::Label;
 
@@ -15,6 +22,13 @@ also is Gnome::Gtk4::Label;
 has GnomeTools::Gtk::Theming $!theme;
 
 #-------------------------------------------------------------------------------
+=begin pod
+=head1 new
+To instanciate the statusbar you do not need any arguments.
+
+  my GnomeTools::Gtk::Statusbar $statusbar .= new;
+
+=end pod
 method new ( |c ) {
   self.new-label(|c);
 }
