@@ -1,7 +1,7 @@
 {
   "description": "",
   "name": "GnomeTools",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "auth": "zef:MARTIMM",
   "author": "Marcel Timmerman",
   "tags": [ "Tool", "Gnome", "Gtk"],
@@ -17,7 +17,7 @@
     "GnomeTools::Gtk::Theming": "lib/GnomeTools/Gtk/Theming.rakumod"
   },
 
-  "source-url": "git://github.com/MARTIMM/.git",
+  "source-url": "git://github.com/MARTIMM/GnomeTools.git",
 
   "depends": [ "Gnome::Gtk4:api<2>" ],
   "test-depends": [ ],
