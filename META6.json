@@ -1,5 +1,5 @@
 {
-  "description": "",
+  "description": "Widget Toolbox based on Gtk 4",
   "name": "GnomeTools",
   "version": "0.1.1",
   "auth": "zef:MARTIMM",
