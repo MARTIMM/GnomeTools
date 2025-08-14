@@ -42,8 +42,6 @@ method set-selection ( @items, Str :$select-item = '' ) {
 
   # Add the container strings
   for @items -> $item {
-#note "$?LINE   item: $item";
-
     $stringlist.append($item);
     $index-found = True if $item eq $select-item;
     $index++ unless $index-found;
@@ -55,12 +53,8 @@ method set-selection ( @items, Str :$select-item = '' ) {
 #-------------------------------------------------------------------------------
 method select ( Str:D $select-item ) {
   my Gnome::Gtk4::StringList() $stringlist = self.get-model;
-#  my Int $index = 0;
-
   for ^$stringlist.get-n-items -> $index {
-my Str $s = $stringlist.get-string($index);
-note "$?LINE  item: $index, $s eq '$select-item'";
-    if $s eq $select-item {
+    if $stringlist.get-string($index) eq $select-item {
       self.set-selected($index);
       last;
     }
