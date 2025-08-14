@@ -53,6 +53,21 @@ method set-selection ( @items, Str :$select-item = '' ) {
 }
 
 #-------------------------------------------------------------------------------
+method select ( Str:D $select-item ) {
+  my Gnome::Gtk4::StringList() $stringlist = self.get-model;
+#  my Int $index = 0;
+
+  for ^$stringlist.get-n-items -> $index {
+my Str $s = $stringlist.get-string($index);
+note "$?LINE  item: $index, $s eq '$select-item'";
+    if $s eq $select-item {
+      self.set-selected($index);
+      last;
+    }
+  }
+}
+
+#-------------------------------------------------------------------------------
 method get-dropdown-text ( --> Str ) {
 #say Backtrace.new.nice;
   my Gnome::Gtk4::StringList() $stringlist;
@@ -65,6 +80,14 @@ method get-dropdown-text ( --> Str ) {
 
   $s
 }
+
+#-------------------------------------------------------------------------------
+method trap-dropdown-changes (
+  Any:D $helper-object, Str:D $method, *%options
+) {
+  self.register-signal( $helper-object, $method, 'notify::selected', |%options);
+}
+
 
 
 
