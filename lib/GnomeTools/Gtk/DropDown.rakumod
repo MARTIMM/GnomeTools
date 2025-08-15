@@ -62,7 +62,7 @@ method select ( Str:D $select-item ) {
 }
 
 #-------------------------------------------------------------------------------
-method get-dropdown-text ( --> Str ) {
+method get-text ( --> Str ) {
 #say Backtrace.new.nice;
   my Gnome::Gtk4::StringList() $stringlist;
   my UInt $p;
@@ -121,7 +121,7 @@ method trap-container-changes (
     :$categories, :$skip-default
   );
 
-#  my Str $select-container = self.get-dropdown-text;
+#  my Str $select-container = self.get-text;
 }
 
 #-------------------------------------------------------------------------------
@@ -148,7 +148,7 @@ method select-categories (
   PuzzleTable::Gui::DropDown :$categories, Bool :$skip-default,
 ) {
   $categories.fill-categories(
-    '', self.get-dropdown-text, $!config.get-current-root, :$skip-default
+    '', self.get-text, $!config.get-current-root, :$skip-default
   );
 }
 
@@ -165,7 +165,7 @@ method trap-root-changes (
     :$containers, :$categories, :$skip-default
   );
 
-#  my Str $select-root = self.get-dropdown-text;
+#  my Str $select-root = self.get-text;
 }
 
 #-------------------------------------------------------------------------------
@@ -181,17 +181,17 @@ method select-containers (
   PuzzleTable::Gui::DropDown :$categories,
   Bool :$skip-default,
 ) {
-#note "$?LINE $roots.get-dropdown-text(), ", self.get-dropdown-text;
-#note "$?LINE ", ?$categories ?? $containers.get-dropdown-text !! '-';
-  my $root-dir = self.get-dropdown-text;
+#note "$?LINE $roots.get-text(), ", self.get-text;
+#note "$?LINE ", ?$categories ?? $containers.get-text !! '-';
+  my $root-dir = self.get-text;
   $containers.fill-containers( '', $root-dir, :$skip-default);
 
   # no need to check because drop down is filled with existing data
   $!config.set-table-root($root-dir);
-#note "$?LINE ", (?$categories ?? $containers.get-dropdown-text !! '-'), ', ', $root-dir;
+#note "$?LINE ", (?$categories ?? $containers.get-text !! '-'), ', ', $root-dir;
 
   $categories.fill-categories(
-    '', $containers.get-dropdown-text, $root-dir, :$skip-default
+    '', $containers.get-text, $root-dir, :$skip-default
   ) if ?$categories;
 }
 

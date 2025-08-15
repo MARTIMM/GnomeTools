@@ -13,7 +13,7 @@ class HelperObject {
   method show-select (
     GnomeTools::Gtk::DropDown :$dropdown, GnomeTools::Gtk::Dialog :$dialog
 ) {
-    my Str $selection = $dropdown.get-dropdown-text;
+    my Str $selection = $dropdown.get-text;
     $dialog.set-status("'$selection' selected");
   }
 
@@ -23,7 +23,7 @@ class HelperObject {
     GnomeTools::Gtk::DropDown :$dropdown2,
     GnomeTools::Gtk::Dialog :$dialog
   ) {
-    my Str $selection = $dropdown2.get-dropdown-text;
+    my Str $selection = $dropdown2.get-text;
     $dialog.set-status("'$selection' selected");
     $dropdown1.select($selection);
   }
