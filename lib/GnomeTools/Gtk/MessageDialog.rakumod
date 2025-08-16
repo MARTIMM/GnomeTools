@@ -1,6 +1,7 @@
 use v6.d;
 
 #TODO add icons for type of message: info, warning, error, fatal, debug
+#TODO add css classnames
 
 use GnomeTools::Gtk::Dialog;
 

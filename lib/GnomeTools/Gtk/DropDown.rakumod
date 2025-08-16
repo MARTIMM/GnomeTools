@@ -1,6 +1,8 @@
 
 use v6.d;
 
+#TODO add css classnames
+
 use Gnome::Gtk4::DropDown:api<2>;
 use Gnome::Gtk4::StringList:api<2>;
 use Gnome::Gtk4::T-types:api<2>;
