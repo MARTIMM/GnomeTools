@@ -2,6 +2,7 @@
 use v6.d;
 
 #TODO add css classnames
+#TODO also make use of ObjectList to add widgets instead of strings only
 
 use Gnome::Gtk4::DropDown:api<2>;
 use Gnome::Gtk4::StringList:api<2>;
