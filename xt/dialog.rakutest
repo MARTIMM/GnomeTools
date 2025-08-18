@@ -34,7 +34,7 @@ my GnomeTools::Gtk::Dialog $dialog .= new(
 
 my Gnome::Gtk4::Entry $entry .= new-entry;
 $entry.set-text('a label');
-$dialog.add-content( 'Text in the dialog', $entry);
+$dialog.add-content( 'Text label for the entry', $entry, :columns(3));
 
 $dialog.add-button(
   helper.new, 'say-hello', 'Hello', :$dialog, :$entry

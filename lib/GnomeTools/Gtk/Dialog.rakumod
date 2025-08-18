@@ -47,10 +47,12 @@ submethod BUILD (
   with $!content .= new-grid {
     .set-margin-top(20);
     .set-margin-bottom(20);
-    .set-margin-start(30);
-    .set-margin-end(30);
+    .set-margin-start(20);
+    .set-margin-end(20);
+
     .set-row-spacing(10);
-    .set-column-spacing(10);
+    .set-column-spacing(20);
+
     $!theme.add-css-class( $!content, 'dialog-content');
   }
 
@@ -96,7 +98,9 @@ submethod BUILD (
 }
 
 #-------------------------------------------------------------------------------
-method add-content ( Str $text, Mu $widget ) {
+method add-content (
+  Str $text, Mu $widget, Int :$columns = 1, Int :$rows = 1
+) {
   with my Gnome::Gtk4::Label $label .= new-label {
     .set-text($text);
     .set-hexpand(True);
@@ -105,8 +109,8 @@ method add-content ( Str $text, Mu $widget ) {
   }
 
   $!content.attach( $label, 0, $!content-count, 1, 1);
-  $!content.attach( $widget, 1, $!content-count, 1, 1);
-  $!content-count++;
+  $!content.attach( $widget, 1, $!content-count, $columns, $rows);
+  $!content-count += $rows;
 }
 
 #-------------------------------------------------------------------------------
