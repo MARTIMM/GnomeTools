@@ -37,11 +37,11 @@ my GnomeTools::Gtk::Dialog $dialog .= new(
 );
 
 my GnomeTools::Gtk::DropDown $dropdown1 .= new;
-$dropdown1.set-selection( <abc def ghi en nog wat dus>, :select-item<ghi>);
+$dropdown1.set-selection( <abc def ghi en nogiuyuiyuy wat dusiuyuiyuy>, :select-item<ghi>);
 $dialog.add-content( 'Select something 1', $dropdown1);
 
 my GnomeTools::Gtk::DropDown $dropdown2 .= new;
-$dropdown2.set-selection( <abc def ghi en nog wat dus>, :select-item<ghi>);
+$dropdown2.set-selection( <abc def ghi en nogiuyuiyuy wat dusiuyuiyuy>, :select-item<ghi>);
 $dialog.add-content( 'Select something 2', $dropdown2);
 
 $dropdown2.trap-dropdown-changes(
