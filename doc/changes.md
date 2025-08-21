@@ -1,3 +1,6 @@
+* 2025-08-21 0.2.0
+  * Add class ListBox for easy handling of a listbox
+
 * 2025-08-14 0.1.1
   * React when dropdown selection changes.
 
