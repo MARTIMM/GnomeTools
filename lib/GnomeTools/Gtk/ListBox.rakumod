@@ -1,0 +1,222 @@
+
+use v6.d;
+
+#TODO add css classnames
+#TODO also make use of ObjectList to add widgets instead of strings only
+
+use Gnome::Gtk4::Label:api<2>;
+use Gnome::Gtk4::ListBox:api<2>;
+use Gnome::Gtk4::ListBoxRow:api<2>;
+#use Gnome::Gtk4::StringList:api<2>;
+use Gnome::Gtk4::T-types:api<2>;
+use Gnome::Gtk4::ScrolledWindow:api<2>;
+use Gnome::Gtk4::T-enums:api<2>;
+
+use Gnome::N::GlibToRakuTypes:api<2>;
+use Gnome::N::N-Object:api<2>;
+use Gnome::N::X:api<2>;
+#Gnome::N::debug(:on);
+
+#-------------------------------------------------------------------------------
+unit class GnomeTools::Gtk::ListBox:auth<github:MARTIMM>;
+also is Gnome::Gtk4::ListBox;
+
+constant ListBox = Gnome::Gtk4::ListBox;
+constant ListBoxRow = Gnome::Gtk4::ListBoxRow;
+constant Label = Gnome::Gtk4::Label;
+constant ScrolledWindow = Gnome::Gtk4::ScrolledWindow;
+
+#-------------------------------------------------------------------------------
+multi method new ( |c ) {
+  self.new-listbox;
+}
+
+#-------------------------------------------------------------------------------
+method select ( Str:D $select-item ) {
+#`{{
+  my Gnome::Gtk4::StringList() $stringlist = self.get-model;
+  for ^$stringlist.get-n-items -> $index {
+    if $stringlist.get-string($index) eq $select-item {
+      self.set-selected($index);
+      last;
+    }
+  }
+}}
+}
+
+#-------------------------------------------------------------------------------
+multi method set-list (
+  List $list-data, Bool :$multi = False --> ScrolledWindow
+) {
+note "$?LINE $list-data";
+  my ListBox $list-lb .= new-listbox;
+  $list-lb.set-selection-mode(GTK_SELECTION_MULTIPLE) if $multi;
+
+  for $list-data.sort -> $k {
+    with my Label $l .= new-with-mnemonic($k) {
+      .set-justify(GTK_JUSTIFY_LEFT);
+      .set-halign(GTK_ALIGN_START);
+    }
+    $list-lb.append($l);
+  }
+
+  with my ScrolledWindow $sw .= new-scrolledwindow {
+    .set-child($list-lb);
+    .set-size-request( 850, 300);
+  }
+
+  $sw
+}
+
+#-------------------------------------------------------------------------------
+multi method set-list (
+  $object, $method, List $list-data, Bool :$multi = False,
+  *%options --> ScrolledWindow
+) {
+
+  my ListBox $list-lb .= new-listbox;
+  $list-lb.set-selection-mode(GTK_SELECTION_MULTIPLE) if $multi;
+
+  for $list-data.sort -> $k {
+    with my Label $l .= new-with-mnemonic($k) {
+      .set-justify(GTK_JUSTIFY_LEFT);
+      .set-halign(GTK_ALIGN_START);
+    }
+    $list-lb.append($l);
+    $list-lb.register-signal( $object, $method, 'row-selected', |%options);
+  }
+
+  with my ScrolledWindow $sw .= new-scrolledwindow {
+    .set-child($list-lb);
+    .set-size-request( 850, 300);
+  }
+
+  $sw
+}
+
+#-------------------------------------------------------------------------------
+method get-selection ( --> Str ) {
+#say Backtrace.new.nice;
+#`{{
+  my Gnome::Gtk4::StringList() $stringlist;
+  my UInt $p;
+  $stringlist = self.get-model;
+  $p = self.get-selected;
+
+  my Str $s = '';
+  $s = $stringlist.get-string($p) unless $p == GTK_INVALID_LIST_POSITION;
+
+  $s
+}}
+}
+
+
+
+
+
+
+
+=finish
+#-------------------------------------------------------------------------------
+method fill-containers (
+  Str:D $select-container, Str $root-dir, Bool :$skip-default = False
+) {
+#note "$?LINE {$select-container//'-'}, $root-dir";
+
+  $root-dir //= $!config.get-current-root;
+  self.set-selection(
+    $!config.get-containers($root-dir), $select-container, :$skip-default
+  );
+}
+
+#-------------------------------------------------------------------------------
+method fill-roots ( Str:D $select-root ) {
+#note "$?LINE $select-root";
+
+  self.set-selection( $!config.get-roots, $select-root);
+}
+
+#-------------------------------------------------------------------------------
+# Only a container drop down list can call this
+method trap-container-changes (
+  PuzzleTable::Gui::DropDown $categories, Bool :$skip-default = False
+) {
+  self.register-signal(
+    self, 'select-categories', 'notify::selected',
+    :$categories, :$skip-default
+  );
+
+#  my Str $select-container = self.get-text;
+}
+
+#-------------------------------------------------------------------------------
+=begin pod
+=head2 select-categories
+
+Handler for the container dropdown list to change the category dropdown list after a selecteion is made.
+
+  method select-categories (
+    N-Object $, Gnome::Gtk4::DropDown() :_native-object($containers),
+    Gnome::Gtk4::DropDown() :$categories, Bool :$skip-default
+  )
+
+=item $ ; A ParamSpec object. It is ignored.
+=item $containers: The container list.
+=item $categories: The category list.
+=item $skip-default; Used to hide the 'Default' category from the list.
+
+=end pod
+
+#TODO somehow there is an empty stringlist when using _native-object named argument
+method select-categories (
+  N-Object $, # PuzzleTable::Gui::DropDown() :_native-object($containers),
+  PuzzleTable::Gui::DropDown :$categories, Bool :$skip-default,
+) {
+  $categories.fill-categories(
+    '', self.get-text, $!config.get-current-root, :$skip-default
+  );
+}
+
+#-------------------------------------------------------------------------------
+# Only a container drop down list can call this
+method trap-root-changes (
+  PuzzleTable::Gui::DropDown $containers,
+  PuzzleTable::Gui::DropDown :$categories,
+  Bool :$skip-default = False
+) {
+#  state $roots = self;
+  self.register-signal(
+    self, 'select-containers', 'notify::selected',
+    :$containers, :$categories, :$skip-default
+  );
+
+#  my Str $select-root = self.get-text;
+}
+
+#-------------------------------------------------------------------------------
+=begin pod
+
+=end pod
+
+#TODO somehow there is an empty stringlist when using _native-object named argument
+method select-containers (
+  N-Object $, # PuzzleTable::Gui::DropDown() :_native-object($containers),
+#  PuzzleTable::Gui::DropDown :$roots,
+  PuzzleTable::Gui::DropDown :$containers,
+  PuzzleTable::Gui::DropDown :$categories,
+  Bool :$skip-default,
+) {
+#note "$?LINE $roots.get-text(), ", self.get-text;
+#note "$?LINE ", ?$categories ?? $containers.get-text !! '-';
+  my $root-dir = self.get-text;
+  $containers.fill-containers( '', $root-dir, :$skip-default);
+
+  # no need to check because drop down is filled with existing data
+  $!config.set-table-root($root-dir);
+#note "$?LINE ", (?$categories ?? $containers.get-text !! '-'), ', ', $root-dir;
+
+  $categories.fill-categories(
+    '', $containers.get-text, $root-dir, :$skip-default
+  ) if ?$categories;
+}
+
