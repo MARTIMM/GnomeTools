@@ -105,6 +105,7 @@ method add-content (
     .set-text($text);
     .set-hexpand(True);
     .set-halign(GTK_ALIGN_START);
+    .set-valign(GTK_ALIGN_START);
     .set-margin-end(5);
   }
 
