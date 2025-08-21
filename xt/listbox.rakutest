@@ -1,0 +1,68 @@
+use v6.d;
+#use Test;
+
+use GnomeTools::Gtk::ListBox;
+use GnomeTools::Gtk::Dialog;
+
+use Gnome::Gtk4::Label:api<2>;
+
+use Gnome::N::N-Object:api<2>;
+
+#-------------------------------------------------------------------------------
+class HelperObject {
+  method show-select (
+    GnomeTools::Gtk::ListBox :$listbox, GnomeTools::Gtk::Dialog :$dialog
+) {
+    my Str $selection = $listbox.get-text;
+    $dialog.set-status("'$selection' selected");
+  }
+
+  method change-dd (
+    N-Object $,
+    GnomeTools::Gtk::ListBox :$listbox1,
+    GnomeTools::Gtk::ListBox :$listbox2,
+    GnomeTools::Gtk::Dialog :$dialog
+  ) {
+    my Str $selection = $listbox2.get-text;
+    $dialog.set-status("'$selection' selected");
+    $listbox1.select($selection);
+  }
+}
+
+my HelperObject $helper .= new;
+
+#-------------------------------------------------------------------------------
+my GnomeTools::Gtk::Dialog $dialog .= new(
+  :dialog-header('Test Dialog'), :add-statusbar
+);
+
+my GnomeTools::Gtk::ListBox $listbox1 .= new;
+my $rows = $listbox1.set-list(
+  <abc def ghi en nogiuyuiyuy wat dusiuyuiyuy>, :select-item<ghi>
+);
+$dialog.add-content( 'Select something 1', $rows);
+
+#`{{
+my GnomeTools::Gtk::ListBox $listbox2 .= new;
+$listbox2.set-selection( <abc def ghi en nogiuyuiyuy wat dusiuyuiyuy>, :select-item<ghi>);
+$dialog.add-content( 'Select something 2', $listbox2);
+
+$listbox2.trap-dropdown-changes(
+  $helper, 'change-dd', :$listbox1, :$listbox2, :$dialog
+);
+
+# Buttons
+$dialog.add-button(
+  $helper, 'show-select', 'Get Selection 1', :$dialog, :dropdown($listbox1)
+);
+
+$dialog.add-button(
+  $helper, 'show-select', 'Get Selection 2', :$dialog, :dropdown($listbox2)
+);
+}}
+
+$dialog.add-button( $dialog, 'destroy-dialog', 'Cancel');
+
+
+$dialog.show-dialog;
+
