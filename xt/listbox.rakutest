@@ -40,16 +40,16 @@ my GnomeTools::Gtk::ListBox $listbox1 .= new;
 my $rows = $listbox1.set-list(
   <abc def ghi en nogiuyuiyuy wat dusiuyuiyuy>, :select-item<ghi>
 );
-$dialog.add-content( 'Select something 1', $rows);
+$dialog.add-content( 'List 1', $rows);
 
-#`{{
 my GnomeTools::Gtk::ListBox $listbox2 .= new;
-$listbox2.set-selection( <abc def ghi en nogiuyuiyuy wat dusiuyuiyuy>, :select-item<ghi>);
-$dialog.add-content( 'Select something 2', $listbox2);
+$rows = $listbox2.set-list(
+  <abc def ghi en nogiuyuiyuy wat dusiuyuiyuy>, :select-item<abc>);
+$dialog.add-content( 'List 2', $rows);
 
-$listbox2.trap-dropdown-changes(
-  $helper, 'change-dd', :$listbox1, :$listbox2, :$dialog
-);
+#$listbox2.trap-dropdown-changes(
+#  $helper, 'change-dd', :$listbox1, :$listbox2, :$dialog
+#);
 
 # Buttons
 $dialog.add-button(
@@ -59,6 +59,8 @@ $dialog.add-button(
 $dialog.add-button(
   $helper, 'show-select', 'Get Selection 2', :$dialog, :dropdown($listbox2)
 );
+
+#`{{
 }}
 
 $dialog.add-button( $dialog, 'destroy-dialog', 'Cancel');

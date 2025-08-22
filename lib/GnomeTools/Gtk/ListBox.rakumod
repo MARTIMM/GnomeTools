@@ -27,8 +27,12 @@ constant Label = Gnome::Gtk4::Label;
 constant ScrolledWindow = Gnome::Gtk4::ScrolledWindow;
 
 #-------------------------------------------------------------------------------
-multi method new ( |c ) {
-  self.new-listbox;
+method new ( |c ) {
+  self.new-listbox(|c);
+}
+
+submethod BUILD ( Bool :$multi = False ) {
+  self.set-selection-mode(GTK_SELECTION_MULTIPLE) if $multi;
 }
 
 #-------------------------------------------------------------------------------
@@ -45,23 +49,22 @@ method select ( Str:D $select-item ) {
 }
 
 #-------------------------------------------------------------------------------
-multi method set-list (
-  List $list-data, Bool :$multi = False --> ScrolledWindow
-) {
+multi method set-list ( List $list-data --> ScrolledWindow ) {
 note "$?LINE $list-data";
-  my ListBox $list-lb .= new-listbox;
-  $list-lb.set-selection-mode(GTK_SELECTION_MULTIPLE) if $multi;
+  with self {
 
-  for $list-data.sort -> $k {
-    with my Label $l .= new-with-mnemonic($k) {
-      .set-justify(GTK_JUSTIFY_LEFT);
-      .set-halign(GTK_ALIGN_START);
+    for $list-data.sort -> $k {
+      with my Label $l .= new-with-mnemonic($k) {
+        .set-justify(GTK_JUSTIFY_LEFT);
+        .set-halign(GTK_ALIGN_START);
+      }
+      
+      .append($l);
     }
-    $list-lb.append($l);
   }
 
   with my ScrolledWindow $sw .= new-scrolledwindow {
-    .set-child($list-lb);
+    .set-child(self);
     .set-size-request( 850, 300);
   }
 
@@ -70,24 +73,21 @@ note "$?LINE $list-data";
 
 #-------------------------------------------------------------------------------
 multi method set-list (
-  $object, $method, List $list-data, Bool :$multi = False,
-  *%options --> ScrolledWindow
+  $object, $method, List $list-data, *%options --> ScrolledWindow
 ) {
-
-  my ListBox $list-lb .= new-listbox;
-  $list-lb.set-selection-mode(GTK_SELECTION_MULTIPLE) if $multi;
-
-  for $list-data.sort -> $k {
-    with my Label $l .= new-with-mnemonic($k) {
-      .set-justify(GTK_JUSTIFY_LEFT);
-      .set-halign(GTK_ALIGN_START);
+  with self {
+    for $list-data.sort -> $k {
+      with my Label $l .= new-with-mnemonic($k) {
+        .set-justify(GTK_JUSTIFY_LEFT);
+        .set-halign(GTK_ALIGN_START);
+      }
+      .append($l);
+      .register-signal( $object, $method, 'row-selected', |%options);
     }
-    $list-lb.append($l);
-    $list-lb.register-signal( $object, $method, 'row-selected', |%options);
   }
 
   with my ScrolledWindow $sw .= new-scrolledwindow {
-    .set-child($list-lb);
+    .set-child(self);
     .set-size-request( 850, 300);
   }
 
