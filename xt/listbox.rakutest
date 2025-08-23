@@ -13,19 +13,8 @@ class HelperObject {
   method show-select (
     GnomeTools::Gtk::ListBox :$listbox, GnomeTools::Gtk::Dialog :$dialog
 ) {
-    my Str $selection = $listbox.get-text;
-    $dialog.set-status("'$selection' selected");
-  }
-
-  method change-dd (
-    N-Object $,
-    GnomeTools::Gtk::ListBox :$listbox1,
-    GnomeTools::Gtk::ListBox :$listbox2,
-    GnomeTools::Gtk::Dialog :$dialog
-  ) {
-    my Str $selection = $listbox2.get-text;
-    $dialog.set-status("'$selection' selected");
-    $listbox1.select($selection);
+    my Array $selection = $listbox.get-selection;
+    $dialog.set-status("'{$selection.join(', ')}' selected");
   }
 }
 
@@ -42,29 +31,22 @@ my $rows = $listbox1.set-list(
 );
 $dialog.add-content( 'List 1', $rows);
 
-my GnomeTools::Gtk::ListBox $listbox2 .= new;
+my GnomeTools::Gtk::ListBox $listbox2 .= new(:multi);
 $rows = $listbox2.set-list(
   <abc def ghi en nogiuyuiyuy wat dusiuyuiyuy>, :select-item<abc>);
 $dialog.add-content( 'List 2', $rows);
-
-#$listbox2.trap-dropdown-changes(
-#  $helper, 'change-dd', :$listbox1, :$listbox2, :$dialog
-#);
+#$listbox2.register-signal( $helper, 'select-unselect', 'selected-rows-changed');
 
 # Buttons
 $dialog.add-button(
-  $helper, 'show-select', 'Get Selection 1', :$dialog, :dropdown($listbox1)
+  $helper, 'show-select', 'Get Selection 1', :$dialog, :listbox($listbox1)
 );
 
 $dialog.add-button(
-  $helper, 'show-select', 'Get Selection 2', :$dialog, :dropdown($listbox2)
+  $helper, 'show-select', 'Get Selection 2', :$dialog, :listbox($listbox2)
 );
 
-#`{{
-}}
-
 $dialog.add-button( $dialog, 'destroy-dialog', 'Cancel');
-
 
 $dialog.show-dialog;
 

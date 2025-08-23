@@ -31,6 +31,7 @@ method new ( |c ) {
   self.new-listbox(|c);
 }
 
+#-------------------------------------------------------------------------------
 submethod BUILD ( Bool :$multi = False ) {
   self.set-selection-mode(GTK_SELECTION_MULTIPLE) if $multi;
 }
@@ -49,12 +50,11 @@ method select ( Str:D $select-item ) {
 }
 
 #-------------------------------------------------------------------------------
-multi method set-list ( List $list-data --> ScrolledWindow ) {
-note "$?LINE $list-data";
+method set-list ( List $list-data --> ScrolledWindow ) {
   with self {
-
     for $list-data.sort -> $k {
-      with my Label $l .= new-with-mnemonic($k) {
+      with my Label $l .= new-label {
+        .set-text($k);
         .set-justify(GTK_JUSTIFY_LEFT);
         .set-halign(GTK_ALIGN_START);
       }
@@ -72,49 +72,21 @@ note "$?LINE $list-data";
 }
 
 #-------------------------------------------------------------------------------
-multi method set-list (
-  $object, $method, List $list-data, *%options --> ScrolledWindow
-) {
-  with self {
-    for $list-data.sort -> $k {
-      with my Label $l .= new-with-mnemonic($k) {
-        .set-justify(GTK_JUSTIFY_LEFT);
-        .set-halign(GTK_ALIGN_START);
-      }
-      .append($l);
-      .register-signal( $object, $method, 'row-selected', |%options);
-    }
-  }
+method get-selection ( --> Array ) {
+  my Array $select = [];
+  self.selected-foreach(
+    -> N-Object $nlb, N-Object $nlbr, gpointer $ {
+      my ListBox() $box = $nlb;
+      my ListBoxRow() $row = $nlbr;
+#      self!selected-listbox-item( $box, $row, $select);
+      my Label() $l = $row.get-child;
+      $select.push: $l.get-text;
+    },
+    gpointer
+  );
 
-  with my ScrolledWindow $sw .= new-scrolledwindow {
-    .set-child(self);
-    .set-size-request( 850, 300);
-  }
-
-  $sw
+  $select
 }
-
-#-------------------------------------------------------------------------------
-method get-selection ( --> Str ) {
-#say Backtrace.new.nice;
-#`{{
-  my Gnome::Gtk4::StringList() $stringlist;
-  my UInt $p;
-  $stringlist = self.get-model;
-  $p = self.get-selected;
-
-  my Str $s = '';
-  $s = $stringlist.get-string($p) unless $p == GTK_INVALID_LIST_POSITION;
-
-  $s
-}}
-}
-
-
-
-
-
-
 
 =finish
 #-------------------------------------------------------------------------------
