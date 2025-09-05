@@ -92,7 +92,7 @@ submethod BUILD (
     .set-modal(True);
     .set-size-request( 400, 100);
     .set-title($dialog-title);
-    .register-signal( self, 'close-dialog', 'destroy');
+    .register-signal( self, 'destroy-dialog', 'close-request');
     .set-child($box);
   }
 }
