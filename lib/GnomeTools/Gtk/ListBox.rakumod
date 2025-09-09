@@ -32,8 +32,10 @@ method new ( |c ) {
 }
 
 #-------------------------------------------------------------------------------
-submethod BUILD ( Bool :$multi = False ) {
+submethod BUILD ( Bool :$multi = False, :$object, :$method, *%options ) {
   self.set-selection-mode(GTK_SELECTION_MULTIPLE) if $multi;
+  self.register-signal( $object, $method, 'row-selected', |%options)
+    if ?$object and ?$method;
 }
 
 #-------------------------------------------------------------------------------
@@ -58,7 +60,7 @@ method set-list ( List $list-data --> ScrolledWindow ) {
         .set-justify(GTK_JUSTIFY_LEFT);
         .set-halign(GTK_ALIGN_START);
       }
-      
+
       .append($l);
     }
   }
