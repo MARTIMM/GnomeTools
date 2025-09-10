@@ -34,8 +34,17 @@ method new ( |c ) {
 #-------------------------------------------------------------------------------
 submethod BUILD ( Bool :$multi = False, :$object, :$method, *%options ) {
   self.set-selection-mode(GTK_SELECTION_MULTIPLE) if $multi;
-  self.register-signal( $object, $method, 'row-selected', |%options)
-    if ?$object and ?$method;
+
+  if ?$object and ?$method {
+    self.register-signal(
+      self, 'row-selected', 'row-selected', :$object, :$method, |%options
+    );
+  }
+}
+
+#-------------------------------------------------------------------------------
+method row-selected ( ListBoxRow() $row, :$object, :$method, *%options ) {
+  $object."$method"( $row.get-child(), |%options);
 }
 
 #-------------------------------------------------------------------------------
