@@ -1,3 +1,6 @@
+* 2025 09 09 0.2.2
+  * Make 'row-selected' event available
+
 * 2025-09-05 0.2.1
   * Bugfix of 'destroy' event in Dialog. Should've trap 'close-request'.
 
