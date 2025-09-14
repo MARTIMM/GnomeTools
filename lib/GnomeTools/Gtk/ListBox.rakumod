@@ -41,7 +41,7 @@ submethod BUILD ( Bool :$multi = False, Mu :$object, Str :$method, *%options ) {
       my Label() $l1 = $row1.get-child;
       my Label() $l2 = $row2.get-child;
       my gint $result = 1;
-      
+
       if $l1.get-text lt $l2.get-text {
         $result = -1;
       }
@@ -51,7 +51,7 @@ submethod BUILD ( Bool :$multi = False, Mu :$object, Str :$method, *%options ) {
       }
 
 note "$?LINE $l1.get-text(), $l2.get-text(), $result";
-      return $result
+      $result
     },
     gpointer, gpointer
   );
