@@ -32,8 +32,29 @@ method new ( |c ) {
 }
 
 #-------------------------------------------------------------------------------
-submethod BUILD ( Bool :$multi = False, :$object, :$method, *%options ) {
+submethod BUILD ( Bool :$multi = False, Mu :$object, Str :$method, *%options ) {
   self.set-selection-mode(GTK_SELECTION_MULTIPLE) if $multi;
+  self.set-sort-func(
+    sub ( N-Object $r1, N-Object $r2, gpointer $ --> gint ) {
+      my ListBoxRow() $row1 = $r1;
+      my ListBoxRow() $row2 = $r2;
+      my Label() $l1 = $row1.get-child;
+      my Label() $l2 = $row2.get-child;
+      my gint $result = 1;
+      
+      if $l1.get-text lt $l2.get-text {
+        $result = -1;
+      }
+
+      elsif $l1.get-text eq $l2.get-text {
+        $result = 0;
+      }
+
+note "$?LINE $l1.get-text(), $l2.get-text(), $result";
+      return $result
+    },
+    gpointer, gpointer
+  );
 
   if ?$object and ?$method {
     self.register-signal(
@@ -44,12 +65,12 @@ submethod BUILD ( Bool :$multi = False, :$object, :$method, *%options ) {
 
 #-------------------------------------------------------------------------------
 method row-selected ( ListBoxRow() $row, :$object, :$method, *%options ) {
-  $object."$method"( $row.get-child(), |%options);
+  $object."$method"( $row.get-child, |%options);
 }
 
+#`{{
 #-------------------------------------------------------------------------------
 method select ( Str:D $select-item ) {
-#`{{
   my Gnome::Gtk4::StringList() $stringlist = self.get-model;
   for ^$stringlist.get-n-items -> $index {
     if $stringlist.get-string($index) eq $select-item {
@@ -57,13 +78,14 @@ method select ( Str:D $select-item ) {
       last;
     }
   }
-}}
 }
+}}
 
 #-------------------------------------------------------------------------------
-method set-list ( List $list-data --> ScrolledWindow ) {
+method set-list ( Array $list-data --> ScrolledWindow ) {
   with self {
-    for $list-data.sort -> $k {
+    for @$list-data -> $k {
+note "$?LINE $k";
       with my Label $l .= new-label {
         .set-text($k);
         .set-justify(GTK_JUSTIFY_LEFT);
@@ -82,6 +104,44 @@ method set-list ( List $list-data --> ScrolledWindow ) {
   $sw
 }
 
+#`{{
+#-------------------------------------------------------------------------------
+method reset-list ( List $list-data ) {
+  with self {
+note $?LINE;
+    .unselect-all;
+#TODO Seems to go wrong here. disconnect signals?
+note $?LINE;
+    .remove-all;
+note $?LINE;
+    for $list-data.sort -> $k {
+      with my Label $l .= new-label {
+        .set-text($k);
+        .set-justify(GTK_JUSTIFY_LEFT);
+        .set-halign(GTK_ALIGN_START);
+      }
+
+      .append($l);
+    }
+  }
+}
+}}
+
+#-------------------------------------------------------------------------------
+method append-list ( Str $entry-text ) {
+  with self {
+    with my Label $l .= new-label {
+      .set-text($entry-text);
+      .set-justify(GTK_JUSTIFY_LEFT);
+      .set-halign(GTK_ALIGN_START);
+    }
+
+#    .unselect-all;
+    .append($l);
+    .select-row($l);
+  }
+}
+
 #-------------------------------------------------------------------------------
 method get-selection ( --> Array ) {
   my Array $select = [];
@@ -98,6 +158,12 @@ method get-selection ( --> Array ) {
 
   $select
 }
+
+
+
+
+
+
 
 =finish
 #-------------------------------------------------------------------------------
