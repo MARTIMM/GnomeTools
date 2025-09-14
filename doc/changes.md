@@ -1,3 +1,7 @@
+* 2025 09 14 0.2.3
+  * Add reset-list to ListBox. (!It has problems - not available!)
+  * Add a sorting function. Doesn't seem to work either >sic<
+
 * 2025 09 09 0.2.2
   * Make 'row-selected' event available
 
