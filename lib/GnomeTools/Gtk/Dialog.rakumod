@@ -99,7 +99,7 @@ submethod BUILD (
 
 #-------------------------------------------------------------------------------
 method add-content (
-  Str $text, Mu $widget, Int :$columns = 1, Int :$rows = 1
+  Str $text, *@widgets, Int :$columns = 1, Int :$rows = 1
 ) {
   with my Gnome::Gtk4::Label $label .= new-label {
     .set-text($text);
@@ -109,8 +109,13 @@ method add-content (
     .set-margin-end(5);
   }
 
-  $!content.attach( $label, 0, $!content-count, 1, 1);
-  $!content.attach( $widget, 1, $!content-count, $columns, $rows);
+  my Int $column = 0;
+  $!content.attach( $label, $column++, $!content-count, 1, 1);
+  for @widgets -> $widget {
+    $!content.attach( $widget, $column, $!content-count, $columns, $rows);
+    $column += $columns;
+  }
+
   $!content-count += $rows;
 }
 
