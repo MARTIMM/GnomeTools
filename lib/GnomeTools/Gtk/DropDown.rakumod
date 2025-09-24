@@ -37,20 +37,36 @@ submethod BUILD ( ) {
 }
 
 #-------------------------------------------------------------------------------
-method set-selection ( @items, Str :$select-item = '' ) {
+method set-selection ( @items ) {
   my Gnome::Gtk4::StringList() $stringlist .= new-stringlist([]);
   self.set-model($stringlist);
-  my Int $index = 0;
-  my Bool $index-found = False;
+#  my Int $index = 0;
+#  my Bool $index-found = False;
 
   # Add the container strings
   for @items -> $item {
     $stringlist.append($item);
-    $index-found = True if $item eq $select-item;
-    $index++ unless $index-found;
+#    $index-found = True if $item eq $select-item;
+#    $index++ unless $index-found;
   }
 
-  self.set-selected($index-found ?? $index !! 0);
+#  self.set-selpected($index-found ?? $index !! 0);
+}
+
+#-------------------------------------------------------------------------------
+method add-selection ( $item ) {
+  my Gnome::Gtk4::StringList() $stringlist = self.get-model;
+#  my Int $index = 0;
+#  my Bool $index-found = False;
+
+  # Add the container strings
+#  for @items -> $item {
+    $stringlist.append($item);
+#    $index-found = True if $item eq $select-item;
+#    $index++ unless $index-found;
+#  }
+
+#  self.set-selected($index-found ?? $index !! 0);
 }
 
 #-------------------------------------------------------------------------------
@@ -67,10 +83,8 @@ method select ( Str:D $select-item ) {
 #-------------------------------------------------------------------------------
 method get-text ( --> Str ) {
 #say Backtrace.new.nice;
-  my Gnome::Gtk4::StringList() $stringlist;
-  my UInt $p;
-  $stringlist = self.get-model;
-  $p = self.get-selected;
+  my Gnome::Gtk4::StringList() $stringlist = self.get-model;
+  my UInt $p = self.get-selected;
 
   my Str $s = '';
   $s = $stringlist.get-string($p) unless $p == GTK_INVALID_LIST_POSITION;
