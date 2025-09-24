@@ -34,13 +34,15 @@ method new ( |c ) {
 #-------------------------------------------------------------------------------
 submethod BUILD ( Bool :$multi = False, Mu :$object, Str :$method, *%options ) {
   self.set-selection-mode(GTK_SELECTION_MULTIPLE) if $multi;
+
   self.set-sort-func(
-    sub ( N-Object $r1, N-Object $r2, gpointer $ --> gint ) {
+    sub ( N-Object $r1, N-Object $r2, gpointer $ --> int ) {
       my ListBoxRow() $row1 = $r1;
       my ListBoxRow() $row2 = $r2;
       my Label() $l1 = $row1.get-child;
       my Label() $l2 = $row2.get-child;
-      my gint $result = 1;
+      my gint $result;
+#note "$?LINE ", $r1.(ListBoxRow).get-child.(Label).get-text;
 
       if $l1.get-text lt $l2.get-text {
         $result = -1;
@@ -50,7 +52,11 @@ submethod BUILD ( Bool :$multi = False, Mu :$object, Str :$method, *%options ) {
         $result = 0;
       }
 
-note "$?LINE $l1.get-text(), $l2.get-text(), $result";
+      else {
+        $result = 1;
+      }
+
+#note "$?LINE $l1.get-text(), $l2.get-text(), $result";
       $result
     },
     gpointer, gpointer
@@ -65,7 +71,10 @@ note "$?LINE $l1.get-text(), $l2.get-text(), $result";
 
 #-------------------------------------------------------------------------------
 method row-selected ( ListBoxRow() $row, :$object, :$method, *%options ) {
-  $object."$method"( $row.get-child, |%options);
+note "$?LINE $row.gist(), $object.gist(), $method";
+  $object."$method"(
+    :row-widget($row.get-child), :$row, :listbox(self), |%options,
+  ) if $row.is-valid;
 }
 
 #`{{
@@ -85,7 +94,7 @@ method select ( Str:D $select-item ) {
 method set-list ( Array $list-data --> ScrolledWindow ) {
   with self {
     for @$list-data -> $k {
-note "$?LINE $k";
+#note "$?LINE $k";
       with my Label $l .= new-label {
         .set-text($k);
         .set-justify(GTK_JUSTIFY_LEFT);
@@ -104,17 +113,14 @@ note "$?LINE $k";
   $sw
 }
 
-#`{{
 #-------------------------------------------------------------------------------
-method reset-list ( List $list-data ) {
+method reset-list ( Array $list-data ) {
   with self {
-note $?LINE;
+note "$?LINE, $list-data.gist()";
     .unselect-all;
-#TODO Seems to go wrong here. disconnect signals?
-note $?LINE;
     .remove-all;
-note $?LINE;
     for $list-data.sort -> $k {
+note "$?LINE $k";
       with my Label $l .= new-label {
         .set-text($k);
         .set-justify(GTK_JUSTIFY_LEFT);
@@ -125,6 +131,7 @@ note $?LINE;
     }
   }
 }
+#`{{
 }}
 
 #-------------------------------------------------------------------------------
