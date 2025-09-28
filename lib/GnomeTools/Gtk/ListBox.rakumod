@@ -143,7 +143,6 @@ method append-list ( Str $entry-text ) {
       .set-halign(GTK_ALIGN_START);
     }
 
-#    .unselect-all;
     .append($l);
     .select-row($l);
   }
@@ -156,7 +155,6 @@ method get-selection ( --> Array ) {
     -> N-Object $nlb, N-Object $nlbr, gpointer $ {
       my ListBox() $box = $nlb;
       my ListBoxRow() $row = $nlbr;
-#      self!selected-listbox-item( $box, $row, $select);
       my Label() $l = $row.get-child;
       $select.push: $l.get-text;
     },
@@ -166,7 +164,31 @@ method get-selection ( --> Array ) {
   $select
 }
 
+#-------------------------------------------------------------------------------
+# Set selections in the listbox using the given selections array
+method set-selection ( Array $selections --> Array ) {
+  for ^1000 -> $index {
+    # Get the listbox row. if undefined, w're ready
+    my N-Object $no = self.get-row-at-index($index);
+    last unless ?$no;
 
+    # Get the row object and reset selection
+    my ListBoxRow() $lbr = $no;
+    self.unselect-row($lbr);
+
+    # Get the label text
+    my Label() $label = $lbr.get-child;
+    my Str $text = $label.get-text;
+
+    # Work through the selections and test the row text against the selection
+    for @$selections -> $selection {
+      if $selection eq $text {
+        self.select-row($lbr);
+        last;
+      }
+    }
+  }
+}
 
 
 
