@@ -116,11 +116,11 @@ method set-list ( Array $list-data --> ScrolledWindow ) {
 #-------------------------------------------------------------------------------
 method reset-list ( Array $list-data ) {
   with self {
-note "$?LINE, $list-data.gist()";
+#note "$?LINE, $list-data.gist()";
     .unselect-all;
     .remove-all;
     for $list-data.sort -> $k {
-note "$?LINE $k";
+#note "$?LINE $k";
       with my Label $l .= new-label {
         .set-text($k);
         .set-justify(GTK_JUSTIFY_LEFT);
@@ -131,8 +131,6 @@ note "$?LINE $k";
     }
   }
 }
-#`{{
-}}
 
 #-------------------------------------------------------------------------------
 method append-list ( Str $entry-text ) {
