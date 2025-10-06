@@ -1,0 +1,65 @@
+use v6.d;
+#use Test;
+
+use NativeCall;
+
+use GnomeTools::Gtk::Menu;
+
+use Gnome::Gtk4::Application:api<2>;
+use Gnome::Gtk4::ApplicationWindow:api<2>;
+use Gnome::Gtk4::Label:api<2>;
+
+use Gnome::N::GlibToRakuTypes:api<2>;
+use Gnome::N::N-Object:api<2>;
+
+use Gnome::Gio::T-ioenums:api<2>;
+
+use Gnome::Glib::T-error:api<2>;
+
+
+#-------------------------------------------------------------------------------
+class MenuWindow {
+
+  my constant APP_ID is export = 'io.github.martimm.tests.menu-test';
+
+  has Gnome::Gtk4::Application $!application;
+  has Gnome::Gtk4::ApplicationWindow $!app-window;
+
+  #-----------------------------------------------------------------------------
+  submethod BUILD ( ) {
+
+    $!application .= new-application( APP_ID, G_APPLICATION_DEFAULT_FLAGS);
+
+    # Register all necessary signals
+    $!application.register-signal( self, 'app-activate', 'activate');
+    $!application.register-signal( self, 'shutdown', 'shutdown');
+
+    # Now we can register the application.
+    my $e = CArray[N-Error].new(N-Error);
+    $!application.register( N-Object, $e);
+    die $e[0].message if ?$e[0];
+note "$?LINE $!application.gist()";
+  }
+
+  #-----------------------------------------------------------------------------
+  method run ( --> Int ) {
+    $!application.run( 0, gpointer)
+  }
+
+  #-----------------------------------------------------------------------------
+  method app-activate ( ) {
+note "$?LINE $!application.gist()";
+    my GnomeTools::Gtk::Menu $menu-bar .= new(:$!application);
+
+    $!application.set-menubar($menu-bar);
+    $!app-window .= new-applicationwindow($!application);
+    $!app-window.set-show-menubar(True);
+
+    $!app-window.present;
+  }
+}
+
+#-------------------------------------------------------------------------------
+my MenuWindow $menu-window .= new;
+
+exit($menu-window.run);
