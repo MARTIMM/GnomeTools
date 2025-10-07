@@ -3,7 +3,7 @@ use v6.d;
 
 use NativeCall;
 
-use GnomeTools::Gtk::Menu;
+use GnomeTools::Gtk::Menu::Menubar;
 
 use Gnome::Gtk4::Application:api<2>;
 use Gnome::Gtk4::ApplicationWindow:api<2>;
@@ -15,7 +15,6 @@ use Gnome::N::N-Object:api<2>;
 use Gnome::Gio::T-ioenums:api<2>;
 
 use Gnome::Glib::T-error:api<2>;
-
 
 #-------------------------------------------------------------------------------
 class MenuWindow {
@@ -38,7 +37,6 @@ class MenuWindow {
     my $e = CArray[N-Error].new(N-Error);
     $!application.register( N-Object, $e);
     die $e[0].message if ?$e[0];
-note "$?LINE $!application.gist()";
   }
 
   #-----------------------------------------------------------------------------
@@ -48,18 +46,26 @@ note "$?LINE $!application.gist()";
 
   #-----------------------------------------------------------------------------
   method app-activate ( ) {
-note "$?LINE $!application.gist()";
-    my GnomeTools::Gtk::Menu $menu-bar .= new(:$!application);
+    my GnomeTools::Gtk::Menu::Menubar $menubar .= new(:$!application);
+    my GnomeTools::Gtk::Menu::Menu $menu .= new(
+      :parent-menu($menubar), :name<File>
+    );
+    my GnomeTools::Gtk::Menu::Item $item .= new(
+      :parent-menu($menu), :name<Quit>, :object(self), :method<FQ>
+    );
 
-    $!application.set-menubar($menu-bar);
+    $!application.set-menubar($menubar.menubar);
     $!app-window .= new-applicationwindow($!application);
     $!app-window.set-show-menubar(True);
 
     $!app-window.present;
   }
+
+  method FQ ( N-Object $parameter ) { note "$?LINE FQ"; }
 }
 
 #-------------------------------------------------------------------------------
 my MenuWindow $menu-window .= new;
 
 exit($menu-window.run);
+
