@@ -8,6 +8,8 @@ use Gnome::Gio::SimpleAction:api<2>;
 
 use Gnome::Gtk4::Application:api<2>;
 
+use Gnome::Glib::T-varianttype:api<2>;
+
 use Gnome::N::GlibToRakuTypes:api<2>;
 use Gnome::N::N-Object:api<2>;
 
@@ -78,7 +80,10 @@ method get-menu ( --> Gnome::Gio::Menu ) {
 }
 
 #-------------------------------------------------------------------------------
-method item ( Str:D $name, Mu:D $object, Str:D $method, *%options ) {
+method item (
+  Str:D $name, Mu:D $object, Str:D $method, Bool :$checkbox = False,
+  *%options
+) {
   my Str $action-name = 'app.' ~ $method;
 
   # Make a menu entry
@@ -87,8 +92,15 @@ method item ( Str:D $name, Mu:D $object, Str:D $method, *%options ) {
   $!menu.append-item($menu-item);
 
   # Use the method name
-  my Gnome::Gio::SimpleAction $action .= new-simpleaction( $method, gpointer);
-  $action.register-signal( $object, $method, 'activate', |%options);
+  my Gnome::Gio::SimpleAction $action;
+  if $checkbox {
+    $action .= new-stateful( $method, N-VariantType, gpointer);
+  }
+
+  else {
+    $action .= new-simpleaction( $method, gpointer);
+  }
+  $action.register-signal( $object, $method, 'activate', :$action, |%options);
   $actions.push: $action;
 }
 
