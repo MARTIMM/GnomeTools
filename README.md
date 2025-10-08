@@ -7,8 +7,10 @@ The set of tools are Raku library modules to help the user with some common GUI 
 ## Gtk Version 4
 
 * **GnomeTools::Gtk::Dialog**. The dialog is deprecated since version 4.10 of Gtk. I think it is deprecated because it is quite easy to create one yourself. It is still a necessary tool so it is provided in this library.
-* **GnomeTools::Gtk::MessageDialog**. The message dialog is based on the dialog class.
 * **GnomeTools::Gtk::DropDown**. A dropdown widget with some extra tooling around the widget.
+* **GnomeTools::Gtk::ListBox**.
+* **GnomeTools::Gtk::Menu**.
+* **GnomeTools::Gtk::MessageDialog**. The message dialog is based on the dialog class.
 * **GnomeTools::Gtk::Statusbar**. The statusbar is deprecated since version 4.10 of Gtk. With a bit less facilities then the original, it is just like a label widget which takes the total width of its container.
 * **GnomeTools::Gtk::Theming**. A small toolbox to set css class names on widgets and to read a css file or text and set the context for all widgets.
 
