@@ -14,6 +14,47 @@ use Gnome::N::GlibToRakuTypes:api<2>;
 use Gnome::N::N-Object:api<2>;
 
 #-------------------------------------------------------------------------------
+=begin pod
+=TITLE GnomeTools::Gtk::Menu
+=head1 Description
+
+Purpose of the module is to create a menu quickly. To set a menubar and to make all entries active, it is necessary to have it based on the B<Application> class of Gtk version 4.
+
+=head2 Example
+Example use of the class GnomeTools::Gtk::Menu. Assumed is that the application is created and available.
+
+  method app-activate ( ) {
+    my GnomeTools::Gtk::Menu $bar .= new;
+    my GnomeTools::Gtk::Menu $m1 .= new( :parent-menu($bar), :name<File>);
+    $m1.item( 'Quit', self, 'fq');
+    my GnomeTools::Gtk::Menu $ms1 .= new( :parent-menu($m1), :section(Str));
+    $ms1.item( 'Edit', self, 'ed1');
+    $ms1.item( 'Store', self, 'st1');
+
+    my GnomeTools::Gtk::Menu $m2 .= new( :parent-menu($bar), :name<About>);
+    $m2.item( 'About Me', self, 'a0');
+    my GnomeTools::Gtk::Menu $m3 .= new( :parent-menu($m2), :subname<A2>);
+    $m3.item( 'About o1', self, 'o1');
+    $m3.item( 'About o2', self, 'o2');
+
+    $bar.set-actions($!application);
+
+    $!application.set-menubar($bar.get-menu);
+    $!app-window .= new-applicationwindow($!application);
+    $!app-window.set-show-menubar(True);
+
+    $!app-window.present;
+  }
+
+  method fq ( N-Object $parameter ) { note "Run fq\()"; }
+  method ed1 ( N-Object $parameter ) { note "Run ed1\()"; }
+  method st1 ( N-Object $parameter ) { note "Run st1\()"; }
+  method a0 ( N-Object $parameter ) { note "Run a0\()"; }
+  method o1 ( N-Object $parameter ) { note "Run o1\()"; }
+  method o2 ( N-Object $parameter ) { note "Run o2\()"; }
+
+=end pod
+
 unit class GnomeTools::Gtk::Menu;
 
 has Gnome::Gio::Menu $!menu;
@@ -21,7 +62,19 @@ has Gnome::Gio::Menu $!parent-menu;
 my Array $actions = [];
 
 #-------------------------------------------------------------------------------
-multi submethod BUILD (  ) {
+=begin pod
+=head1 Constructing
+
+There are 4 ways to build a menu.
+=item A toplevel menu does not have a 'parent' menu and it serves as a menubar in most cases. So create such is without any options. All other menus have at least parent menu.
+=item A second level menu uses a name which will be visible in a menubar.
+=item A sub menu is started with a subname option. That name is visible in a menu. Clicking on that name will show the submenu.
+
+
+  multi method new()
+
+=end pod
+multi submethod BUILD ( ) {
   $!menu .= new-menu;
 }
 
@@ -55,6 +108,9 @@ multi submethod BUILD (
 }
 
 #-------------------------------------------------------------------------------
+=begin pod
+=head1 Methods
+=end pod
 method get-menu ( --> Gnome::Gio::Menu ) {
   $!menu
 }
