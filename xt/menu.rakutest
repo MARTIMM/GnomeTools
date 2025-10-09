@@ -49,12 +49,12 @@ class MenuWindow {
     my GnomeTools::Gtk::Menu $bar .= new;
     my GnomeTools::Gtk::Menu $m1 .= new( :parent-menu($bar), :name<File>);
     $m1.item( 'Quit', self, 'fq');
-    my GnomeTools::Gtk::Menu $ms1 .= new( :parent-menu($m1), :section(Str));
+    my GnomeTools::Gtk::Menu $ms1 .= new( :parent-menu($m1), :section('Str'));
     $ms1.item( 'Edit', self, 'ed1');
     $ms1.item( 'Store', self, 'st1');
 
     my GnomeTools::Gtk::Menu $m2 .= new( :parent-menu($bar), :name<About>);
-    $m2.item( 'About Me', self, 'a0', :checkbox);
+    $m2.item( 'About Me', self, 'a0');
     my GnomeTools::Gtk::Menu $m3 .= new( :parent-menu($m2), :subname<A2>);
     $m3.item( 'About o1', self, 'o1');
     $m3.item( 'About o2', self, 'o2');
