@@ -69,9 +69,21 @@ There are 4 ways to build a menu.
 =item A toplevel menu does not have a 'parent' menu and it serves as a menubar in most cases. So create such is without any options. All other menus have at least parent menu.
 =item A second level menu uses a name which will be visible in a menubar.
 =item A sub menu is started with a subname option. That name is visible in a menu. Clicking on that name will show the submenu.
-
+=item A section is started with a section option. The name of the section is visible as a header in the parent menu when not empty, otherwise a space is visible. Clicking on that name will show the submenu.
 
   multi method new()
+
+  multi method new(
+    GnomeTools::Gtk::Menu:D :$parent-menu, Str:D :$name!
+  )
+
+  multi method new(
+    GnomeTools::Gtk::Menu:D :$parent-menu, Str:D :$subname!
+  )
+
+  multi method new(
+    GnomeTools::Gtk::Menu:D :$parent-menu, Str:D :$section!
+  )
 
 =end pod
 multi submethod BUILD ( ) {
@@ -79,7 +91,7 @@ multi submethod BUILD ( ) {
 }
 
 #-------------------------------------------------------------------------------
-multi submethod BUILD ( GnomeTools::Gtk::Menu :$parent-menu, Str:D :$name! ) {
+multi submethod BUILD ( GnomeTools::Gtk::Menu:D :$parent-menu, Str:D :$name! ) {
   $!menu .= new-menu;
   if ?$parent-menu and ?$name {
     $!parent-menu = $parent-menu.get-menu;
@@ -110,6 +122,9 @@ multi submethod BUILD (
 #-------------------------------------------------------------------------------
 =begin pod
 =head1 Methods
+=head2 get-menu
+
+Get the the B<Gnome::Gio::Menu> object. Needed to hand over a menu to another Gtk 4 object like, for example, the B<Gnome::Gtk4::Application>.
 =end pod
 method get-menu ( --> Gnome::Gio::Menu ) {
   $!menu
