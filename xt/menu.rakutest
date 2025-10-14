@@ -49,7 +49,9 @@ class MenuWindow {
     my GnomeTools::Gtk::Menu $bar .= new;
     my GnomeTools::Gtk::Menu $m1 .= new( :parent-menu($bar), :name<File>);
     $m1.item( 'Quit', self, 'fq');
-    my GnomeTools::Gtk::Menu $ms1 .= new( :parent-menu($m1), :section('Str'));
+    my GnomeTools::Gtk::Menu $ms1 .= new(
+      :parent-menu($m1), :section('sectie')
+    );
     $ms1.item( 'Edit', self, 'ed1');
     $ms1.item( 'Store', self, 'st1');
 
