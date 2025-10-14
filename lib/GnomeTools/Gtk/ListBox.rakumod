@@ -34,7 +34,7 @@ method new ( |c ) {
 #-------------------------------------------------------------------------------
 submethod BUILD ( Bool :$multi = False, Mu :$object, Str :$method, *%options ) {
   self.set-selection-mode(GTK_SELECTION_MULTIPLE) if $multi;
-
+#`{{
   self.set-sort-func(
     sub ( N-Object $r1, N-Object $r2, gpointer $ --> int ) {
       my ListBoxRow() $row1 = $r1;
@@ -61,6 +61,7 @@ submethod BUILD ( Bool :$multi = False, Mu :$object, Str :$method, *%options ) {
     },
     gpointer, gpointer
   );
+}}
 
   if ?$object and ?$method {
     self.register-signal(
