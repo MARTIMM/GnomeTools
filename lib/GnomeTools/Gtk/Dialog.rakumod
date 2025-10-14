@@ -39,6 +39,7 @@ method new ( |c ) {
 submethod BUILD (
   Str :$dialog-header = '',  Str :$dialog-title = '',
   Bool :$add-statusbar = False, Gnome::Gtk4::Window :$transition-window?,
+  Int :$width = 400, :$height = 100
 ) {
   $!main-loop .= new-mainloop( N-Object, True);
   $!theme .= new;
@@ -90,7 +91,7 @@ submethod BUILD (
     .set-transient-for($transition-window) if ?$transition-window;
     .set-destroy-with-parent(True);
     .set-modal(True);
-    .set-size-request( 400, 100);
+    .set-size-request( $width, $height);
     .set-title($dialog-title);
     .register-signal( self, 'destroy-dialog', 'close-request');
     .set-child($box);
@@ -98,25 +99,50 @@ submethod BUILD (
 }
 
 #-------------------------------------------------------------------------------
-method add-content (
-  Str $text, *@widgets, Int :$columns = 1, Int :$rows = 1
+multi method add-content (
+  Str:D $text, *@widgets, Int :$columns = 1, Int :$rows = 1
 ) {
-  with my Gnome::Gtk4::Label $label .= new-label {
-    .set-text($text);
-    .set-hexpand(True);
-    .set-halign(GTK_ALIGN_START);
-    .set-valign(GTK_ALIGN_START);
-    .set-margin-end(5);
-  }
-
   my Int $column = 0;
-  $!content.attach( $label, $column++, $!content-count, 1, 1);
+  $!content.attach(
+    self!make-content-label($text), $column++, $!content-count, 1, 1
+  );
+
   for @widgets -> $widget {
+    $widget.set-hexpand(True);
     $!content.attach( $widget, $column, $!content-count, $columns, $rows);
     $column += $columns;
   }
 
   $!content-count += $rows;
+}
+
+#-------------------------------------------------------------------------------
+multi method add-content ( Str:D $text, Array:D $widgets, Int :$rows = 1 ) {
+  my Int $column = 0;
+  $!content.attach(
+    self!make-content-label($text), $column++, $!content-count, 1, 1
+  );
+
+  for @$widgets -> Int $columns, $widget {
+    $widget.set-hexpand(True);
+    $!content.attach( $widget, $column, $!content-count, $columns, $rows);
+    $column += $columns;
+  }
+
+  $!content-count += $rows;
+}
+
+#-------------------------------------------------------------------------------
+method !make-content-label ( Str $text --> Gnome::Gtk4::Label ) {
+  with my Gnome::Gtk4::Label $label .= new-label {
+    .set-text($text);
+#    .set-hexpand(True);
+    .set-halign(GTK_ALIGN_START);
+    .set-valign(GTK_ALIGN_START);
+    .set-margin-end(5);
+  }
+
+  $label
 }
 
 #-------------------------------------------------------------------------------
@@ -142,6 +168,7 @@ method set-status ( Str $message ) {
 #-------------------------------------------------------------------------------
 method show-dialog ( ) {
   self.set-visible(True);
+  self.present;
   $!main-loop.run;
 }
 
