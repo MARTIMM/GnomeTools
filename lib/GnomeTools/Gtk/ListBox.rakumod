@@ -1,8 +1,10 @@
 
 use v6.d;
 
-#TODO add css classnames
 #TODO also make use of ObjectList to add widgets instead of strings only
+
+#TODO add css classnames
+use GnomeTools::Gtk::Theming;
 
 use Gnome::Gtk4::Label:api<2>;
 use Gnome::Gtk4::ListBox:api<2>;
@@ -27,6 +29,8 @@ constant ListBoxRow = Gnome::Gtk4::ListBoxRow;
 constant Label = Gnome::Gtk4::Label;
 constant ScrolledWindow = Gnome::Gtk4::ScrolledWindow;
 
+has GnomeTools::Gtk::Theming $!theme;
+
 #-------------------------------------------------------------------------------
 method new ( |c ) {
   self.new-listbox(|c);
@@ -34,6 +38,9 @@ method new ( |c ) {
 
 #-------------------------------------------------------------------------------
 submethod BUILD ( Bool :$multi = False, Mu :$object, Str :$method, *%options ) {
+  $!theme .= new;
+  $!theme.add-css-class( self, 'listbox-tool');
+
   self.set-selection-mode(GTK_SELECTION_MULTIPLE) if $multi;
 #`{{
   self.set-sort-func(
