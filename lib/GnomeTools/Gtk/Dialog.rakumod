@@ -53,6 +53,7 @@ submethod BUILD (
 
     .set-row-spacing(10);
     .set-column-spacing(20);
+    .set-hexpand(True);
 
     $!theme.add-css-class( $!content, 'dialog-content');
   }
