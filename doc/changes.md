@@ -1,3 +1,25 @@
+* 2025 10 19 0.3.1
+  * Add css class `listbox-tool` for a **ListBox**. Example use;
+  ```
+  /* hover over activatable rows */
+  .listbox-tool row.activatable:hover {
+    background-color: transparent;
+    color: pink;
+  }
+
+  /* selected rows */
+  .listbox-tool row.activatable:selected {
+    background-color: transparent;
+    color: #008f00;
+  }
+
+  /* hover over selected rows
+  .listbox-tool row.activatable:selected:hover {
+    background-color: #20df20;
+    color: #008f00;
+  }
+  ```
+
 * 2025 10 08 0.3.0
   * Add class **Menu**.
 
