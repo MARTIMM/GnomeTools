@@ -22,6 +22,7 @@
 
 * 2025 10 08 0.3.0
   * Add class **Menu**.
+  * Menu created in **Application** and dropped module for **MenuBar**.
 
 * 2025 09 14 0.2.3
   * Add reset-list to **ListBox.**
