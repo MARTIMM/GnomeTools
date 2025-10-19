@@ -11,6 +11,7 @@ use Gnome::Gtk4::ListBoxRow:api<2>;
 use Gnome::Gtk4::T-types:api<2>;
 use Gnome::Gtk4::ScrolledWindow:api<2>;
 use Gnome::Gtk4::T-enums:api<2>;
+use Gnome::Gtk4::Widget:api<2>;
 
 use Gnome::N::GlibToRakuTypes:api<2>;
 use Gnome::N::N-Object:api<2>;
@@ -92,17 +93,27 @@ method select ( Str:D $select-item ) {
 }}
 
 #-------------------------------------------------------------------------------
-method set-list ( Array $list-data --> ScrolledWindow ) {
+method set-list ( Array $list-data, Bool :$mix-widgets = False --> ScrolledWindow ) {
   with self {
-    for @$list-data -> $k {
-#note "$?LINE $k";
-      with my Label $l .= new-label {
-        .set-text($k);
-        .set-justify(GTK_JUSTIFY_LEFT);
-        .set-halign(GTK_ALIGN_START);
+    if $mix-widgets {
+      for @$list-data -> $k {
+  #note "$?LINE $k";
+        .append($k);
       }
+    }
 
-      .append($l);
+    else {
+      for @$list-data.sort({$^a.lc cmp $^b.lc}) -> $k {
+  #note "$?LINE $k";
+        with my Label $l .= new-label {
+          .set-hexpand(True);
+          .set-text($k);
+          .set-justify(GTK_JUSTIFY_LEFT);
+          .set-halign(GTK_ALIGN_START);
+        }
+
+        .append($l);
+      }
     }
   }
 
@@ -122,40 +133,66 @@ method reset-list ( Array $list-data ) {
     .remove-all;
     for $list-data.sort -> $k {
 #note "$?LINE $k";
-      with my Label $l .= new-label {
-        .set-text($k);
-        .set-justify(GTK_JUSTIFY_LEFT);
-        .set-halign(GTK_ALIGN_START);
+      if $k ~~ Str {
+        with my Label $l .= new-label {
+          .set-hexpand(True);
+          .set-text($k);
+          .set-justify(GTK_JUSTIFY_LEFT);
+          .set-halign(GTK_ALIGN_START);
+        }
+
+        .append($l);
       }
 
-      .append($l);
+      else {
+        .append($k);
+      }
     }
   }
 }
 
 #-------------------------------------------------------------------------------
-method append-list ( Str $entry-text ) {
-  with self {
-    with my Label $l .= new-label {
-      .set-text($entry-text);
-      .set-justify(GTK_JUSTIFY_LEFT);
-      .set-halign(GTK_ALIGN_START);
-    }
+multi method append-list ( Str $entry-text ) {
+  with my Label $l .= new-label {
+    .set-text($entry-text);
+    .set-justify(GTK_JUSTIFY_LEFT);
+    .set-halign(GTK_ALIGN_START);
+  }
 
+  with self {
     .append($l);
     .select-row($l);
   }
 }
 
 #-------------------------------------------------------------------------------
-method get-selection ( --> Array ) {
+multi method append-list ( Gnome::Gtk4::Widget $widget ) {
+  with $widget {
+    .set-justify(GTK_JUSTIFY_LEFT);
+    .set-halign(GTK_ALIGN_START);
+  }
+
+  with self {
+    .append($widget);
+    .select-row($widget);
+  }
+}
+
+#-------------------------------------------------------------------------------
+method get-selection ( Bool :$get-widgets = False --> Array ) {
   my Array $select = [];
   self.selected-foreach(
     -> N-Object $nlb, N-Object $nlbr, gpointer $ {
       my ListBox() $box = $nlb;
       my ListBoxRow() $row = $nlbr;
-      my Label() $l = $row.get-child;
-      $select.push: $l.get-text;
+      if $get-widgets {
+        $select.push: $row.get-child;
+      }
+
+      else {
+        my Label() $l = $row.get-child;
+        $select.push: $l.get-text;
+      }
     },
     gpointer
   );
@@ -164,10 +201,12 @@ method get-selection ( --> Array ) {
 }
 
 #-------------------------------------------------------------------------------
-# Set selections in the listbox using the given selections array
+# Set selections in the listbox using the given selections array.
+# Only for strings in array and Label in ListBox.
 method set-selection ( Array $selections --> Array ) {
   for ^1000 -> $index {
-    # Get the listbox row. if undefined, w're ready
+
+    # Get the listbox row. if undefined, w're done
     my N-Object $no = self.get-row-at-index($index);
     last unless ?$no;
 
