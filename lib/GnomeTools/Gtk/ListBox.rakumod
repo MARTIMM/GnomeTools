@@ -80,7 +80,7 @@ submethod BUILD ( Bool :$multi = False, Mu :$object, Str :$method, *%options ) {
 
 #-------------------------------------------------------------------------------
 method row-selected ( ListBoxRow() $row, :$object, :$method, *%options ) {
-note "$?LINE $row.gist(), $object.gist(), $method";
+#note "$?LINE $row.gist(), $object.gist(), $method";
   $object."$method"(
     :row-widget($row.get-child), :$row, :listbox(self), |%options,
   ) if $row.is-valid;
