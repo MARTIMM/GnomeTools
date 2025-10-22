@@ -39,7 +39,7 @@ method new ( |c ) {
 submethod BUILD (
   Str :$dialog-header = '',  Str :$dialog-title = '',
   Bool :$add-statusbar = False, Gnome::Gtk4::Window :$transition-window?,
-  Int :$width = 400, :$height = 100
+  Int :$width = 400, :$height = 100, Bool :$modal = True
 ) {
   $!main-loop .= new-mainloop( N-Object, True);
   $!theme .= new;
@@ -91,7 +91,7 @@ submethod BUILD (
     $!theme.add-css-class( self, 'dialog-tool');
     .set-transient-for($transition-window) if ?$transition-window;
     .set-destroy-with-parent(True);
-    .set-modal(True);
+    .set-modal($modal);
     .set-size-request( $width, $height);
     .set-title($dialog-title);
     .register-signal( self, 'destroy-dialog', 'close-request');
