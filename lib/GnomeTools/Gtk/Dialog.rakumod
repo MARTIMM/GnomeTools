@@ -17,6 +17,14 @@ use Gnome::Glib::N-MainLoop:api<2>;
 use Gnome::N::N-Object:api<2>;
 
 #-------------------------------------------------------------------------------
+=begin pod
+=TITLE GnomeTools::Gtk::Dialog
+=head1 Description
+This module is used to setup a dialog window. It is made as a convenience and because it will be deprecated in Gtk version 5.
+
+The contents
+=end pod
+
 unit class GnomeTools::Gtk::Dialog:auth<github:MARTIMM>;
 also is Gnome::Gtk4::Window;
 
