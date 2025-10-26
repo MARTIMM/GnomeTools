@@ -100,27 +100,25 @@ method select ( Str:D $select-item ) {
 }}
 
 #-------------------------------------------------------------------------------
-method set-list ( Array $list-data, Bool :$mix-widgets = False --> ScrolledWindow ) {
-  with self {
-    if $mix-widgets {
-      for @$list-data -> $k {
-  #note "$?LINE $k";
-        .append($k);
-      }
+method set-list (
+  Array $list-data, Bool :$mix-widgets = False --> ScrolledWindow
+) {
+  if $mix-widgets {
+    for @$list-data -> $k {
+      self.append($k);
     }
+  }
 
-    else {
-      for @$list-data.sort({$^a.lc cmp $^b.lc}) -> $k {
-  #note "$?LINE $k";
-        with my Label $l .= new-label {
-          .set-hexpand(True);
-          .set-text($k);
-          .set-justify(GTK_JUSTIFY_LEFT);
-          .set-halign(GTK_ALIGN_START);
-        }
-
-        .append($l);
+  else {
+    for @$list-data.sort({$^a.lc cmp $^b.lc}) -> $k {
+      with my Label $l .= new-label {
+        .set-hexpand(True);
+        .set-text($k);
+        .set-justify(GTK_JUSTIFY_LEFT);
+        .set-halign(GTK_ALIGN_START);
       }
+
+      self.append($l);
     }
   }
 
@@ -135,11 +133,9 @@ method set-list ( Array $list-data, Bool :$mix-widgets = False --> ScrolledWindo
 #-------------------------------------------------------------------------------
 method reset-list ( Array $list-data ) {
   with self {
-#note "$?LINE, $list-data.gist()";
     .unselect-all;
     .remove-all;
     for $list-data.sort -> $k {
-#note "$?LINE $k";
       if $k ~~ Str {
         with my Label $l .= new-label {
           .set-hexpand(True);
@@ -225,6 +221,7 @@ method set-selection ( Array $selections --> Array ) {
     my Label() $label = $lbr.get-child;
     my Str $text = $label.get-text;
 
+
     # Work through the selections and test the row text against the selection
     for @$selections -> $selection {
       if $selection eq $text {
@@ -234,9 +231,6 @@ method set-selection ( Array $selections --> Array ) {
     }
   }
 }
-
-
-
 
 
 =finish
