@@ -221,7 +221,6 @@ method set-selection ( Array $selections --> Array ) {
     my Label() $label = $lbr.get-child;
     my Str $text = $label.get-text;
 
-
     # Work through the selections and test the row text against the selection
     for @$selections -> $selection {
       if $selection eq $text {
