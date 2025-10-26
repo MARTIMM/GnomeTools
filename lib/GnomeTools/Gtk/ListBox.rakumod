@@ -135,7 +135,7 @@ method reset-list ( Array $list-data ) {
   with self {
     .unselect-all;
     .remove-all;
-    for $list-data.sort -> $k {
+    for $list-data.sort({$^a.lc cmp $^b.lc}) -> $k {
       if $k ~~ Str {
         with my Label $l .= new-label {
           .set-hexpand(True);
