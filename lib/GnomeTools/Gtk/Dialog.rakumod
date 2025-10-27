@@ -20,10 +20,96 @@ use Gnome::N::N-Object:api<2>;
 =begin pod
 =TITLE GnomeTools::Gtk::Dialog
 =head1 Description
+
 This module is used to setup a dialog window. It is made as a convenience and because it will be deprecated in Gtk version 5.
 
-The contents
+The contents of the dialog is a grid. The first column is used for a label to describe what is in the next columns. At the bottom is a row where buttons are placed. Optionally there is a status line below the row of buttons.
+
+The dialog is modal by default.
+
+=head2 Example
+Example use of the class B<GnomeTools::Gtk::Dialog>.
+
+  method make-dialog ( ) {
+    my Str $dialog-header = Q:a:to/EOHEADER/;
+      This is a small test to show a dialog with an entry
+      and a few buttons. The <b>Hello</b> button shows some
+      text in the statusbar when pressed. The <b>Cancel</b>
+      button stops the program.
+      EOHEADER
+
+    my GnomeTools::Gtk::Dialog $dialog .= new(
+      :$dialog-header, :dialog-title('Test Dialog'), :add-statusbar
+    );
+
+    my Gnome::Gtk4::Entry $entry .= new-entry;
+    $entry.set-text('a label');
+    $dialog.add-content( 'Text label for the entry', $entry, :columns(3));
+    $dialog.add-button( helper.new, 'say-hello', 'Hello', :$dialog, :$entry);
+    $dialog.add-button( $dialog, 'destroy-dialog', 'Cancel');
+  }
+  …
+  method say-hello (
+    GnomeTools::Gtk::Dialog :$dialog,
+    Gnome::Gtk4::Entry :$entry
+  ) {
+    say "hello $entry.get-text()";
+    $dialog.set-status("hello <b>$entry.get-text()\</b>");
+  }
+  …
+
+Which shows ;
+=for image :src<asset_files/images/TestDialog.png> :width<30%> :class<inline>
+
+using the following css
+
+  .dialog-tool {
+    background-color: #afafaf;
+  }
+
+  .dialog-header {
+    /*background-color:rgb(84, 10, 85);*/
+    color:rgb(59, 1, 65);
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+
+  .dialog-content label {
+    color: #004060;
+  }
+
+  .dialog-button label {
+    color:rgb(15, 165, 240);
+  }
+
+  .statusbar-tool {
+    background-color:rgb(84, 10, 85);
+    border-width: 5px;
+    border-style: groove;
+    border-color:rgb(144, 0, 255);
+  }
+
+  .statusbar-tool > label {
+    color:rgb(0, 0, 90);
+  }
+
+  .dialog-entry {
+    border-width: 5px;
+    border-style: inset;
+    border-color:rgb(144, 0, 255);
+    color:rgb(255, 141, 141);
+  }
+
+The status bar has its own css classes.
+
+=head2 Css
+
+dialog-tool
+dialog-header
+dialog-content
+dialog-button
 =end pod
+
 
 unit class GnomeTools::Gtk::Dialog:auth<github:MARTIMM>;
 also is Gnome::Gtk4::Window;
