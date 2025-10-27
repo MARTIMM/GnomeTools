@@ -21,7 +21,7 @@ use Gnome::N::N-Object:api<2>;
 Purpose of the module is to create a menu quickly. To set a menubar and to make all entries active, it is necessary to have it based on the B<Application> class of Gtk version 4.
 
 =head2 Example
-Example use of the class GnomeTools::Gtk::Menu. Assumed is that the application is created and available.
+Example use of the class B<GnomeTools::Gtk::Menu>. Assumed is that the application is created and available.
 
   method app-activate ( ) {
     my GnomeTools::Gtk::Menu $bar .= new;
