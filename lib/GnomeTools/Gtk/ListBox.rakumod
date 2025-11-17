@@ -182,6 +182,31 @@ multi method append-list ( Gnome::Gtk4::Widget $widget ) {
 }
 
 #-------------------------------------------------------------------------------
+method get-list ( Bool :$get-widgets = False --> Array ) {
+  my Array $list = [];
+  for ^1000 -> $idx {
+    my N-Object $n-row = self.get-row-at-index($idx);
+    if ? $n-row {
+      my ListBoxRow() $row = $n-row;
+      if $get-widgets {
+        $list.push: $row.get-child;
+      }
+
+      else {
+        my Label() $l = $row.get-child;
+        $list.push: $l.get-text;
+      }
+    }
+
+    else {
+      last;
+    }
+  }
+
+  $list
+}
+
+#-------------------------------------------------------------------------------
 method get-selection ( Bool :$get-widgets = False --> Array ) {
   my Array $select = [];
   self.selected-foreach(
