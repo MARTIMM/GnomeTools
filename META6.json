@@ -1,7 +1,7 @@
 {
   "description": "Widget Toolbox based on Gtk 4",
   "name": "GnomeTools",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "auth": "zef:MARTIMM",
   "author": "Marcel Timmerman",
   "tags": [ "Tool", "Gnome", "Gtk"],
