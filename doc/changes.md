@@ -1,5 +1,8 @@
+* 2025 11 24 0.4.0
+  * Add a class **Application**.
+
 * 2025 11 17 0.3.2
-  * Add `.get-list() to **ListBox**.
+  * Add method `.get-list() to **ListBox**.
 
 * 2025 10 19 0.3.1
   * Add css class `listbox-tool` for a **ListBox**. Example use;
