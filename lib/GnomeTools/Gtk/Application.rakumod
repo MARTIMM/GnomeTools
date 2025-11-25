@@ -21,7 +21,7 @@ use Gnome::Glib::T-error:api<2>;
 #-------------------------------------------------------------------------------
 unit class GnomeTools::Gtk::Application;
 
-has Gnome::Gtk4::Application $!application;
+has Gnome::Gtk4::Application $!application handles <activate>;
 has Gnome::Gtk4::ApplicationWindow $!application-window;
 
 #-------------------------------------------------------------------------------
@@ -94,23 +94,18 @@ method remote-options (
 
 #  CATCH { default { .message.note; $exit-code = 1; return $exit-code; } }
 
+#`{{
   # Get all arguments from commandline
-  my Array $arguments = $cl.get-arguments()[1..*-1];
+  my @arguments = $cl.get-arguments()[1..*-1];
+}}
 
   # Returning an exitcode, 0 means ok and continue to activate the primary
   # instance.
-  my Int $exit-code = $object."$method"(
-    $arguments, :remote($cl.get-is-remote)
-  ) // 1;
+  my Bool $is-remote = $cl.get-is-remote;
+  my Int $exit-code = $object."$method"(:$is-remote) // 1;
 
   # finish up
-  if $cl.get-is-remote {
-    self.setup-window;
-  }
-
-  else {
-    $!application.activate;
-  }
+  $!application.activate unless $is-remote;
 
   $cl.done;
   $cl.clear-object;
@@ -140,7 +135,6 @@ method set-window-content (
     .set-child($content);
     .present;
   }
-note "$?LINE set-window-content";
 }
 
 #-------------------------------------------------------------------------------
