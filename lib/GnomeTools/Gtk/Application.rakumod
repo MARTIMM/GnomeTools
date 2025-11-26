@@ -1,8 +1,6 @@
 use v6.d;
 use NativeCall;
 
-#use Getopt::Long;
-
 use GnomeTools::Gtk::Menu;
 
 use Gnome::N::N-Object:api<2>;
@@ -23,6 +21,127 @@ use Gnome::Glib::T-error:api<2>;
 =begin pod
 =TITLE GnomeTools::Gtk::Application
 =head1 Description
+
+Class to use the B<Gnome::Gtk4::Application> in an easy way. Controlling the behavior of the application is accomplished using the C<:app-flags> when initializing.
+
+=head2 Example
+
+Below is an elaborate example of an application which recognizes 3 options -v
+or --verbose, -h or --help, and --version. The flag
+G_APPLICATION_HANDLES_COMMAND_LINE means that the program is handling options
+from the commandline
+
+=begin code
+
+# Using globals
+my Version $*manager-version = v0.7.1;
+my Bool $*verbose = False;
+my Str $*config-directory;
+
+my MyApplication $app .= new;
+usage if my $ecode = $app.exit-code;
+exit($ecode);
+sub usage ( ) { … }
+
+
+unit class MyApplication;
+constant APP_ID is export = 'io.mydomain.myapp';
+
+constant LocalOptions = [<version help|h>];
+constant RemoteOptions = [ |<verbose|v> ];
+
+has GnomeTools::Gtk::Application $!application;
+has Int $.exit-code = 0;
+
+submethod BUILD ( ) {
+  with $!application .= new(
+    :app-id(APP_ID), :app-flags(G_APPLICATION_HANDLES_COMMAND_LINE)
+  ) {
+    .set-activate( self, 'app-activate');
+    .set-startup( self, 'startup');
+    .set-shutdown( self, 'shutdown');
+    .process-local-options( self, 'local-options');
+    .process-remote-options( self, 'remote-options');
+
+    $!exit-code = .run;
+  }
+}
+
+method local-options ( --> Int ) {
+  # get-options() dies when unknown options are passed
+  CATCH { default { .message.note; $!exit-code = 1; return $!exit-code; } }
+
+  # -1: Continue to process remote options and activation of primary instance
+  $!exit-code = -1;
+
+  # Local options which do not need a config file or primary instance
+  my $o = get-options( |LocalOptions, |RemoteOptions, :!overwrite);
+  if $o<version> {
+    say "Version of dispatcher is $*manager-version";
+    $!exit-code = 0;
+  }
+
+  if $o<h>:exists or $o<help>:exists {
+    # When set to 1, the main program will always show the help message
+    $!exit-code = 1;
+  }
+
+  $!exit-code
+}
+
+method remote-options ( Bool :$is-remote --> Int ) {
+  $!exit-code = 0;
+
+  my Capture $o = get-options( |RemoteOptions, :overwrite);
+
+  if $o<verbose>:exists {
+    $*verbose = True;
+  }
+
+  if ?@*ARGS {
+    $*config-directory = @*ARGS[0];
+    if $*config-directory.IO ~~ :d {
+      # finish up
+      $!application.activate unless $is-remote;
+    }
+
+    else {
+      $!exit-code = 1;
+      note "\nConfiguration path '$*config-directory' is not a directory";
+    }
+  }
+
+  else {
+    $!exit-code = 1;
+    note "\nYou must specify a sesion directory";
+  }
+
+  $!exit-code
+}
+
+method startup ( ) {
+  … initialize application
+}
+
+method shutdown ( ) {
+  … save configuration unless $!exit-code wasn't 0
+}
+
+method app-activate ( ) {
+  $!application.set-window-content(
+    self.window-content, self.menu, :title("Application Title")
+  );
+}
+
+method window-content ( --> GnomeTools::Gtk::Widget ) {
+  … Create a widget as content for the application window
+}
+
+method menu ( --> GnomeTools::Gtk::Menu ) {
+  … Make a menu for the menu bar at the top
+}
+
+=end code
 
 =end pod
 
@@ -99,14 +218,6 @@ method remote-options (
   Gnome::Gio::ApplicationCommandLine() $cl, Any:D :$object, Str:D :$method
   --> Int
 ) {
-
-#  CATCH { default { .message.note; $exit-code = 1; return $exit-code; } }
-
-#`{{
-  # Get all arguments from commandline
-  my @arguments = $cl.get-arguments()[1..*-1];
-}}
-
   # Returning an exitcode, 0 means ok and continue to activate the primary
   # instance.
   my Bool $is-remote = $cl.get-is-remote;
@@ -153,6 +264,21 @@ method run ( ) {
   my $e = CArray[N-Error].new(N-Error);
   $!application.register( N-Object, $e);
   die $e[0].message if ?$e[0];
+
+  $!application.run( 0, CArray[Str].new);
+}
+
+
+
+
+=finish
+#-------------------------------------------------------------------------------
+method run ( ) {
+  # Register the application on the dbus
+  my $e = CArray[N-Error].new(N-Error);
+  $!application.register( N-Object, $e);
+  die $e[0].message if ?$e[0];
+
 
   # Setup the arguments
   my Int $argc = 1 + @*ARGS.elems;
