@@ -18,6 +18,14 @@ use Gnome::Gio::T-ioenums:api<2>;
 
 use Gnome::Glib::T-error:api<2>;
 
+
+#-------------------------------------------------------------------------------
+=begin pod
+=TITLE GnomeTools::Gtk::Application
+=head1 Description
+
+=end pod
+
 #-------------------------------------------------------------------------------
 unit class GnomeTools::Gtk::Application;
 
@@ -79,7 +87,7 @@ method local-options (
 }
 
 #-------------------------------------------------------------------------------
-method process-remote-options ( Any:D $object, Str:D $method --> Int ) {
+method process-remote-options ( Any:D $object, Str:D $method ) {
   $!application.register-signal(
     self, 'remote-options', 'command-line', :$object, :$method
   );
@@ -105,7 +113,9 @@ method remote-options (
   my Int $exit-code = $object."$method"(:$is-remote) // 1;
 
   # finish up
-  $!application.activate unless $is-remote;
+  $!application.activate unless $exit-code or $is-remote;
+  
+  $cl.set-exit-status($exit-code);
 
   $cl.done;
   $cl.clear-object;
