@@ -33,6 +33,14 @@ from the commandline
 
 =begin code
 
+use v6.d;
+
+use Getopt::Long;
+
+use GnomeTools::Gtk::Application;
+use GnomeTools::Gtk::Menu;
+# … more imports
+
 # Using globals
 my Version $*manager-version = v0.7.1;
 my Bool $*verbose = False;
@@ -89,10 +97,10 @@ method local-options ( --> Int ) {
   $!exit-code
 }
 
-method remote-options ( Bool :$is-remote --> Int ) {
+method remote-options ( Array $args, Bool :$is-remote --> Int ) {
   $!exit-code = 0;
 
-  my Capture $o = get-options( |RemoteOptions, :overwrite);
+  my Capture $o = get-options-from( $args, |RemoteOptions, :overwrite);
 
   if $o<verbose>:exists {
     $*verbose = True;
@@ -100,12 +108,7 @@ method remote-options ( Bool :$is-remote --> Int ) {
 
   if ?@*ARGS {
     $*config-directory = @*ARGS[0];
-    if $*config-directory.IO ~~ :d {
-      # finish up
-      $!application.activate unless $is-remote;
-    }
-
-    else {
+    if $*config-directory.IO !~~ :d {
       $!exit-code = 1;
       note "\nConfiguration path '$*config-directory' is not a directory";
     }
@@ -120,11 +123,11 @@ method remote-options ( Bool :$is-remote --> Int ) {
 }
 
 method startup ( ) {
-  … initialize application
+  # … initialize application
 }
 
 method shutdown ( ) {
-  … save configuration unless $!exit-code wasn't 0
+  # … save configuration unless $!exit-code wasn't 0
 }
 
 method app-activate ( ) {
@@ -134,14 +137,16 @@ method app-activate ( ) {
 }
 
 method window-content ( --> GnomeTools::Gtk::Widget ) {
-  … Create a widget as content for the application window
+  # … Create a widget as content for the application window
 }
 
 method menu ( --> GnomeTools::Gtk::Menu ) {
-  … Make a menu for the menu bar at the top
+  # … Make a menu for the menu bar at the top
 }
 
 =end code
+
+In this example you can see that there are two phases where options are processed. First you need to know that when the program is started, the options are all processed in this first instance. When a second instance is started, the local options are processed in the second instance and the rest of the options are sent to the first. 
 
 =end pod
 
@@ -152,6 +157,19 @@ has Gnome::Gtk4::Application $!application handles <activate>;
 has Gnome::Gtk4::ApplicationWindow $!application-window;
 
 #-------------------------------------------------------------------------------
+=begin pod
+=head1 new
+
+Instantiate the class.
+
+
+
+=head2 Arguments
+
+=item Str $app-id. A unique string defined as a reversed domain name as a method to keep application names unique.
+=item GApplicationFlags $app-flags. See also L<Gio project T-ioenums|http://127.0.0.1:4000/content-docs/api2/reference/Gio/T-ioenums.html#Gnome::Gio::T-ioenums>.
+
+=end pod
 submethod BUILD (
   Str:D :$app-id, GApplicationFlags :$app-flags = G_APPLICATION_DEFAULT_FLAGS
 ) {
@@ -218,10 +236,13 @@ method remote-options (
   Gnome::Gio::ApplicationCommandLine() $cl, Any:D :$object, Str:D :$method
   --> Int
 ) {
+  my Array $args = $cl.get-arguments;
+#  my Capture $o = get-options-from( $args[1..*-1], |RemoteOptions);
+
   # Returning an exitcode, 0 means ok and continue to activate the primary
   # instance.
   my Bool $is-remote = $cl.get-is-remote;
-  my Int $exit-code = $object."$method"(:$is-remote) // 1;
+  my Int $exit-code = $object."$method"( $args, :$is-remote) // 1;
 
   # finish up
   $!application.activate unless $exit-code or $is-remote;
@@ -265,22 +286,9 @@ method run ( ) {
   $!application.register( N-Object, $e);
   die $e[0].message if ?$e[0];
 
-  $!application.run( 0, CArray[Str].new);
-}
 
-
-
-
-=finish
-#-------------------------------------------------------------------------------
-method run ( ) {
-  # Register the application on the dbus
-  my $e = CArray[N-Error].new(N-Error);
-  $!application.register( N-Object, $e);
-  die $e[0].message if ?$e[0];
-
-
-  # Setup the arguments
+  # Setup the arguments. This is important because the remote option might
+  # come from a 2nd instance.
   my Int $argc = 1 + @*ARGS.elems;
   my $arg_arr = CArray[Str].new();
 
