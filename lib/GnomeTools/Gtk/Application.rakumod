@@ -22,7 +22,7 @@ use Gnome::Glib::T-error:api<2>;
 =TITLE GnomeTools::Gtk::Application
 =head1 Description
 
-Class to use the B<Gnome::Gtk4::Application> in an easy way. Controlling the behavior of the application is accomplished using the C<:app-flags> when initializing.
+Class to use the B<Gnome::Gtk4::Application> in an easy way. Controlling the behavior of the application is accomplished using the C<:app-flags> when initializing. See also the documentation for L<Gnome::Gtk4::Application|https://martimm.github.io/content-docs/api2/reference/Gtk4/Application.html> and L<Gnome::Gio::Application|https://martimm.github.io/content-docs/api2/reference/Gio/Application.html>.
 
 =head2 Example
 
@@ -162,27 +162,51 @@ has Gnome::Gtk4::ApplicationWindow $!application-window;
 
 Instantiate the class.
 
-
+=begin code
+submethod BUILD (
+  Str:D :$app-id,
+  GApplicationFlags :$app-flags = G_APPLICATION_DEFAULT_FLAGS
+)
+=end code
 
 =head2 Arguments
 
-=item Str $app-id. A unique string defined as a reversed domain name as a method to keep application names unique.
-=item GApplicationFlags $app-flags. See also L<Gio project T-ioenums|http://127.0.0.1:4000/content-docs/api2/reference/Gio/T-ioenums.html#Gnome::Gio::T-ioenums>.
+=item Str $app-id. A unique string. To help uniqueness, define it as a reversed domain name, because communication is also over DBus (on Linux anyways).
+=item GApplicationFlags $app-flags. See also L<Gio project T-ioenums|https://martimm.github.io/content-docs/api2/reference/Gio/T-ioenums.html#GApplicationFlags>.
 
 =end pod
 submethod BUILD (
   Str:D :$app-id, GApplicationFlags :$app-flags = G_APPLICATION_DEFAULT_FLAGS
 ) {
-# $!dispatch-testing = True;
   $!application .= new-application( $app-id, $app-flags);
 }
 
 #-------------------------------------------------------------------------------
-# Activation of the application takes place when processing remote options
-# reach the default entry, or when setup options are processed.
-# And when this process is also the primary instance, it's only called once
-# because we don't need to create two gui's. This is completely automatically
-# done.
+=begin pod
+
+=head1 set-activate
+
+Setup a handler for the C<activate> signal.
+
+Activation of the application takes place when processing remote options
+reach the default entry, or when setup options are processed.
+And when this process is also the primary instance, it's only called once
+because we don't need to create two gui's. This is completely automatically
+done.
+
+=begin code
+method set-activate ( Any:D $object, Str:D $method ) {
+  $!application.register-signal( $object, $method, 'activate');
+}
+=end code
+
+=head2 Arguments
+
+=item Any:D $object. Any Raku object holding the method C<$method>.
+=item Str:D $method. The method called from the native routines when the C<activate> event is fired.
+=end pod
+
+
 method set-activate ( Any:D $object, Str:D $method ) {
   $!application.register-signal( $object, $method, 'activate');
 }
