@@ -1,6 +1,0 @@
-use v6.d;
-
-use Gnome::Gtk4::Expression;
-
-
-
