@@ -27,13 +27,13 @@ my GnomeTools::Gtk::Dialog $dialog .= new(
 
 my GnomeTools::Gtk::ListBox $listbox1 .= new;
 my $rows = $listbox1.set-list(
-  <abc def ghi en nogiuyuiyuy wat dusiuyuiyuy>, :select-item<ghi>
+  [|<abc def ghi en nogiuyuiyuy wat dusiuyuiyuy>], :select-item<ghi>
 );
 $dialog.add-content( 'List 1', $rows);
 
 my GnomeTools::Gtk::ListBox $listbox2 .= new(:multi);
 $rows = $listbox2.set-list(
-  <abc def ghi en nogiuyuiyuy wat dusiuyuiyuy>, :select-item<abc>
+  [|<abc def ghi en nogiuyuiyuy wat dusiuyuiyuy>], :select-item<abc>
 );
 $dialog.add-content( 'List 2', $rows);
 #$listbox2.register-signal( $helper, 'select-unselect', 'selected-rows-changed');
