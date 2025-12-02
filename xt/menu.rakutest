@@ -46,18 +46,18 @@ class MenuWindow {
 
   #-----------------------------------------------------------------------------
   method app-activate ( ) {
-    my GnomeTools::Gtk::Menu $bar .= new;
-    my GnomeTools::Gtk::Menu $m1 .= new( :parent-menu($bar), :name<File>);
+    my GnomeTools::Gio::Menu $bar .= new;
+    my GnomeTools::Gio::Menu $m1 .= new( :parent-menu($bar), :name<File>);
     $m1.item( 'Quit', self, 'fq');
-    my GnomeTools::Gtk::Menu $ms1 .= new(
+    my GnomeTools::Gio::Menu $ms1 .= new(
       :parent-menu($m1), :section('sectie')
     );
     $ms1.item( 'Edit', self, 'ed1');
     $ms1.item( 'Store', self, 'st1');
 
-    my GnomeTools::Gtk::Menu $m2 .= new( :parent-menu($bar), :name<About>);
+    my GnomeTools::Gio::Menu $m2 .= new( :parent-menu($bar), :name<About>);
     $m2.item( 'About Me', self, 'a0');
-    my GnomeTools::Gtk::Menu $m3 .= new( :parent-menu($m2), :subname<Info>);
+    my GnomeTools::Gio::Menu $m3 .= new( :parent-menu($m2), :subname<Info>);
     $m3.item( 'About Ref', self, 'o1');
     $m3.item( 'About Help', self, 'o2');
 
