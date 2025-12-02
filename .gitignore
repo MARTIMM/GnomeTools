@@ -7,3 +7,5 @@ lib/.precomp
 
 Old/*
 **/Old
+
+*.tgz
