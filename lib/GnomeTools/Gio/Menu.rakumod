@@ -15,25 +15,25 @@ use Gnome::N::N-Object:api<2>;
 
 #-------------------------------------------------------------------------------
 =begin pod
-=TITLE GnomeTools::Gtk::Menu
+=TITLE GnomeTools::Gio::Menu
 =head1 Description
 
 Purpose of the module is to create a menu quickly. To set a menubar and to make all entries active, it is necessary to have it based on the B<Application> class of Gtk version 4.
 
 =head2 Example
-Example use of the class B<GnomeTools::Gtk::Menu>. Assumed is that the application is created and available.
+Example use of the class B<GnomeTools::Gio::Menu>. Assumed is that the application is created and available.
 
   method app-activate ( ) {
-    my GnomeTools::Gtk::Menu $bar .= new;
-    my GnomeTools::Gtk::Menu $m1 .= new( :parent-menu($bar), :name<File>);
+    my GnomeTools::Gio::Menu $bar .= new;
+    my GnomeTools::Gio::Menu $m1 .= new( :parent-menu($bar), :name<File>);
     $m1.item( 'Quit', self, 'fq');
-    my GnomeTools::Gtk::Menu $ms1 .= new( :parent-menu($m1), :section(Str));
+    my GnomeTools::Gio::Menu $ms1 .= new( :parent-menu($m1), :section(Str));
     $ms1.item( 'Edit', self, 'ed1');
     $ms1.item( 'Store', self, 'st1');
 
-    my GnomeTools::Gtk::Menu $m2 .= new( :parent-menu($bar), :name<About>);
+    my GnomeTools::Gio::Menu $m2 .= new( :parent-menu($bar), :name<About>);
     $m2.item( 'About Me', self, 'a0');
-    my GnomeTools::Gtk::Menu $m3 .= new( :parent-menu($m2), :subname<A2>);
+    my GnomeTools::Gio::Menu $m3 .= new( :parent-menu($m2), :subname<A2>);
     $m3.item( 'About o1', self, 'o1');
     $m3.item( 'About o2', self, 'o2');
 
@@ -55,7 +55,7 @@ Example use of the class B<GnomeTools::Gtk::Menu>. Assumed is that the applicati
 
 =end pod
 
-unit class GnomeTools::Gtk::Menu;
+unit class GnomeTools::Gio::Menu;
 
 has Gnome::Gio::Menu $!menu;
 has Gnome::Gio::Menu $!parent-menu;
@@ -74,15 +74,15 @@ There are 4 ways to build a menu.
   multi method new()
 
   multi method new(
-    GnomeTools::Gtk::Menu:D :$parent-menu, Str:D :$name!
+    GnomeTools::Gio::Menu:D :$parent-menu, Str:D :$name!
   )
 
   multi method new(
-    GnomeTools::Gtk::Menu:D :$parent-menu, Str:D :$subname!
+    GnomeTools::Gio::Menu:D :$parent-menu, Str:D :$subname!
   )
 
   multi method new(
-    GnomeTools::Gtk::Menu:D :$parent-menu, Str:D :$section!
+    GnomeTools::Gio::Menu:D :$parent-menu, Str:D :$section!
   )
 
 =end pod
@@ -91,7 +91,7 @@ multi submethod BUILD ( ) {
 }
 
 #-------------------------------------------------------------------------------
-multi submethod BUILD ( GnomeTools::Gtk::Menu:D :$parent-menu, Str:D :$name! ) {
+multi submethod BUILD ( GnomeTools::Gio::Menu:D :$parent-menu, Str:D :$name! ) {
   $!menu .= new-menu;
   if ?$parent-menu and ?$name {
     $!parent-menu = $parent-menu.get-menu;
@@ -100,7 +100,7 @@ multi submethod BUILD ( GnomeTools::Gtk::Menu:D :$parent-menu, Str:D :$name! ) {
 }
 
 #-------------------------------------------------------------------------------
-multi submethod BUILD ( GnomeTools::Gtk::Menu :$parent-menu, Str :$section! ) {
+multi submethod BUILD ( GnomeTools::Gio::Menu :$parent-menu, Str :$section! ) {
   $!menu .= new-menu;
   if ?$parent-menu {
     $!parent-menu = $parent-menu.get-menu;
@@ -110,7 +110,7 @@ multi submethod BUILD ( GnomeTools::Gtk::Menu :$parent-menu, Str :$section! ) {
 
 #-------------------------------------------------------------------------------
 multi submethod BUILD (
-  GnomeTools::Gtk::Menu :$parent-menu, Str:D :$subname!
+  GnomeTools::Gio::Menu :$parent-menu, Str:D :$subname!
 ) {
   $!menu .= new-menu;
   if ?$parent-menu and ?$subname {

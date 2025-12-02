@@ -3,7 +3,7 @@ use v6.d;
 
 use NativeCall;
 
-use GnomeTools::Gtk::Menu;
+use GnomeTools::Gio::Menu;
 
 use Gnome::Gtk4::Application:api<2>;
 use Gnome::Gtk4::ApplicationWindow:api<2>;
@@ -57,9 +57,9 @@ class MenuWindow {
 
     my GnomeTools::Gtk::Menu $m2 .= new( :parent-menu($bar), :name<About>);
     $m2.item( 'About Me', self, 'a0');
-    my GnomeTools::Gtk::Menu $m3 .= new( :parent-menu($m2), :subname<A2>);
-    $m3.item( 'About o1', self, 'o1');
-    $m3.item( 'About o2', self, 'o2');
+    my GnomeTools::Gtk::Menu $m3 .= new( :parent-menu($m2), :subname<Info>);
+    $m3.item( 'About Ref', self, 'o1');
+    $m3.item( 'About Help', self, 'o2');
 
     $bar.set-actions($!application);
 
@@ -70,12 +70,12 @@ class MenuWindow {
     $!app-window.present;
   }
 
-  method fq ( N-Object $parameter ) { note "$?LINE fq\()"; }
-  method ed1 ( N-Object $parameter ) { note "$?LINE ed1\()"; }
-  method st1 ( N-Object $parameter ) { note "$?LINE st1\()"; }
-  method a0 ( N-Object $parameter ) { note "$?LINE a0\()"; }
-  method o1 ( N-Object $parameter ) { note "$?LINE o1\()"; }
-  method o2 ( N-Object $parameter ) { note "$?LINE o2\()"; }
+  method fq ( N-Object $parameter ) { note 'File Quit'; }
+  method ed1 ( N-Object $parameter ) { note 'File Edit'; }
+  method st1 ( N-Object $parameter ) { note 'File Store'; }
+  method a0 ( N-Object $parameter ) { note 'About Me'; }
+  method o1 ( N-Object $parameter ) { note 'About Info Ref'; }
+  method o2 ( N-Object $parameter ) { note 'About Info Help'; }
 }
 
 #-------------------------------------------------------------------------------

@@ -1,3 +1,6 @@
+* 2025 12 02 0.4.2
+  * Change class **GnomeTools::Gtk::Menu** to **GnomeTools::Gio::Menu** because all menu classes come from distribuion `Gnome::Gio`.
+
 * 2025 11 24 0.4.0
   * Add a class **Application**.
 

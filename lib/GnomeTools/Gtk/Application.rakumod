@@ -1,7 +1,7 @@
 use v6.d;
 use NativeCall;
 
-use GnomeTools::Gtk::Menu;
+use GnomeTools::Gio::Menu;
 
 use Gnome::N::N-Object:api<2>;
 #use Gnome::N::X:api<2>;
@@ -38,7 +38,7 @@ use v6.d;
 use Getopt::Long;
 
 use GnomeTools::Gtk::Application;
-use GnomeTools::Gtk::Menu;
+use GnomeTools::Gio::Menu;
 # … more imports
 
 # Using globals
@@ -140,7 +140,7 @@ method window-content ( --> GnomeTools::Gtk::Widget ) {
   # … Create a widget as content for the application window
 }
 
-method menu ( --> GnomeTools::Gtk::Menu ) {
+method menu ( --> GnomeTools::Gio::Menu ) {
   # … Make a menu for the menu bar at the top
 }
 
@@ -281,7 +281,7 @@ method remote-options (
 
 #-------------------------------------------------------------------------------
 method set-window-content (
-  Gnome::Gtk4::Widget:D $content, GnomeTools::Gtk::Menu $menu,
+  Gnome::Gtk4::Widget:D $content, GnomeTools::Gio::Menu $menu,
   Str :$title = $*PROGRAM-NAME,
 ) {
   if ?$!application-window and $!application-window.is-valid {
