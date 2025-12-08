@@ -15,6 +15,12 @@ use Gnome::Gtk4::ScrolledWindow:api<2>;
 use Gnome::Gtk4::T-enums:api<2>;
 use Gnome::Gtk4::Widget:api<2>;
 
+use Gnome::Gio::ListStore:api<2>;
+#use Gnome::Gio::R-ListModel:api<2>;
+
+use Gnome::GObject::T-type:api<2>;
+use Gnome::GObject::Object:api<2>;
+
 use Gnome::N::GlibToRakuTypes:api<2>;
 use Gnome::N::N-Object:api<2>;
 use Gnome::N::X:api<2>;
@@ -30,6 +36,8 @@ constant Label = Gnome::Gtk4::Label;
 constant ScrolledWindow = Gnome::Gtk4::ScrolledWindow;
 
 has GnomeTools::Gtk::Theming $!theme;
+has Gnome::Gio::ListStore $!list-store;
+has GType $!gtype;
 
 #-------------------------------------------------------------------------------
 method new ( |c ) {
@@ -37,7 +45,9 @@ method new ( |c ) {
 }
 
 #-------------------------------------------------------------------------------
-submethod BUILD ( Bool :$multi = False, Mu :$object, Str :$method, *%options ) {
+submethod BUILD (
+  Bool :$multi = False, Mu :$object, Str :$method, *%options
+) {
   $!theme .= new;
   $!theme.add-css-class( self, 'listbox-tool');
 
@@ -100,7 +110,46 @@ method select ( Str:D $select-item ) {
 }}
 
 #-------------------------------------------------------------------------------
-method set-list (
+method set-list ( Array:D $list-data ) {
+  # Check if there are any elements
+  return unless $list-data.elems;
+
+  my $first-entry = $list-data[0];
+  return unless $first-entry ~~ Gnome::GObject::Object;
+
+  my GType $gtype = $first-entry.get-class-gtype;
+  $!list-store .= new-liststore($gtype);
+  self.bind-model( $!list-store, gpointer, gpointer, gpointer);
+
+  for @$list-data -> $widget {
+    $!list-store.append($widget);
+  }
+}
+
+#-------------------------------------------------------------------------------
+method append ( Gnome::GObject::Object:D $object ) {
+  if ?$!gtype {
+    die "Type of widget is not the same as first item"
+      unless $!gtype eq $object.get-class-gtype;
+  }
+
+  else {
+    $!gtype = $object.get-class-gtype;
+    $!list-store .= new-liststore($!gtype);
+    self.bind-model(
+      $!list-store,
+      sub ( N-Object $item, $ --> N-Object ) {
+        $item
+      },
+      gpointer, gpointer
+    );
+  }
+
+  $!list-store.append($object);
+}
+
+#-------------------------------------------------------------------------------
+method Xset-list (
   Array $list-data, Bool :$mix-widgets = False --> ScrolledWindow
 ) {
   if $mix-widgets {

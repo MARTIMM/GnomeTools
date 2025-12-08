@@ -5,8 +5,15 @@ use GnomeTools::Gtk::ListBox;
 use GnomeTools::Gtk::Dialog;
 
 use Gnome::Gtk4::Label:api<2>;
+use Gnome::Gtk4::ScrolledWindow:api<2>;
+use Gnome::Gtk4::T-enums:api<2>;
 
 use Gnome::N::N-Object:api<2>;
+
+constant ScrolledWindow = Gnome::Gtk4::ScrolledWindow;
+constant Label = Gnome::Gtk4::Label;
+
+%*ENV<IGNORE_GNOME_DEPRECATION_MESSAGES> = 1;
 
 #-------------------------------------------------------------------------------
 class HelperObject {
@@ -26,10 +33,32 @@ my GnomeTools::Gtk::Dialog $dialog .= new(
 );
 
 my GnomeTools::Gtk::ListBox $listbox1 .= new;
+for <abc def ghi en nogiuyuiyuy wat dusiuyuiyuy> -> $label-text {
+  with my Label $label .= new-label {
+    .set-hexpand(True);
+    .set-text($label-text);
+    .set-justify(GTK_JUSTIFY_LEFT);
+    .set-halign(GTK_ALIGN_START);
+  }
+  $listbox1.append($label);
+}
+
+$dialog.show-dialog;
+
+
+=finish
+
+
+
 my $rows = $listbox1.set-list(
-  [|<abc def ghi en nogiuyuiyuy wat dusiuyuiyuy>], :select-item<ghi>
+  [|], :select-item<ghi>
 );
 $dialog.add-content( 'List 1', $rows);
+
+  with my ScrolledWindow $sw .= new-scrolledwindow {
+    .set-child($rows);
+    .set-size-request( 850, 300);
+  }
 
 my GnomeTools::Gtk::ListBox $listbox2 .= new(:multi);
 $rows = $listbox2.set-list(
