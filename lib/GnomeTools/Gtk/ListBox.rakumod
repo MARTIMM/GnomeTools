@@ -1,5 +1,6 @@
 
 use v6.d;
+use NativeCall;
 
 #TODO also make use of ObjectList to add widgets instead of strings only
 
@@ -9,13 +10,14 @@ use GnomeTools::Gtk::Theming;
 use Gnome::Gtk4::Label:api<2>;
 use Gnome::Gtk4::ListBox:api<2>;
 use Gnome::Gtk4::ListBoxRow:api<2>;
-#use Gnome::Gtk4::StringList:api<2>;
+use Gnome::Gtk4::StringList:api<2>;
+use Gnome::Gtk4::StringObject:api<2>;
 use Gnome::Gtk4::T-types:api<2>;
 use Gnome::Gtk4::ScrolledWindow:api<2>;
 use Gnome::Gtk4::T-enums:api<2>;
 use Gnome::Gtk4::Widget:api<2>;
 
-use Gnome::Gio::ListStore:api<2>;
+#use Gnome::Gio::ListStore:api<2>;
 #use Gnome::Gio::R-ListModel:api<2>;
 
 use Gnome::GObject::T-type:api<2>;
@@ -34,10 +36,12 @@ constant ListBox = Gnome::Gtk4::ListBox;
 constant ListBoxRow = Gnome::Gtk4::ListBoxRow;
 constant Label = Gnome::Gtk4::Label;
 constant ScrolledWindow = Gnome::Gtk4::ScrolledWindow;
+constant Widget = Gnome::Gtk4::Widget;
 
 has GnomeTools::Gtk::Theming $!theme;
-has Gnome::Gio::ListStore $!list-store;
-has GType $!gtype;
+#has Gnome::Gio::ListStore $!list-store;
+#has GType $!gtype;
+has Gnome::Gtk4::StringList $!string-list;
 
 #-------------------------------------------------------------------------------
 method new ( |c ) {
@@ -50,6 +54,25 @@ submethod BUILD (
 ) {
   $!theme .= new;
   $!theme.add-css-class( self, 'listbox-tool');
+
+  $!string-list .= new-stringlist(CArray[Str].new(Str));
+  self.bind-model(
+    $!string-list,
+    sub ( Gnome::Gtk4::StringObject() $item, gpointer $data --> N-Object ) {
+#say Backtrace.new.nice;
+note "$?LINE $item.gist()";
+      with my Label $label .= new-label {
+        .set-hexpand(True);
+        .set-text($item.get-string);
+        .set-justify(GTK_JUSTIFY_LEFT);
+        .set-halign(GTK_ALIGN_START);
+      }
+note "$?LINE $label.gist(), $label.get-text()";
+      $label.get-native-object
+    },
+    gpointer, gpointer
+  );
+
 
   self.set-selection-mode(GTK_SELECTION_MULTIPLE) if $multi;
 #`{{
@@ -111,29 +134,24 @@ method select ( Str:D $select-item ) {
 
 #-------------------------------------------------------------------------------
 method set-list ( Array:D $list-data ) {
-  # Check if there are any elements
-  return unless $list-data.elems;
-
-  my $first-entry = $list-data[0];
-  return unless $first-entry ~~ Gnome::GObject::Object;
-
-  my GType $gtype = $first-entry.get-class-gtype;
-  $!list-store .= new-liststore($gtype);
-  self.bind-model( $!list-store, gpointer, gpointer, gpointer);
-
   for @$list-data -> $widget {
-    $!list-store.append($widget);
+    .append($widget);
   }
 }
 
 #-------------------------------------------------------------------------------
-method append ( Gnome::GObject::Object:D $object ) {
+method append ( Str:D $listbox-text ) {
+note $?LINE;
+  $!string-list.append($listbox-text);
+note $?LINE;
+#`{{
   if ?$!gtype {
     die "Type of widget is not the same as first item"
       unless $!gtype eq $object.get-class-gtype;
   }
 
-  else {
+  else {G_TYPE_OBJECT
+    my Gnome::GObject::Object $object .= new-object( G_TYPE_STRING, 
     $!gtype = $object.get-class-gtype;
     $!list-store .= new-liststore($!gtype);
     self.bind-model(
@@ -144,8 +162,8 @@ method append ( Gnome::GObject::Object:D $object ) {
       gpointer, gpointer
     );
   }
-
-  $!list-store.append($object);
+  $!list-store.append($listbox-text);
+}}
 }
 
 #-------------------------------------------------------------------------------

@@ -1,5 +1,6 @@
 use v6.d;
 #use Test;
+use lib '/home/marcel/Languages/Raku/Projects/gnome-source-skim-tool/gnome-api2/gnome-gtk4/lib';
 
 use GnomeTools::Gtk::ListBox;
 use GnomeTools::Gtk::Dialog;
@@ -28,23 +29,17 @@ class HelperObject {
 my HelperObject $helper .= new;
 
 #-------------------------------------------------------------------------------
-my GnomeTools::Gtk::Dialog $dialog .= new(
-  :dialog-header('Test Dialog'), :add-statusbar
-);
-
 my GnomeTools::Gtk::ListBox $listbox1 .= new;
 for <abc def ghi en nogiuyuiyuy wat dusiuyuiyuy> -> $label-text {
-  with my Label $label .= new-label {
-    .set-hexpand(True);
-    .set-text($label-text);
-    .set-justify(GTK_JUSTIFY_LEFT);
-    .set-halign(GTK_ALIGN_START);
-  }
-  $listbox1.append($label);
+  $listbox1.append($label-text);
 }
 
-$dialog.show-dialog;
-
+with my GnomeTools::Gtk::Dialog $dialog .= new(
+  :dialog-header('Test Dialog'), :add-statusbar
+) {
+  .add-content( 'List 2', $listbox1);
+  .show-dialog;
+}
 
 =finish
 
