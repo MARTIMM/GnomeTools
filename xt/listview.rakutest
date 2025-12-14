@@ -6,6 +6,7 @@ use v6.d;
 use GnomeTools::Gtk::ListView;
 use GnomeTools::Gtk::Dialog;
 
+use Gnome::Gtk4::T-enums:api<2>;
 use Gnome::Gtk4::Label:api<2>;
 
 use Gnome::N::N-Object:api<2>;
@@ -27,7 +28,25 @@ class HelperObject {
     $dialog.set-status("Rows '{@selections.join(', ')}' are selected");
   }
 
-  method setup-list-item ( $list-item ) {
+  method setup-list-item (
+    Gnome::Gtk4::ListItem $list-item --> Gnome::Gtk4::Widget
+  ) {
+    with my Gnome::Gtk4::Label $label .= new-label {
+      .set-hexpand(True);
+      .set-justify(GTK_JUSTIFY_LEFT);
+      .set-halign(GTK_ALIGN_START);
+    }
+
+    $label
+  }
+
+  method bind-list-item (
+    Gnome::Gtk4::ListItem $list-item,
+    Gnome::Gtk4::StringObject $string-object
+  ) {
+    my Str $label-text = $string-object.get-string;
+    my Gnome::Gtk4::Label() $label = $list-item.get-child;
+    $label.set-text($label-text);
   }
 }
 
