@@ -65,6 +65,7 @@ submethod BUILD ( :$object, *%options ) {
     .set-model($!multi-select);
     .set-factory($!signal-factory);
     .set-enable-rubberband(True);
+    .set-show-separators(True);
 #    .register-signal(
 #      self, 'activate-list-item', 'activate', :$object
 #    );
