@@ -6,13 +6,14 @@ use v6.d;
 use GnomeTools::Gtk::ListView;
 use GnomeTools::Gtk::Dialog;
 
-use Gnome::Gtk4::T-enums:api<2>;
+use Gnome::Gtk4::Grid:api<2>;
+use Gnome::Gtk4::Image:api<2>;
 use Gnome::Gtk4::Label:api<2>;
+use Gnome::Gtk4::T-enums:api<2>;
 
 use Gnome::N::N-Object:api<2>;
 
 %*ENV<IGNORE_GNOME_DEPRECATION_MESSAGES> = 1;
-
 
 #-------------------------------------------------------------------------------
 class HelperObject {
@@ -37,11 +38,24 @@ class HelperObject {
       .set-halign(GTK_ALIGN_START);
     }
 
-    $label
+    my Gnome::Gtk4::Image $image .= new-image;
+
+    with my Gnome::Gtk4::Grid $grid .= new-grid {
+      .set-column-spacing(10);
+      .attach( $image, 0, 0, 1, 1);
+      .attach( $label, 1, 0, 1, 1);
+    }
+
+    $grid
   }
 
   method bind-list-item ( Gnome::Gtk4::ListItem $list-item, Str $text ) {
-    my Gnome::Gtk4::Label() $label = $list-item.get-child;
+    my Gnome::Gtk4::Grid() $grid = $list-item.get-child;
+    my Gnome::Gtk4::Image() $image = $grid.get-child-at( 0, 0);
+    my Gnome::Gtk4::Label() $label = $grid.get-child-at( 1, 0);
+    $image.set-from-icon-name(
+      <favorities folder-android-symbolic folder-network-symbolic>.roll
+    );
     $label.set-text($text);
   }
 }
