@@ -21,6 +21,10 @@ use Gnome::Gtk4::N-Bitset:api<2>;
 use GnomeTools::Gtk::Theming;
 
 #-------------------------------------------------------------------------------
+=begin pod
+
+=end pod
+
 unit class GnomeTools::Gtk::ListView:auth<github:MARTIMM>;
 also is Gnome::Gtk4::ScrolledWindow;
 
@@ -55,7 +59,8 @@ submethod BUILD ( :$object, *%options ) {
   with $!signal-factory .= new-signallistitemfactory {
     .register-signal( self, 'setup-list-item', 'setup', :$object);
     .register-signal( self, 'bind-list-item', 'bind', :$object);
-    .register-signal( self, 'unbind-list-item', 'unbind', :$object);
+    .register-signal( self, 'unbind-list-item', 'unbind', :$object)
+      if ?$object and $object.^can('unbind-list-item');
     .register-signal(
       self, 'teardown-list-item', 'teardown', :$object
     );
@@ -66,9 +71,9 @@ submethod BUILD ( :$object, *%options ) {
     .set-factory($!signal-factory);
     .set-enable-rubberband(True);
     .set-show-separators(True);
-#    .register-signal(
-#      self, 'activate-list-item', 'activate', :$object
-#    );
+    .register-signal(
+      self, 'activate-list-item', 'activate', :$object
+    );
 
     $!theme.add-css-class( $!list-view, 'listview-item');
   }
