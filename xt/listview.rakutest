@@ -40,13 +40,9 @@ class HelperObject {
     $label
   }
 
-  method bind-list-item (
-    Gnome::Gtk4::ListItem $list-item,
-    Gnome::Gtk4::StringObject $string-object
-  ) {
-    my Str $label-text = $string-object.get-string;
+  method bind-list-item ( Gnome::Gtk4::ListItem $list-item, Str $text ) {
     my Gnome::Gtk4::Label() $label = $list-item.get-child;
-    $label.set-text($label-text);
+    $label.set-text($text);
   }
 }
 

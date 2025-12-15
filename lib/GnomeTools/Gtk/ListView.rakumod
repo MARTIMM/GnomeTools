@@ -82,11 +82,15 @@ submethod BUILD ( :$object, *%options ) {
 # is placed in the list item. Later, on bind event, the values must be filled
 # in.
 method setup-list-item ( Gnome::Gtk4::ListItem() $list-item, :$object ) {
+
+  # If object and method exists, call the method to let the widget
+  # be created by the user.
   if ?$object and $object.^can('setup-list-item') {
     my Gnome::Gtk4::Widget $widget = $object."setup-list-item"($list-item);
     $list-item.set-child($widget);
   }
 
+  # Otherwise make a simple Label widget
   else {
     with my Gnome::Gtk4::Label $label .= new-label {
       .set-hexpand(True);
@@ -102,18 +106,21 @@ method setup-list-item ( Gnome::Gtk4::ListItem() $list-item, :$object ) {
 # When bind event fires, the listview wants to show the item but must
 # be filled first
 method bind-list-item ( Gnome::Gtk4::ListItem() $list-item, :$object ) {
+ 
   my Gnome::Gtk4::StringObject $string-object .=  new(
     :native-object($list-item.get-item)
   );
+  my Str $text = $string-object.get-string;
 
+  # If object and method exists, call the method to let the widget
+  # be filled in by the user.
   if ?$object and $object.^can('bind-list-item') {
-    $object."bind-list-item"( $list-item, $string-object);
+    $object."bind-list-item"( $list-item, $text);
   }
 
   else {
-    my Str $label-text = $string-object.get-string;
     my Gnome::Gtk4::Label() $label = $list-item.get-child;
-    $label.set-text($label-text);
+    $label.set-text($text);
   }
 #note "$?LINE bind";
   $string-object.clear-object;
@@ -124,18 +131,36 @@ method bind-list-item ( Gnome::Gtk4::ListItem() $list-item, :$object ) {
 # and the values must be removed from the widget. A selection of a listview row
 # also triggers an unbind, after which a bind follows.
 method unbind-list-item ( Gnome::Gtk4::ListItem() $list-item, :$object ) {
+
   my Gnome::Gtk4::StringObject $string-object .=  new(
     :native-object($list-item.get-item)
   );
+  my Str $text = $string-object.get-string;
 
-  my Str $label-text = $string-object.get-string;
-#note "$?LINE unbind $label-text";
+  if ?$object and $object.^can('unbind-list-item') {
+    $object."unbind-list-item"( $list-item, $text);
+  }
+
+  # No need to unbind a Label value
+  # else { }
 }
 
 #-------------------------------------------------------------------------------
 # When teardown event fires, the listview wants to remove the widget entirely.
 method teardown-list-item ( Gnome::Gtk4::ListItem() $list-item, :$object ) {
 note "$?LINE teardown";
+
+  my Gnome::Gtk4::StringObject $string-object .=  new(
+    :native-object($list-item.get-item)
+  );
+  my Str $text = $string-object.get-string;
+
+  if ?$object and $object.^can('unbind-list-item') {
+    $object."unbind-list-item"( $list-item, $object);
+  }
+
+  # No need to teardown a Label widget
+  # else { }
 }
 
 #-------------------------------------------------------------------------------
