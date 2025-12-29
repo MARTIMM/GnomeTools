@@ -46,7 +46,7 @@ $dialog.add-content( 'Nice list', $listview);
 
 # Buttons
 $dialog.add-button(
-  $helper, 'show-select', 'Get Selection 2',
+  $helper, 'show-select', 'Get Selection',
   :$dialog, :@items, :$listview
 );
 
