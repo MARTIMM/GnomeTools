@@ -108,9 +108,11 @@ method new ( |c ) {
 =head2 new
 Instanciate the listview class.
 
-  submethod BUILD ( :$object, *%options )
+  submethod BUILD ( :$object, Bool :$!multi-select = True, *%options )
 
-=item $object
+=item $object: User object where methods are defined to process the events.
+=item $!multi-select: Selection method. By defaul, more than one entry can be selected. Selections can be done a) by holding <CTRL> or <SHIFT> and click on the entries. b) by dragging the pointer over the entries (rubberband select).
+=item *%options: Any user options. The options are given to the methods in C<$object>.
 
 =end pod
 
