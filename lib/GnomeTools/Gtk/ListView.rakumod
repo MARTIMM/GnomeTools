@@ -11,6 +11,7 @@ use Gnome::Gtk4::ListItem:api<2>;
 use Gnome::Gtk4::SignalListItemFactory:api<2>;
 use Gnome::Gtk4::StringList:api<2>;
 use Gnome::Gtk4::StringObject:api<2>;
+use Gnome::Gtk4::SingleSelection:api<2>;
 use Gnome::Gtk4::MultiSelection:api<2>;
 use Gnome::Gtk4::ScrolledWindow:api<2>;
 use Gnome::Gtk4::Label:api<2>;
@@ -91,7 +92,8 @@ also is Gnome::Gtk4::ScrolledWindow;
 has GnomeTools::Gtk::Theming $!theme;
 
 has Gnome::Gtk4::StringList $!list-objects;
-has Gnome::Gtk4::MultiSelection $!multi-select;
+has Bool $!multi-select;
+has $!selection-type;
 has Gnome::Gtk4::SignalListItemFactory $!signal-factory;
 has Gnome::Gtk4::ListView $!list-view;
 
@@ -112,7 +114,7 @@ Instanciate the listview class.
 
 =end pod
 
-submethod BUILD ( :$object, *%options ) {
+submethod BUILD ( :$object, Bool :$!multi-select = True, *%options ) {
   $!theme .= new;
   $!theme.add-css-class( self, 'listview-window');
 
@@ -121,8 +123,10 @@ submethod BUILD ( :$object, *%options ) {
   self.set-propagate-natural-width(True);
 
   $!list-objects .= new-stringlist(CArray[Str].new(Str));
-  $!multi-select .= new-multiselection($!list-objects);
-  $!multi-select.register-signal(
+  $!selection-type = $!multi-select
+    ?? Gnome::Gtk4::MultiSelection.new-multiselection($!list-objects)
+    !! Gnome::Gtk4::SingleSelection.new-singleselection($!list-objects);
+  $!selection-type.register-signal(
     self, 'selection-changed', 'selection-changed', :$object, |%options
   ) if ?$object;
 
@@ -137,7 +141,7 @@ submethod BUILD ( :$object, *%options ) {
   }
 
   with $!list-view .= new-listview( N-Object, N-Object) {
-    .set-model($!multi-select);
+    .set-model($!selection-type);
     .set-factory($!signal-factory);
     .set-enable-rubberband(True);
     .set-show-separators(True);
@@ -247,7 +251,7 @@ method get-selection ( --> List ) {
 
   my @selections = ();
   my Gnome::Gtk4::N-Bitset $bitset .= new(
-    :native-object($!multi-select.get-selection)
+    :native-object($!selection-type.get-selection)
   );
 
   my Int $n = $bitset.get-size;
