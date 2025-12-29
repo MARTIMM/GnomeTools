@@ -132,9 +132,8 @@ submethod BUILD ( :$object, *%options ) {
     .register-signal( self, 'bind-list-item', 'bind', :$object);
     .register-signal( self, 'unbind-list-item', 'unbind', :$object)
       if ?$object and $object.^can('unbind-list-item');
-    .register-signal(
-      self, 'teardown-list-item', 'teardown', :$object
-    );
+    .register-signal( self, 'teardown-list-item', 'teardown', :$object)
+      if ?$object and $object.^can('teardown-list-item');
   }
 
   with $!list-view .= new-listview( N-Object, N-Object) {
@@ -207,37 +206,27 @@ method bind-list-item ( Gnome::Gtk4::ListItem() $list-item, :$object ) {
 # When unbind event fires, the listview wants to remove the item from display
 # and the values must be removed from the widget. A selection of a listview row
 # also triggers an unbind, after which a bind follows.
+# Checks made in BUILD() prevents calling this method if $object
+# and method .unbind-list-item() is not defined.
+# There is no need to unbind a Label value.
 method unbind-list-item ( Gnome::Gtk4::ListItem() $list-item, :$object ) {
-
-  my Gnome::Gtk4::StringObject $string-object .=  new(
-    :native-object($list-item.get-item)
-  );
+  my Gnome::Gtk4::StringObject $string-object;
+  $string-object .=  new(:native-object($list-item.get-item));
   my Str $text = $string-object.get-string;
-
-  if ?$object and $object.^can('unbind-list-item') {
-    $object."unbind-list-item"( $list-item, $text);
-  }
-
-  # No need to unbind a Label value
-  # else { }
+  $object."unbind-list-item"( $list-item, $text);
 }
 
 #-------------------------------------------------------------------------------
 # When teardown event fires, the listview wants to remove the widget entirely.
+# Checks made in BUILD() prevents calling this method if $object
+# and method .unbind-list-item() is not defined.
+# There is no need to teardown a Label widget.
 method teardown-list-item ( Gnome::Gtk4::ListItem() $list-item, :$object ) {
-note "$?LINE teardown";
-
-  my Gnome::Gtk4::StringObject $string-object .=  new(
-    :native-object($list-item.get-item)
-  );
+#note "$?LINE teardown";
+  my Gnome::Gtk4::StringObject $string-object;
+  $string-object .=  new(:native-object($list-item.get-item));
   my Str $text = $string-object.get-string;
-
-  if ?$object and $object.^can('unbind-list-item') {
-    $object."unbind-list-item"( $list-item, $object);
-  }
-
-  # No need to teardown a Label widget
-  # else { }
+  $object."unbind-list-item"( $list-item, $object);
 }
 
 #-------------------------------------------------------------------------------
