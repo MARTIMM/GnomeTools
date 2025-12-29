@@ -226,7 +226,7 @@ method teardown-list-item ( Gnome::Gtk4::ListItem() $list-item, :$object ) {
   my Gnome::Gtk4::StringObject $string-object;
   $string-object .=  new(:native-object($list-item.get-item));
   my Str $text = $string-object.get-string;
-  $object."unbind-list-item"( $list-item, $object);
+  $object."unbind-list-item"( $list-item, $text);
 }
 
 #-------------------------------------------------------------------------------
