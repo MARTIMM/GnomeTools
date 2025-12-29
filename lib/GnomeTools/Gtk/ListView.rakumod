@@ -103,7 +103,13 @@ method new ( |c ) {
 #-------------------------------------------------------------------------------
 =begin pod
 =head1 Methods
-=head2 
+=head2 new
+Instanciate the listview class.
+
+  submethod BUILD ( :$object, *%options )
+
+=item $object
+
 =end pod
 
 submethod BUILD ( :$object, *%options ) {
