@@ -1,6 +1,9 @@
-* 2025 12 15 0.4.3
+* 2025 12 15 0.5.0
   * Add **GnomeTools::Gtk::ListView**.
   * Multi/single selection added.
+
+* 2025 12 15 0.4.3
+  * Thinking about tools for Glib and GObject
 
 * 2025 12 02 0.4.2
   * Change class **GnomeTools::Gtk::Menu** to **GnomeTools::Gio::Menu** because all menu classes come from distribuion `Gnome::Gio`.
