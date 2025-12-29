@@ -22,6 +22,66 @@ use GnomeTools::Gtk::Theming;
 
 #-------------------------------------------------------------------------------
 =begin pod
+=TITLE GnomeTools::Gtk::ListView
+=head1 Description
+
+A listview is like a listbox where objects can be inserted horizontally or vertically. The listbox is used for simple and short lists while the listview can be used for longer lists and complex objects. The listview is filled using a factory and is created in steps. The list is often partly visible and only asks for the objects to be created when they become visible.
+
+There are several events which needs to be captured if complex objects must be created. Other entries are available to get the number of selected items for example.
+
+=head2 CSS classes
+The B<GnomeTools::Gtk::ListView> class is placed in a B<Gnome::Gtk4::ScrolledWindow>. That object has a classname C<listview-window> and the B<GnomeTools::Gtk::ListView> object has a classname C<listview-tool> 
+
+=head2 Example
+This example shows the easy way to make use of the class. The objects created are simple B<Label> objects with a text.
+
+First define a helper class.
+=begin code
+class HelperObject {
+  method show-select (
+    GnomeTools::Gtk::ListView :$listview, GnomeTools::Gtk::Dialog :$dialog,
+    :@items
+  ) {
+    my @selections = @items[$listview.get-selection];
+    $dialog.set-status(@selections.join(', '));
+  }
+
+  method selection-changed ( @selections, GnomeTools::Gtk::Dialog :$dialog ) {
+    $dialog.set-status("Rows '{@selections.join(', ')}' are selected");
+  }
+}
+=end code
+
+
+Instantiate the class and setup the B<GnomeTools::Gtk::ListView>. In this example the ListView is placed in a B<GnomeTools::Gtk::Dialog>.
+
+=begin code
+my HelperObject $helper .= new;
+
+my GnomeTools::Gtk::Dialog $dialog .= new(
+  :dialog-header('Test Dialog'), :add-statusbar
+);
+
+my @items = <class role method sub submethod for else unit package module>;
+
+my GnomeTools::Gtk::ListView $listview .= new( :object($helper), :$dialog);
+for @items -> $item {
+  $listview.append($item);
+}
+$dialog.add-content( 'Nice list', $listview);
+
+# Buttons
+$dialog.add-button(
+  $helper, 'show-select', 'Get Selection 2',
+  :$dialog, :@items, :$listview
+);
+
+$dialog.add-button( $dialog, 'destroy-dialog', 'Cancel');
+
+$dialog.set-size-request( 400, 300);
+$dialog.show-dialog;
+
+=end code
 
 =end pod
 
@@ -41,9 +101,14 @@ method new ( |c ) {
 }
 
 #-------------------------------------------------------------------------------
+=begin pod
+=head1 Methods
+=head2 
+=end pod
+
 submethod BUILD ( :$object, *%options ) {
   $!theme .= new;
-  $!theme.add-css-class( self, 'listview-tool');
+  $!theme.add-css-class( self, 'listview-window');
 
   self.set-halign(GTK_ALIGN_FILL);
   self.set-vexpand(True);
@@ -75,7 +140,7 @@ submethod BUILD ( :$object, *%options ) {
       self, 'activate-list-item', 'activate', :$object
     );
 
-    $!theme.add-css-class( $!list-view, 'listview-item');
+    $!theme.add-css-class( $!list-view, 'listview-tool');
   }
 
   self.set-child($!list-view);
