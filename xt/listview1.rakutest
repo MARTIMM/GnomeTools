@@ -17,14 +17,16 @@ use Gnome::N::N-Object:api<2>;
 #-------------------------------------------------------------------------------
 class HelperObject {
   method show-select (
-    GnomeTools::Gtk::ListView :$listview, GnomeTools::Gtk::Dialog :$dialog,
-    :@items
+    GnomeTools::Gtk::ListView :$listview,
+    GnomeTools::Gtk::Dialog :$dialog, :@items
   ) {
     my @selections = @items[$listview.get-selection];
     $dialog.set-status(@selections.join(', '));
   }
 
-  method selection-changed ( @selections, GnomeTools::Gtk::Dialog :$dialog ) {
+  method selection-changed (
+    UInt $position, @selections, GnomeTools::Gtk::Dialog :$dialog
+  ) {
     $dialog.set-status("Rows '{@selections.join(', ')}' are selected");
   }
 }

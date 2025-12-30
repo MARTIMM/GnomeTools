@@ -25,13 +25,17 @@ class HelperObject {
     $dialog.set-status(@selections.join(', '));
   }
 
-  method selection-changed ( @selections, GnomeTools::Gtk::Dialog :$dialog ) {
-    $dialog.set-status("Rows '{@selections.join(', ')}' are selected");
+  method selection-changed (
+    UInt $position, @selections, GnomeTools::Gtk::Dialog :$dialog
+  ) {
+    $dialog.set-status(
+      [~] "$position ",
+          $position (elem) @selections ?? 'added' !! 'removed',
+          ", rows '{@selections.join(', ')}' are selected"
+    );
   }
 
-  method setup-list-item (
-    Gnome::Gtk4::ListItem $list-item --> Gnome::Gtk4::Widget
-  ) {
+  method setup-list-item ( --> Gnome::Gtk4::Widget ) {
     with my Gnome::Gtk4::Label $label .= new-label {
       .set-hexpand(True);
       .set-justify(GTK_JUSTIFY_LEFT);
@@ -49,8 +53,7 @@ class HelperObject {
     $grid
   }
 
-  method bind-list-item ( Gnome::Gtk4::ListItem $list-item, Str $text ) {
-    my Gnome::Gtk4::Grid() $grid = $list-item.get-child;
+  method bind-list-item ( Gnome::Gtk4::Grid() $grid, Str $text ) {
     my Gnome::Gtk4::Image() $image = $grid.get-child-at( 0, 0);
     my Gnome::Gtk4::Label() $label = $grid.get-child-at( 1, 0);
     $image.set-from-icon-name(
@@ -58,6 +61,9 @@ class HelperObject {
     );
     $label.set-text($text);
   }
+
+  method unbind-list-item ( Gnome::Gtk4::Grid() $grid, Str $text ) { }
+  method teardown-list-item ( Gnome::Gtk4::Grid() $grid, Str $text ) { }
 }
 
 my HelperObject $helper .= new;
