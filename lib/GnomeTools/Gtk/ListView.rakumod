@@ -110,7 +110,23 @@ Instanciate the listview class.
 
   submethod BUILD ( :$object, Bool :$!multi-select = True, *%options )
 
-=item $object: User object where methods are defined to process the events.
+=item $object: User object where methods are defined to process the events. There are many events which can be processed so the method names are fixed for simplicity. The method names are C<selection-changed> for the selection-changed event, C<activate-list-item> for the activate event, C<setup-list-item> to handle the setup event, C<bind-list-item> handles the bind event, C<unbind-list-item> handles the unbind event, and C<teardown-list-item> for the teardown event. The methods are not called when they are not defined.
+=item2 Selection type events.
+=item3 selection-changed;
+
+=item2 Events from ListView.
+=item3 activate-list-item;
+
+=item2 Signal factory type events. From L<Gnome docs|https://docs.gtk.org/gtk4/class.SignalListItemFactory.html> with some changes caused by the implementation of this B<GnomeTools::Gtk::ListView> class.
+=item3 setup-list-item; The C<setup> event is emitted to set up permanent things on the listitem. This usually means constructing the widgets used in the rows and return the widget to the caller. Any named arguments given to the BUILD() are given to the method.
+=begin code
+method setup-list-item ( *%options --> Gnome::Gtk4::Widget )
+=end code
+
+=item3 bind-list-item; The C<bind> event is emitted to bind the item passed via GtkListItem:item to the widgets that have been created in step 1 or to add item-specific widgets. Signals are connected to listen to changes - both to changes in the item to update the widgets or to changes in the widgets to update the item. After this signal has been called, the listitem may be shown in a list widget.
+=item3 unbind-list-item;
+=item3 teardown-list-item;
+
 =item $!multi-select: Selection method. By defaul, more than one entry can be selected. Selections can be done a) by holding <CTRL> or <SHIFT> and click on the entries. b) by dragging the pointer over the entries (rubberband select).
 =item *%options: Any user options. The options are given to the methods in C<$object>.
 
@@ -130,16 +146,17 @@ submethod BUILD ( :$object, Bool :$!multi-select = True, *%options ) {
     !! Gnome::Gtk4::SingleSelection.new-singleselection($!list-objects);
   $!selection-type.register-signal(
     self, 'selection-changed', 'selection-changed', :$object, |%options
-  ) if ?$object;
+  ) if ?$object and $object.^can('selection-changed');
 
   # See also https://docs.gtk.org/gtk4/class.SignalListItemFactory.html
   with $!signal-factory .= new-signallistitemfactory {
-    .register-signal( self, 'setup-list-item', 'setup', :$object);
-    .register-signal( self, 'bind-list-item', 'bind', :$object);
-    .register-signal( self, 'unbind-list-item', 'unbind', :$object)
+    .register-signal( self, 'setup-list-item', 'setup', :$object, |%options);
+    .register-signal( self, 'bind-list-item', 'bind', :$object, |%options);
+    .register-signal( self, 'unbind-list-item', 'unbind', :$object, |%options)
       if ?$object and $object.^can('unbind-list-item');
-    .register-signal( self, 'teardown-list-item', 'teardown', :$object)
-      if ?$object and $object.^can('teardown-list-item');
+    .register-signal(
+      self, 'teardown-list-item', 'teardown', :$object, |%options
+    ) if ?$object and $object.^can('teardown-list-item');
   }
 
   with $!list-view .= new-listview( N-Object, N-Object) {
@@ -148,14 +165,13 @@ submethod BUILD ( :$object, Bool :$!multi-select = True, *%options ) {
     .set-enable-rubberband(True);
     .set-show-separators(True);
     .register-signal(
-      self, 'activate-list-item', 'activate', :$object
-    );
+      self, 'activate-list-item', 'activate', :$object, |%options
+    ) if ?$object and $object.^can('activate-list-item');
 
     $!theme.add-css-class( $!list-view, 'listview-tool');
   }
 
   self.set-child($!list-view);
-#  self.show;
 }
 
 #-------------------------------------------------------------------------------
@@ -163,12 +179,14 @@ submethod BUILD ( :$object, Bool :$!multi-select = True, *%options ) {
 # Purpose of this call is to make a widget without any values. This widget
 # is placed in the list item. Later, on bind event, the values must be filled
 # in.
-method setup-list-item ( Gnome::Gtk4::ListItem() $list-item, :$object ) {
+method setup-list-item (
+  Gnome::Gtk4::ListItem() $list-item, :$object, *%options
+) {
 
   # If object and method exists, call the method to let the widget
   # be created by the user.
   if ?$object and $object.^can('setup-list-item') {
-    my Gnome::Gtk4::Widget $widget = $object."setup-list-item"($list-item);
+    my Gnome::Gtk4::Widget $widget = $object."setup-list-item"(|%options);
     $list-item.set-child($widget);
   }
 
@@ -187,7 +205,9 @@ method setup-list-item ( Gnome::Gtk4::ListItem() $list-item, :$object ) {
 #-------------------------------------------------------------------------------
 # When bind event fires, the listview wants to show the item but must
 # be filled first
-method bind-list-item ( Gnome::Gtk4::ListItem() $list-item, :$object ) {
+method bind-list-item (
+  Gnome::Gtk4::ListItem() $list-item, :$object, *%options
+) {
  
   my Gnome::Gtk4::StringObject $string-object .=  new(
     :native-object($list-item.get-item)
@@ -197,14 +217,14 @@ method bind-list-item ( Gnome::Gtk4::ListItem() $list-item, :$object ) {
   # If object and method exists, call the method to let the widget
   # be filled in by the user.
   if ?$object and $object.^can('bind-list-item') {
-    $object."bind-list-item"( $list-item, $text);
+    $object."bind-list-item"( $list-item.get-child, $text, |%options);
   }
 
   else {
     my Gnome::Gtk4::Label() $label = $list-item.get-child;
     $label.set-text($text);
   }
-#note "$?LINE bind";
+
   $string-object.clear-object;
 }
 
@@ -215,11 +235,13 @@ method bind-list-item ( Gnome::Gtk4::ListItem() $list-item, :$object ) {
 # Checks made in BUILD() prevents calling this method if $object
 # and method .unbind-list-item() is not defined.
 # There is no need to unbind a Label value.
-method unbind-list-item ( Gnome::Gtk4::ListItem() $list-item, :$object ) {
+method unbind-list-item (
+  Gnome::Gtk4::ListItem() $list-item, :$object, *%options
+) {
   my Gnome::Gtk4::StringObject $string-object;
   $string-object .=  new(:native-object($list-item.get-item));
   my Str $text = $string-object.get-string;
-  $object."unbind-list-item"( $list-item, $text);
+  $object."unbind-list-item"( $list-item.get-child, $text, |%options);
 }
 
 #-------------------------------------------------------------------------------
@@ -227,25 +249,25 @@ method unbind-list-item ( Gnome::Gtk4::ListItem() $list-item, :$object ) {
 # Checks made in BUILD() prevents calling this method if $object
 # and method .unbind-list-item() is not defined.
 # There is no need to teardown a Label widget.
-method teardown-list-item ( Gnome::Gtk4::ListItem() $list-item, :$object ) {
-#note "$?LINE teardown";
+method teardown-list-item (
+  Gnome::Gtk4::ListItem() $list-item, :$object, *%options
+) {
   my Gnome::Gtk4::StringObject $string-object;
   $string-object .=  new(:native-object($list-item.get-item));
   my Str $text = $string-object.get-string;
-  $object."unbind-list-item"( $list-item, $text);
+  $object."teardown-list-item"( $list-item.get-child, $text, |%options);
 }
 
 #-------------------------------------------------------------------------------
-method activate-list-item ( UInt $position ) {
-note "$?LINE activate $position";
+method activate-list-item ( UInt $position, :$object, *%options ) {
+  $object.activate-list-item( $position, self.get-selection, |%options);
 }
 
 #-------------------------------------------------------------------------------
 method selection-changed (
-  UInt $position, UInt $n-items, Any:D :$object, *%options
+  UInt $position, UInt $n-items, :$object, *%options
 ) {
-  return unless $object.^can('selection-changed');
-  $object.selection-changed( self.get-selection, |%options);
+  $object.selection-changed( $position, self.get-selection, |%options);
 }
 
 #-------------------------------------------------------------------------------
