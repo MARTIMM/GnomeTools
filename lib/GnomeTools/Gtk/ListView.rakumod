@@ -297,11 +297,23 @@ method append ( Str $list-item ) {
   $!list-objects.append($list-item);
 }
 
-=finish
-$pos = .find($list-item);
+-------------------------------------------------------------------------------
+method find ( Str $list-item --> UInt ) {
+  $pos = $!list-objects.find($list-item);
+}
 
-$list-item = .get-string($pos);
+-------------------------------------------------------------------------------
+method get-string ( UInt $pos ) {
+  $!list-objects.get-string($pos);
+}
 
-.remove($pos);
+-------------------------------------------------------------------------------
+method remove ( UInt $pos ) {
+  $!list-objects.remove($pos);
+}
 
-.splice( $pos, $n-remove, $str-array);
+-------------------------------------------------------------------------------
+method splice ( UInt $pos, UInt $nremove, @str-array ) {
+  my $array = CArray[Str].new(|@str-array);
+  $!list-objects.splice( $pos, $n-remove, $array);
+}
