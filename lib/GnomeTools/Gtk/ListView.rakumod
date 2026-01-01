@@ -108,7 +108,9 @@ method new ( |c ) {
 =head2 new
 Instanciate the listview class.
 
-  submethod BUILD ( :$object, Bool :$!multi-select = True, *%options )
+=begin code
+submethod BUILD ( :$object, Bool :$!multi-select = True, *%options )
+=end code
 
 =item $object: User object where methods are defined to process the events. There are many events which can be processed so the method names are fixed for simplicity. The method names are C<selection-changed> for the selection-changed event, C<activate-list-item> for the activate event, C<setup-list-item> to handle the setup event, C<bind-list-item> handles the bind event, C<unbind-list-item> handles the unbind event, and C<teardown-list-item> for the teardown event. The methods are not called when they are not defined.
 =item2 Selection type events.
@@ -117,15 +119,19 @@ Instanciate the listview class.
 =item2 Events from ListView.
 =item3 activate-list-item;
 
-=item2 Signal factory type events. From L<Gnome docs|https://docs.gtk.org/gtk4/class.SignalListItemFactory.html> with some changes caused by the implementation of this B<GnomeTools::Gtk::ListView> class.
-=item3 setup-list-item; The C<setup> event is emitted to set up permanent things on the listitem. This usually means constructing the widgets used in the rows and return the widget to the caller. Any named arguments given to the BUILD() are given to the method.
+=item2 Signal factory type events.
+=item3 setup-list-item; Handles the C<setup> event. The event is emitted to set up permanent things on the B<Gnome::Gtk4::ListItem>. However, the list item is kept under the hood of this class. So, this means the called routine only needs to create and return the widget used in the row. Any named arguments (*%options) given to C<.new()> are given to the method.
 =begin code
 method setup-list-item ( *%options --> Gnome::Gtk4::Widget )
 =end code
 
-=item3 bind-list-item; The C<bind> event is emitted to bind the item passed via GtkListItem:item to the widgets that have been created in step 1 or to add item-specific widgets. Signals are connected to listen to changes - both to changes in the item to update the widgets or to changes in the widgets to update the item. After this signal has been called, the listitem may be shown in a list widget.
-=item3 unbind-list-item;
-=item3 teardown-list-item;
+=item3 bind-list-item; Handles the C<bind> event. The event is emitted to bind the widgets created by C<.setup-list-item()> to their values and, optionally, add entry specific widgets to the given widget. Signals are connected to listen to changes - both to changes in the item to update the widgets or to changes in the widgets to update the item. After this signal has been called, the listitem may be shown in a list widget. Any named arguments (*%options) given to C<.new()> are given to the method.
+=begin code
+method bind-list-item ( Gnome::Gtk4::Widget $widget, Str $item, *%options )
+=end code
+
+=item3 unbind-list-item; Handles the C<unbind> event. The event is emitted to unbind
+=item3 teardown-list-item; Handles the C<teardown> event. The event is emitted to teardown
 
 =item $!multi-select: Selection method. By defaul, more than one entry can be selected. Selections can be done a) by holding <CTRL> or <SHIFT> and click on the entries. b) by dragging the pointer over the entries (rubberband select).
 =item *%options: Any user options. The options are given to the methods in C<$object>.
