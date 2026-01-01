@@ -18,10 +18,11 @@ use Gnome::N::N-Object:api<2>;
 #-------------------------------------------------------------------------------
 class HelperObject {
   method show-select (
-    GnomeTools::Gtk::ListView :$listview, GnomeTools::Gtk::Dialog :$dialog,
-    :@items
+    GnomeTools::Gtk::ListView :$listview,
+    GnomeTools::Gtk::Dialog :$dialog,
+    :%items
   ) {
-    my @selections = @items[$listview.get-selection];
+    my @selections = %items.keys[$listview.get-selection];
     $dialog.set-status(@selections.join(', '));
   }
 
@@ -53,16 +54,31 @@ class HelperObject {
     $grid
   }
 
-  method bind-list-item ( Gnome::Gtk4::Grid() $grid, Str $text ) {
+  method bind-list-item ( Gnome::Gtk4::Grid() $grid, Str $text, :%items ) {
     my Gnome::Gtk4::Image() $image = $grid.get-child-at( 0, 0);
     my Gnome::Gtk4::Label() $label = $grid.get-child-at( 1, 0);
     $image.set-from-icon-name(
       <favorities folder-android-symbolic folder-network-symbolic>.roll
     );
     $label.set-text($text);
+    if ?%items{$text} {
+      with my Gnome::Gtk4::Label $extra-label .= new-label {
+        .set-hexpand(True);
+        .set-justify(GTK_JUSTIFY_LEFT);
+        .set-halign(GTK_ALIGN_START);
+        .set-text(%items{$text});
+      }
+      $grid.attach( $extra-label, 0, 1, 2, 1);
+    }
   }
 
-  method unbind-list-item ( Gnome::Gtk4::Grid() $grid, Str $text ) { }
+  method unbind-list-item ( Gnome::Gtk4::Grid() $grid, Str $text, :%items ) {
+    if ?%items{$text} {
+      my N-Object $nw = $grid.get-child-at( 0, 1);
+      $grid.remove($nw);
+    }
+  }
+
   method teardown-list-item ( Gnome::Gtk4::Grid() $grid, Str $text ) { }
 }
 
@@ -73,10 +89,18 @@ my GnomeTools::Gtk::Dialog $dialog .= new(
   :dialog-header('Test Dialog'), :add-statusbar
 );
 
+my %items = %(
+  :class(''), :role(''), :method(''), :sub(''), :submethod(''),
+  :for('Loop through a series of data'), :else('Decision making'),
+  :unit(''), :package(''), :module('')
+);
+
 my @items = <class role method sub submethod for else unit package module>;
 
-my GnomeTools::Gtk::ListView $listview .= new( :object($helper), :$dialog);
-for @items -> $item {
+my GnomeTools::Gtk::ListView $listview .= new(
+  :object($helper), :$dialog, :%items
+);
+for %items.keys -> $item {
   $listview.append($item);
 }
 $dialog.add-content( 'Nice list', $listview);
@@ -84,7 +108,7 @@ $dialog.add-content( 'Nice list', $listview);
 # Buttons
 $dialog.add-button(
   $helper, 'show-select', 'Get Selection',
-  :$dialog, :@items, :$listview
+  :$dialog, :%items, :$listview
 );
 
 $dialog.add-button( $dialog, 'destroy-dialog', 'Cancel');
