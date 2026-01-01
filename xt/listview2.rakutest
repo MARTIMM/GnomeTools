@@ -95,8 +95,6 @@ my %items = %(
   :unit(''), :package(''), :module('')
 );
 
-my @items = <class role method sub submethod for else unit package module>;
-
 my GnomeTools::Gtk::ListView $listview .= new(
   :object($helper), :$dialog, :%items
 );
