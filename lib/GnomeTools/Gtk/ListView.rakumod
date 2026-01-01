@@ -125,7 +125,7 @@ submethod BUILD ( :$object, Bool :$!multi-select = True, *%options )
 method setup-list-item ( *%options --> Gnome::Gtk4::Widget )
 =end code
 
-=item3 bind-list-item; Handles the C<bind> event. The event is emitted to bind the widgets created by C<.setup-list-item()> to their values and, optionally, add entry specific widgets to the given widget. Signals are connected to listen to changes - both to changes in the item to update the widgets or to changes in the widgets to update the item. After this signal has been called, the listitem may be shown in a list widget. Any named arguments (*%options) given to C<.new()> are given to the method.
+=item3 bind-list-item; Handles the C<bind> event. The event is emitted to bind the widgets created by C<.setup-list-item()> to their values and, optionally, add entry specific widgets to the given widget. Signals are connected to listen to changes - both to changes in the item to update the widgets or to changes in the widgets to update the item. After this signal has been called, the listitem may be shown in a list widget. The C<$item> is the string inserted in the list using e.g. C<.append()>. Any named arguments (*%options) given to C<.new()> are given to the method.
 =begin code
 method bind-list-item ( Gnome::Gtk4::Widget $widget, Str $item, *%options )
 =end code
@@ -296,3 +296,12 @@ method get-selection ( --> List ) {
 method append ( Str $list-item ) {
   $!list-objects.append($list-item);
 }
+
+=finish
+$pos = .find($list-item);
+
+$list-item = .get-string($pos);
+
+.remove($pos);
+
+.splice( $pos, $n-remove, $str-array);
