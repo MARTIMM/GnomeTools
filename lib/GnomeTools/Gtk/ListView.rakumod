@@ -26,7 +26,7 @@ use GnomeTools::Gtk::Theming;
 =TITLE GnomeTools::Gtk::ListView
 =head1 Description
 
-A listview is like a listbox where objects can be inserted horizontally or vertically. The listbox is used for simple and short lists while the listview can be used for longer lists and complex objects. The listview is filled using a factory and is created in steps. The list is often partly visible and only asks for the objects to be created when they become visible.
+A listview is like a listbox where objects can be inserted horizontally or vertically. The listbox is used for simple and short lists while the listview can be used much for longer lists and complex objects. The listview is filled using a factory and is created in steps. The list is often partly visible and only asks for the objects to be created when they become visible.
 
 There are several events which needs to be captured if complex objects must be created. Other entries are available to get the number of selected items for example.
 
@@ -286,7 +286,7 @@ method get-selection ( --> List ) {
 
   my Int $n = $bitset.get-size;
   for ^$n -> $i {
-    @selections.push: $bitset.get-nth($i)
+    @selections.push: $!list-objects.get-string($bitset.get-nth($i))
   }
 
   @selections
@@ -297,23 +297,24 @@ method append ( Str $list-item ) {
   $!list-objects.append($list-item);
 }
 
--------------------------------------------------------------------------------
+# find() not yet available. only after 4.18
+#-------------------------------------------------------------------------------
 method find ( Str $list-item --> UInt ) {
-  $pos = $!list-objects.find($list-item);
+  $!list-objects.find($list-item);
 }
 
--------------------------------------------------------------------------------
-method get-string ( UInt $pos ) {
+#-------------------------------------------------------------------------------
+method get-string ( UInt $pos --> Str ) {
   $!list-objects.get-string($pos);
 }
 
--------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 method remove ( UInt $pos ) {
   $!list-objects.remove($pos);
 }
 
--------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 method splice ( UInt $pos, UInt $nremove, @str-array ) {
-  my $array = CArray[Str].new(|@str-array);
-  $!list-objects.splice( $pos, $n-remove, $array);
+  my $array = CArray[Str].new( |@str-array, Str);
+  $!list-objects.splice( $pos, $nremove, $array);
 }
