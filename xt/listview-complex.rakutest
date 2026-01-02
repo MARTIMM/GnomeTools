@@ -24,7 +24,7 @@ class HelperObject {
     GnomeTools::Gtk::Dialog :$dialog,
     :%items
   ) {
-    my @selections = %items.keys[$listview.get-selection];
+    my @selections = $listview.get-selection.map: {%items{$_}<name>};
     $dialog.set-status(@selections.join(', '));
   }
 
@@ -96,7 +96,7 @@ my GnomeTools::Gtk::Dialog $dialog .= new(
 # Items are keys used to find name and optionally a text. I found it easier to
 # type YAML and then convert it. At the same time it is an example of data read
 # from a file.
-my Str $items-text = Q:qq:to/EOYAML/;
+my %items = load-yaml(Q:qq:to/EOYAML/);
   t0:
     name: class
   t1:
@@ -123,7 +123,6 @@ my Str $items-text = Q:qq:to/EOYAML/;
     name: module
   EOYAML
 
-my %items = load-yaml($items-text);
 
 my GnomeTools::Gtk::ListView $listview .= new(
   :object($helper), :$dialog, :%items
