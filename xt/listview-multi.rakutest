@@ -20,14 +20,14 @@ class HelperObject {
     GnomeTools::Gtk::ListView :$listview,
     GnomeTools::Gtk::Dialog :$dialog, :@items
   ) {
-    my @selections = @items[$listview.get-selection];
-    $dialog.set-status(@selections.join(', '));
+    $dialog.set-status($listview.get-selection.join(', '));
   }
 
   method selection-changed (
-    UInt $position, @selections, GnomeTools::Gtk::Dialog :$dialog
+    UInt $position, @selections, GnomeTools::Gtk::Dialog :$dialog, :@items
   ) {
-    $dialog.set-status("Rows '{@selections.join(', ')}' are selected");
+    my @rows = @selections.map: {@items.first( $_, :k)};
+    $dialog.set-status("Rows '{@rows.join(', ')}' are selected");
   }
 }
 
@@ -40,10 +40,14 @@ my GnomeTools::Gtk::Dialog $dialog .= new(
 
 my @items = <class role method sub submethod for else unit package module>;
 
-my GnomeTools::Gtk::ListView $listview .= new( :object($helper), :$dialog);
+my GnomeTools::Gtk::ListView $listview .= new(
+  :object($helper), :$dialog, :@items
+);
+
 for @items -> $item {
   $listview.append($item);
 }
+
 $dialog.add-content( 'Nice list', $listview);
 
 # Buttons
