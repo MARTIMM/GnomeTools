@@ -1,0 +1,146 @@
+use v6.d;
+#use Test;
+
+#use lib '/home/marcel/Languages/Raku/Projects/gnome-source-skim-tool/gnome-api2/gnome-gtk4/lib';
+
+use YAMLish;
+
+use GnomeTools::Gtk::ListView;
+use GnomeTools::Gtk::Dialog;
+
+use Gnome::Gtk4::Grid:api<2>;
+use Gnome::Gtk4::Image:api<2>;
+use Gnome::Gtk4::Label:api<2>;
+use Gnome::Gtk4::T-enums:api<2>;
+
+use Gnome::N::N-Object:api<2>;
+
+%*ENV<IGNORE_GNOME_DEPRECATION_MESSAGES> = 1;
+
+#-------------------------------------------------------------------------------
+class HelperObject {
+  method show-select (
+    GnomeTools::Gtk::ListView :$listview,
+    GnomeTools::Gtk::Dialog :$dialog,
+    :%items
+  ) {
+    my @selections = %items.keys[$listview.get-selection];
+    $dialog.set-status(@selections.join(', '));
+  }
+
+  method selection-changed (
+    UInt $position, @selections, GnomeTools::Gtk::Dialog :$dialog
+  ) {
+    $dialog.set-status(
+      [~] "$position ",
+          $position (elem) @selections ?? 'added' !! 'removed',
+          ", rows '{@selections.join(', ')}' are selected"
+    );
+  }
+
+  method setup-list-item ( --> Gnome::Gtk4::Widget ) {
+    with my Gnome::Gtk4::Label $label .= new-label {
+      .set-hexpand(True);
+      .set-justify(GTK_JUSTIFY_LEFT);
+      .set-halign(GTK_ALIGN_START);
+    }
+
+    my Gnome::Gtk4::Image $image .= new-image;
+
+    with my Gnome::Gtk4::Grid $grid .= new-grid {
+      .set-column-spacing(10);
+      .attach( $image, 0, 0, 1, 1);
+      .attach( $label, 1, 0, 1, 1);
+    }
+
+    $grid
+  }
+
+  method bind-list-item ( Gnome::Gtk4::Grid() $grid, Str $item-key, :%items ) {
+    my Gnome::Gtk4::Image() $image = $grid.get-child-at( 0, 0);
+    my Gnome::Gtk4::Label() $label = $grid.get-child-at( 1, 0);
+    $image.set-from-icon-name(
+      <favorities folder-android-symbolic folder-network-symbolic>.roll
+    );
+    $label.set-text(%items{$item-key}<name>);
+    if ?%items{$item-key}<text> {
+      with my Gnome::Gtk4::Label $extra-label .= new-label {
+        .set-hexpand(True);
+        .set-justify(GTK_JUSTIFY_LEFT);
+        .set-halign(GTK_ALIGN_START);
+        .set-text(%items{$item-key}<text>);
+      }
+      $grid.attach( $extra-label, 0, 1, 2, 1);
+    }
+  }
+
+  method unbind-list-item (
+    Gnome::Gtk4::Grid() $grid, Str $item-key, :%items
+  ) {
+    if ?%items{$item-key}<text> {
+      my N-Object $nw = $grid.get-child-at( 0, 1);
+      $grid.remove($nw);
+    }
+  }
+
+  method teardown-list-item ( Gnome::Gtk4::Grid() $grid, Str $item-key ) { }
+}
+
+my HelperObject $helper .= new;
+
+#-------------------------------------------------------------------------------
+my GnomeTools::Gtk::Dialog $dialog .= new(
+  :dialog-header('Test Dialog'), :add-statusbar
+);
+
+# Items are keys used to find name and optionally a text. I found it easier to
+# type YAML and then convert it. At the same time it is an example of data read
+# from a file.
+my Str $items-text = Q:qq:to/EOYAML/;
+  t0:
+    name: class
+  t1:
+    name: role
+  r0:
+    name: method
+  r1:
+    name: sub
+  r2:
+    name: submethod
+  c0:
+    name: for
+    text: Loop through a series of data
+  c1:
+    name: if
+  c2:
+    name: else
+    text: Decision making
+  p0:
+    name: unit
+  p1:
+    name: package
+  p2:
+    name: module
+  EOYAML
+
+my %items = load-yaml($items-text);
+
+my GnomeTools::Gtk::ListView $listview .= new(
+  :object($helper), :$dialog, :%items
+);
+for %items.keys -> $item {
+  $listview.append($item);
+}
+$dialog.add-content( 'Nice list', $listview);
+
+# Buttons
+$dialog.add-button(
+  $helper, 'show-select', 'Get Selection',
+  :$dialog, :%items, :$listview
+);
+
+$dialog.add-button( $dialog, 'destroy-dialog', 'Cancel');
+
+$dialog.set-size-request( 500, 300);
+$dialog.show-dialog;
+
