@@ -246,6 +246,7 @@ method unbind-list-item (
 ) {
   my Gnome::Gtk4::StringObject $string-object;
   $string-object .=  new(:native-object($list-item.get-item));
+note "$?LINE $list-item.get-item().gist()";
   my Str $text = $string-object.get-string;
   $object."unbind-list-item"( $list-item.get-child, $text, |%options);
 }
@@ -258,10 +259,12 @@ method unbind-list-item (
 method teardown-list-item (
   Gnome::Gtk4::ListItem() $list-item, :$object, *%options
 ) {
-  my Gnome::Gtk4::StringObject $string-object;
-  $string-object .=  new(:native-object($list-item.get-item));
-  my Str $text = $string-object.get-string;
-  $object."teardown-list-item"( $list-item.get-child, $text, |%options);
+#  my Gnome::Gtk4::StringObject $string-object;
+#  $string-object .=  new(:native-object($list-item.get-item));
+#note "$?LINE $list-item.get-item().gist()";
+
+#  my Str $text = $string-object.get-string;
+  $object."teardown-list-item"( $list-item.get-child, |%options);
 }
 
 #-------------------------------------------------------------------------------
@@ -277,7 +280,7 @@ method selection-changed (
 }
 
 #-------------------------------------------------------------------------------
-method get-selection ( --> List ) {
+method get-selection ( Bool :$rows = False --> List ) {
 
   my @selections = ();
   my Gnome::Gtk4::N-Bitset $bitset .= new(
@@ -286,7 +289,13 @@ method get-selection ( --> List ) {
 
   my Int $n = $bitset.get-size;
   for ^$n -> $i {
-    @selections.push: $!list-objects.get-string($bitset.get-nth($i))
+    if $rows {
+      @selections.push: $bitset.get-nth($i);
+    }
+
+    else {
+      @selections.push: $!list-objects.get-string($bitset.get-nth($i));
+    }
   }
 
   @selections

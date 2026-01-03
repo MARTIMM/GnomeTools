@@ -28,6 +28,18 @@ class HelperObject {
     $dialog.set-status(@selections.join(', '));
   }
 
+  method remove (
+    GnomeTools::Gtk::ListView :$listview,
+    GnomeTools::Gtk::Dialog :$dialog,
+    :%items
+  ) {
+    my @selections = $listview.get-selection(:rows);
+    for @selections -> $selection {
+      $listview.remove($selection);
+    }
+    $dialog.set-status("Removed rows @selections.join(', ')");
+  }
+
   method selection-changed (
     UInt $position, @selections, GnomeTools::Gtk::Dialog :$dialog
   ) {
@@ -57,10 +69,14 @@ class HelperObject {
   }
 
   method bind-list-item ( Gnome::Gtk4::Grid() $grid, Str $item-key, :%items ) {
+    note "$?LINE bind";
+
     my Gnome::Gtk4::Image() $image = $grid.get-child-at( 0, 0);
     my Gnome::Gtk4::Label() $label = $grid.get-child-at( 1, 0);
     $image.set-from-icon-name(%items{$item-key}<icon>);
     $label.set-text(%items{$item-key}<name>);
+
+    # Only remove the items text widget
     if ?%items{$item-key}<text> {
       with my Gnome::Gtk4::Label $extra-label .= new-label {
         .set-hexpand(True);
@@ -75,13 +91,18 @@ class HelperObject {
   method unbind-list-item (
     Gnome::Gtk4::Grid() $grid, Str $item-key, :%items
   ) {
+    note "$?LINE unbind";
+
     if ?%items{$item-key}<text> {
       my N-Object $nw = $grid.get-child-at( 0, 1);
       $grid.remove($nw);
     }
   }
 
-  method teardown-list-item ( Gnome::Gtk4::Grid() $grid, Str $item-key ) { }
+  method teardown-list-item ( Gnome::Gtk4::Grid() $grid, ) {
+    note "$?LINE teardown";
+    $grid.clear-object;
+  }
 }
 
 my HelperObject $helper .= new;
@@ -146,6 +167,11 @@ $dialog.add-content( 'Nice list', $listview);
 # Buttons
 $dialog.add-button(
   $helper, 'show-select', 'Get Selection',
+  :$dialog, :%items, :$listview
+);
+
+$dialog.add-button(
+  $helper, 'remove', 'Delete Selection',
   :$dialog, :%items, :$listview
 );
 
