@@ -59,9 +59,7 @@ class HelperObject {
   method bind-list-item ( Gnome::Gtk4::Grid() $grid, Str $item-key, :%items ) {
     my Gnome::Gtk4::Image() $image = $grid.get-child-at( 0, 0);
     my Gnome::Gtk4::Label() $label = $grid.get-child-at( 1, 0);
-    $image.set-from-icon-name(
-      <favorities folder-android-symbolic folder-network-symbolic>.roll
-    );
+    $image.set-from-icon-name(%items{$item-key}<icon>);
     $label.set-text(%items{$item-key}<name>);
     if ?%items{$item-key}<text> {
       with my Gnome::Gtk4::Label $extra-label .= new-label {
@@ -99,28 +97,41 @@ my GnomeTools::Gtk::Dialog $dialog .= new(
 my %items = load-yaml(Q:qq:to/EOYAML/);
   t0:
     name: class
+    icon: favorities
+    text: Full fledged type
   t1:
     name: role
+    icon: folder-android-symbolic
+    text: An interface type
   r0:
     name: method
+    icon: folder-network-symbolic
   r1:
     name: sub
+    icon: certificate-server-symbolic
   r2:
     name: submethod
+    icon: favorities-symbolic
   c0:
     name: for
+    icon: folder-activities-symbolic
     text: Loop through a series of data
   c1:
     name: if
+    icon: folder-blender-symbolic
   c2:
     name: else
+    icon: folder-bookmark-symbolic
     text: Decision making
   p0:
     name: unit
+    icon: folder-calculate-symbolic
   p1:
     name: package
+    icon: folder-design-symbolic
   p2:
     name: module
+    icon: folder-database-symbolic
   EOYAML
 
 
