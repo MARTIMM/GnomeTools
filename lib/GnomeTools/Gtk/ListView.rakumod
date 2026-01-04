@@ -162,7 +162,7 @@ submethod BUILD ( :$object, Bool :$!multi-select = True, *%options ) {
       if ?$object and $object.^can('unbind-list-item');
     .register-signal(
       self, 'teardown-list-item', 'teardown', :$object, |%options
-    ) if ?$object and $object.^can('teardown-list-item');
+    );
   }
 
   with $!list-view .= new-listview( N-Object, N-Object) {
@@ -246,7 +246,7 @@ method unbind-list-item (
 ) {
   my Gnome::Gtk4::StringObject $string-object;
   $string-object .=  new(:native-object($list-item.get-item));
-note "$?LINE $list-item.get-item().gist()";
+
   my Str $text = $string-object.get-string;
   $object."unbind-list-item"( $list-item.get-child, $text, |%options);
 }
@@ -255,16 +255,17 @@ note "$?LINE $list-item.get-item().gist()";
 # When teardown event fires, the listview wants to remove the widget entirely.
 # Checks made in BUILD() prevents calling this method if $object
 # and method .unbind-list-item() is not defined.
-# There is no need to teardown a Label widget.
 method teardown-list-item (
   Gnome::Gtk4::ListItem() $list-item, :$object, *%options
 ) {
-#  my Gnome::Gtk4::StringObject $string-object;
-#  $string-object .=  new(:native-object($list-item.get-item));
-#note "$?LINE $list-item.get-item().gist()";
+  if ?$object and $object.^can('teardown-list-item') {
+    $object."teardown-list-item"( $list-item.get-child, |%options);
+  }
 
-#  my Str $text = $string-object.get-string;
-  $object."teardown-list-item"( $list-item.get-child, |%options);
+  else {
+    my Label() $label = $list-item.get-child;
+    $label.clear-object;
+  }
 }
 
 #-------------------------------------------------------------------------------
