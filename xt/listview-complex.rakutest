@@ -33,7 +33,14 @@ class HelperObject {
     GnomeTools::Gtk::Dialog :$dialog,
     :%items
   ) {
-    my @selections = $listview.get-selection(:rows);
+    # Reverse rows because after each removal the row count decreases
+    # This causes to remove wrong rows or throwing errors like:
+    # (process:8769): Gtk-CRITICAL **: 18:25:48.324: gtk_string_list_splice:
+    # assertion 'position + n_removals <= objects_get_size (&self->items)'
+    # failed.
+    # The error shows that under the hood, splice() is used
+
+    my @selections = $listview.get-selection(:rows).reverse;
     for @selections -> $selection {
       $listview.remove($selection);
     }
@@ -43,11 +50,7 @@ class HelperObject {
   method selection-changed (
     UInt $position, @selections, GnomeTools::Gtk::Dialog :$dialog
   ) {
-    $dialog.set-status(
-      [~] "$position ",
-          $position (elem) @selections ?? 'added' !! 'removed',
-          ", rows '{@selections.join(', ')}' are selected"
-    );
+    $dialog.set-status("items '{@selections.join(', ')}' are selected");
   }
 
   method setup-list-item ( --> Gnome::Gtk4::Widget ) {
@@ -69,8 +72,6 @@ class HelperObject {
   }
 
   method bind-list-item ( Gnome::Gtk4::Grid() $grid, Str $item-key, :%items ) {
-    note "$?LINE bind";
-
     my Gnome::Gtk4::Image() $image = $grid.get-child-at( 0, 0);
     my Gnome::Gtk4::Label() $label = $grid.get-child-at( 1, 0);
     $image.set-from-icon-name(%items{$item-key}<icon>);
@@ -91,16 +92,13 @@ class HelperObject {
   method unbind-list-item (
     Gnome::Gtk4::Grid() $grid, Str $item-key, :%items
   ) {
-    note "$?LINE unbind";
-
     if ?%items{$item-key}<text> {
       my N-Object $nw = $grid.get-child-at( 0, 1);
       $grid.remove($nw);
     }
   }
 
-  method teardown-list-item ( Gnome::Gtk4::Grid() $grid, ) {
-    note "$?LINE teardown";
+  method teardown-list-item ( Gnome::Gtk4::Grid() $grid ) {
     $grid.clear-object;
   }
 }
