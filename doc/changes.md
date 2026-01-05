@@ -1,3 +1,6 @@
+* 2026 01 05 0.5.1
+  * Pod doc completed for **GnomeTools::Gtk::ListView**.
+
 * 2025 12 15 0.5.0
   * Add **GnomeTools::Gtk::ListView**.
   * Multi/single selection added.
