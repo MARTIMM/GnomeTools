@@ -26,14 +26,16 @@ use GnomeTools::Gtk::Theming;
 =TITLE GnomeTools::Gtk::ListView
 =head1 Description
 
-A listview is like a listbox where objects can be inserted horizontally or vertically. The listbox is used for simple and short lists while the listview can be used much for longer lists and complex objects. The listview is filled using a factory and is created in steps. The list is often partly visible and only asks for the objects to be created when they become visible.
+A listview is like a listbox where objects can be inserted horizontally or vertically. The listbox is used for simple and short lists while the listview can be used for much longer lists and complex objects. The listview is filled using a factory and is created in steps. The list is often partly visible and only asks for the objects to be created when they become visible.
 
 There are several events which needs to be captured if complex objects must be created. Other entries are available to get the number of selected items for example.
 
 =head2 CSS classes
+
 The B<GnomeTools::Gtk::ListView> class is placed in a B<Gnome::Gtk4::ScrolledWindow>. That object has a classname C<listview-window> and the B<GnomeTools::Gtk::ListView> object has a classname C<listview-tool> 
 
 =head2 Example
+
 This example shows the easy way to make use of the class. The objects created are simple B<Label> objects with a text.
 
 First define a helper class.
@@ -52,7 +54,6 @@ class HelperObject {
   }
 }
 =end code
-
 
 Instantiate the class and setup the B<GnomeTools::Gtk::ListView>. In this example the ListView is placed in a B<GnomeTools::Gtk::Dialog>.
 
@@ -81,7 +82,6 @@ $dialog.add-button( $dialog, 'destroy-dialog', 'Cancel');
 
 $dialog.set-size-request( 400, 300);
 $dialog.show-dialog;
-
 =end code
 
 =end pod
@@ -105,7 +105,9 @@ method new ( |c ) {
 #-------------------------------------------------------------------------------
 =begin pod
 =head1 Methods
+
 =head2 new
+
 Instanciate the listview class.
 
 =begin code
@@ -295,6 +297,7 @@ method selection-changed (
 #-------------------------------------------------------------------------------
 =begin pod
 =head2 get-selection
+
 Get the current selection.
 
 =begin code
@@ -303,6 +306,7 @@ method get-selection ( Bool :$rows = False --> List )
 
 =item $rows: By default a list of items are returned. When row numbers are needed set the variable to True.
 =end pod
+
 method get-selection ( Bool :$rows = False --> List ) {
 
   my @selections = ();
@@ -327,11 +331,15 @@ method get-selection ( Bool :$rows = False --> List ) {
 #-------------------------------------------------------------------------------
 =begin pod
 =head2 append
+
 Add an item at the end of the list
 =begin code
+method append ( Str $list-item )
 =end code
+
 =item $list-item: The item to append.
 =end pod
+
 method append ( Str $list-item ) {
   $!list-objects.append($list-item);
 }
@@ -340,12 +348,16 @@ method append ( Str $list-item ) {
 # find() not yet available. only after 4.18
 =begin pod
 =head2 find
+
 Gets the position of the item in the list. The return value can be undefined.
+
 =begin code
 method find ( Str $list-item --> UInt )
 =end code
+
 =item $list-item: The item to find.
 =end pod
+
 method find ( Str $list-item --> UInt ) {
   $!list-objects.find($list-item);
 }
@@ -353,12 +365,16 @@ method find ( Str $list-item --> UInt ) {
 #-------------------------------------------------------------------------------
 =begin pod
 =head2 get-string
+
 Gets the item at C<$pos>ition of the item in the list. The return value can be undefined.
+
 =begin code
 method get-string ( UInt $pos --> Str )
 =end code
+
 =item $pos: The item at the position.
 =end pod
+
 method get-string ( UInt $pos --> Str ) {
   $!list-objects.get-string($pos);
 }
@@ -366,13 +382,17 @@ method get-string ( UInt $pos --> Str ) {
 #-------------------------------------------------------------------------------
 =begin pod
 =head2 remove
+
 Remove the item at C<$pos>ition of the item in the list.
+
 =begin code
 method remove ( UInt $pos )
 =end code
+
 =item $pos: The item at the position.
 
 =head3 An example to remove selected items
+
 =begin code
 # Reverse rows because after each removal the row count decreases
 # This causes to remove wrong rows or throwing errors like:
@@ -387,6 +407,7 @@ for @selections -> $selection {
 }
 =end code
 =end pod
+
 method remove ( UInt $pos ) {
   $!list-objects.remove($pos);
 }
@@ -394,14 +415,18 @@ method remove ( UInt $pos ) {
 #-------------------------------------------------------------------------------
 =begin pod
 =head2 splice
+
 Remove and/or insert items at C<$pos>ition.
+
 =begin code
 method splice ( UInt $pos, UInt $nremove, @str-array )
 =end code
+
 =item $pos: The item at the position.
 =item $nremove: Number of rows to remove at $pos.
 =item @str-array: The array of items to insert at $pos after removal.
 =end pod
+
 method splice ( UInt $pos, UInt $nremove, @str-array ) {
   my $array = CArray[Str].new( |@str-array, Str);
   $!list-objects.splice( $pos, $nremove, $array);
