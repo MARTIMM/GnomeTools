@@ -28,6 +28,7 @@ The contents of the dialog is a grid. The first column is used for a label to de
 The dialog is modal by default.
 
 =head2 Example
+
 Example use of the class B<GnomeTools::Gtk::Dialog>.
 
   method make-dialog ( ) {
@@ -38,15 +39,18 @@ Example use of the class B<GnomeTools::Gtk::Dialog>.
       button stops the program.
       EOHEADER
 
-    my GnomeTools::Gtk::Dialog $dialog .= new(
-      :$dialog-header, :dialog-title('Test Dialog'), :add-statusbar
-    );
+    with my Gnome::Gtk4::Entry $entry .= new-entry {
+      .set-placeholder-text('Text shows up after pressing Hello');
+      .set-size-request( 400, -1);
+    }
 
-    my Gnome::Gtk4::Entry $entry .= new-entry;
-    $entry.set-text('a label');
-    $dialog.add-content( 'Text label for the entry', $entry, :columns(3));
-    $dialog.add-button( helper.new, 'say-hello', 'Hello', :$dialog, :$entry);
-    $dialog.add-button( $dialog, 'destroy-dialog', 'Cancel');
+    with my GnomeTools::Gtk::Dialog $dialog .= new(
+      :$dialog-header, :dialog-title('Test Dialog'), :add-statusbar
+    ) {
+      .add-content( 'Please enter your name', $entry);
+      .add-button( helper.new, 'say-hello', 'Hello', :$dialog, :$entry);
+      .add-button( $dialog, 'destroy-dialog', 'Cancel');
+    }
   }
   …
   method say-hello (
@@ -58,17 +62,19 @@ Example use of the class B<GnomeTools::Gtk::Dialog>.
   }
   …
 
-Which shows ;
-=for image :src<asset_files/images/TestDialog.png> :width<30%> :class<inline>
+=head2 Css
 
-using the following css
+The Css classes defined for the B<GnomeTools::Gtk::Dialog> are; C<dialog-tool>, C<dialog-header>, C<dialog-content>, and C<dialog-button>.
 
+When the following code is added to method C<make-dialog()>
+
+=begin code
+  my GnomeTools::Gtk::Theming $theme .= new(:css-text(Q:q:to/EOCSS/));
   .dialog-tool {
     background-color: #afafaf;
   }
 
   .dialog-header {
-    /*background-color:rgb(84, 10, 85);*/
     color:rgb(59, 1, 65);
     padding-left: 15px;
     padding-right: 15px;
@@ -100,14 +106,16 @@ using the following css
     color:rgb(255, 141, 141);
   }
 
-The status bar has its own css classes.
+  EOCSS
 
-=head2 Css
+  $theme.add-css-class( $entry, 'dialog-entry');
 
-dialog-tool
-dialog-header
-dialog-content
-dialog-button
+=end code
+
+The status bar has its own css classes as is shown in the code. Also the emtry widget got a class C<dialog-entry>. The result shows like;
+
+=for image :src<asset_files/images/Dialog-2.png> :width<60%> :class<inline>
+
 =end pod
 
 
@@ -130,6 +138,28 @@ method new ( |c ) {
 }
 
 #-------------------------------------------------------------------------------
+=begin pod
+=head1 Methods
+=head2 new
+
+Create a B<GnomeTools::Gtk::Dialog>.
+
+=begin code
+submethod BUILD (
+  Str :$dialog-header = '',  Str :$dialog-title = '',
+  Bool :$add-statusbar = False, Gnome::Gtk4::Window :$transition-window?,
+  Int :$width = 400, :$height = 100, Bool :$modal = True
+)
+=end code
+=item $dialog-header; A small text placed at the top of the dialog.
+=item $dialog-title; A string placed in the windows decoration bar.
+=item $add-statusbar; A statusbar can be placed at the bottom of the dialog. Not shown by default.
+=item $transition-window; Make the dialog depending on another window. This is useful that the dialog also is destroyed when the $transition-window is removed.
+=item $width; The width of the dialog.
+=item $heaght; The width of the dialog.
+=item $modal; Specifies that other windows cannot get focus when $modal is True. Turned on by default.
+=end pod
+
 submethod BUILD (
   Str :$dialog-header = '',  Str :$dialog-title = '',
   Bool :$add-statusbar = False, Gnome::Gtk4::Window :$transition-window?,
@@ -194,6 +224,21 @@ submethod BUILD (
 }
 
 #-------------------------------------------------------------------------------
+=begin pod
+=head2 add-content
+
+Content is added to the dialog. There is always a label on the left and a user defined widget on the right.
+
+=begin code
+method add-content (
+  Str:D $text, *@widgets, Int :$columns = 1, Int :$rows = 1
+)
+=end code
+=item $text; The text shown on the left
+=item *@widgets; One or more widgets placed horizontally
+=item $columns; The number of columns each widget needs. By default 1.
+=item $rows; The number of rows each widget needs. By default 1.
+=end pod
 multi method add-content (
   Str:D $text, *@widgets, Int :$columns = 1, Int :$rows = 1
 ) {
