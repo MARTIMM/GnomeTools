@@ -19,6 +19,7 @@ use Gnome::N::N-Object:api<2>;
 
 #-------------------------------------------------------------------------------
 class HelperObject {
+  # Button callbacks
   method show-select (
     GnomeTools::Gtk::ListView :$listview,
     GnomeTools::Gtk::Dialog :$dialog,
@@ -47,12 +48,15 @@ class HelperObject {
     $dialog.set-status("Removed rows @selections.join(', ')");
   }
 
+  # ListView callbacks
   method selection-changed (
     UInt $position, @selections, GnomeTools::Gtk::Dialog :$dialog
   ) {
     $dialog.set-status("items '{@selections.join(', ')}' are selected");
   }
 
+
+  # Signal factory callbacks
   method setup-list-item ( --> Gnome::Gtk4::Widget ) {
     with my Gnome::Gtk4::Label $label .= new-label {
       .set-hexpand(True);
