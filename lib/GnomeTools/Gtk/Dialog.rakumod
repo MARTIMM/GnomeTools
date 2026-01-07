@@ -66,7 +66,7 @@ Example use of the class B<GnomeTools::Gtk::Dialog>.
 
 The Css classes defined for the B<GnomeTools::Gtk::Dialog> are; C<dialog-tool>, C<dialog-header>, C<dialog-content>, and C<dialog-button>.
 
-When the following code is added to method C<make-dialog()>
+When the following code is added to method C<make-dialog()> defined above;
 
 =begin code
   my GnomeTools::Gtk::Theming $theme .= new(:css-text(Q:q:to/EOCSS/));
@@ -230,14 +230,27 @@ submethod BUILD (
 Content is added to the dialog. There is always a label on the left and a user defined widget on the right.
 
 =begin code
-method add-content (
+multi method add-content (
   Str:D $text, *@widgets, Int :$columns = 1, Int :$rows = 1
 )
+
+multi method add-content ( Str:D $text, Array:D $widgets, Int :$rows = 1 )
+
 =end code
 =item $text; The text shown on the left
-=item *@widgets; One or more widgets placed horizontally
+=item *@widgets or $widgets; One or more widgets placed horizontally
 =item $columns; The number of columns each widget needs. By default 1.
 =item $rows; The number of rows each widget needs. By default 1.
+
+=head3 An example use
+
+This example shows how to add some content to the dialog.
+=begin code
+$dialog.add-content(
+  'Please enter your name',
+  my Gnome::Gtk4::Entry $entry .= new-entry;
+);
+=end code
 =end pod
 multi method add-content (
   Str:D $text, *@widgets, Int :$columns = 1, Int :$rows = 1
@@ -286,6 +299,29 @@ method !make-content-label ( Str $text --> Gnome::Gtk4::Label ) {
 }
 
 #-------------------------------------------------------------------------------
+=begin pod
+=head2 add-button
+
+Add a button to the button row at the bottom of the dialog. It is right justified and filled right to left.
+
+=begin code
+method add-button ( Mu $object, Str $method, Str $button-label, *%options )
+=end code
+=item $object; The object where method is defined.
+=item $method; The name of the method. The method is called after pressing the button.
+=item $button-label; The text on the button
+=item *%options; Any options provided to the method when called.
+
+=head3 An example use
+
+An example of two buttons. The first expects two named arguments C<$dialog> and C<$entry>. The second button destroys the dialog by calling C<$dialog.destroy-dialog()>.
+
+=begin code
+  $dialog.add-button( $helper, 'say-hello', 'Hello', :$dialog, :$entry);
+  $dialog.add-button( $dialog, 'destroy-dialog', 'Done');
+=end code
+=end pod
+
 method add-button ( Mu $object, Str $method, Str $button-label, *%options ) {
   my Gnome::Gtk4::Button $button .= new-button;
   $button.set-label($button-label);
@@ -295,6 +331,17 @@ method add-button ( Mu $object, Str $method, Str $button-label, *%options ) {
 }
 
 #-------------------------------------------------------------------------------
+=begin pod
+=head2 set-status
+
+When the statusbar is visible, you may use this method to show some text in it. Previous shown text is removed.
+
+=begin code
+method set-status ( Str $message )
+=end code
+=item $message; The message to display
+
+=end pod
 method set-status ( Str $message ) {
   if ?$!statusbar {
     $!statusbar.set-status($message);
@@ -306,6 +353,15 @@ method set-status ( Str $message ) {
 }
 
 #-------------------------------------------------------------------------------
+=begin pod
+=head2 show-dialog
+
+When everything is placed in the dialog, C<show-dialog()> can be called to show the dialog on screen.
+=begin code
+method show-dialog ( )
+=end code
+=end pod
+
 method show-dialog ( ) {
   self.set-visible(True);
   self.present;
@@ -313,6 +369,15 @@ method show-dialog ( ) {
 }
 
 #-------------------------------------------------------------------------------
+=begin pod
+=head2 destroy-dialog
+
+When dialog isn't needed anymore, call C<destroy-dialog()>.
+=begin code
+method destroy-dialog ( )
+=end code
+
+=end pod
 method destroy-dialog ( ) {
   $!main-loop.quit;
   self.destroy;
