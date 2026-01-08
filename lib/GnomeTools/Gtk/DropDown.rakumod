@@ -7,6 +7,7 @@ use v6.d;
 use Gnome::Gtk4::DropDown:api<2>;
 use Gnome::Gtk4::StringList:api<2>;
 use Gnome::Gtk4::T-types:api<2>;
+use Gnome::Gtk4::SignalListItemFactory:api<2>;
 
 use Gnome::N::GlibToRakuTypes:api<2>;
 use Gnome::N::N-Object:api<2>;
@@ -14,11 +15,21 @@ use Gnome::N::X:api<2>;
 #Gnome::N::debug(:on);
 
 #-------------------------------------------------------------------------------
+=begin pod
+=TITLE GnomeTools::Gtk::DropDown
+=head1 Description
+
+
+=end pod
+
 unit class GnomeTools::Gtk::DropDown:auth<github:MARTIMM>;
 also is Gnome::Gtk4::DropDown;
 
+has Gnome::Gtk4::StringList $!list-objects;
+has Gnome::Gtk4::SignalListItemFactory $!signal-factory;
+
 #-------------------------------------------------------------------------------
-multi method new ( N-Object $model, N-Object $expression, |c ) {
+multi method new ( N-Object() $model, N-Object() $expression, |c ) {
   self.new-dropdown( $model, $expression);
 }
 
@@ -32,8 +43,9 @@ multi method new ( |c ) {
 submethod BUILD ( ) {
 
   # Initialize the dropdown object with an empty list
-  my Gnome::Gtk4::StringList $stringlist .= new-stringlist([]);
-  self.set-model($stringlist);
+  $!list-objects .= new-stringlist(CArray[Str].new(Str));
+  self.set-model($!list-objects);
+  $!signal-factory
 }
 
 #-------------------------------------------------------------------------------
@@ -50,7 +62,7 @@ method set-selection ( @items ) {
 #    $index++ unless $index-found;
   }
 
-#  self.set-selpected($index-found ?? $index !! 0);
+#  self.set-selected($index-found ?? $index !! 0);
 }
 
 #-------------------------------------------------------------------------------
