@@ -7,14 +7,28 @@ use GnomeTools::Gtk::Dialog;
 use Gnome::Gtk4::Label:api<2>;
 
 use Gnome::N::N-Object:api<2>;
+use Gnome::N::X:api<2>;
+#Gnome::N::debug(:on);
+
+
+%*ENV<IGNORE_GNOME_DEPRECATION_MESSAGES> = 1;
 
 #-------------------------------------------------------------------------------
 class HelperObject {
   method show-select (
     GnomeTools::Gtk::DropDown :$dropdown, GnomeTools::Gtk::Dialog :$dialog
-) {
+  ) {
     my Str $selection = $dropdown.get-text;
     $dialog.set-status("'$selection' selected");
+#note "$?LINE selection: ", $dropdown.get-selection, ', ', $dropdown.get-selection(:rows);
+#    $dropdown.remove(1);
+  }
+
+  # ListView callbacks
+  method selection-changed (
+    UInt $position, @selections, GnomeTools::Gtk::Dialog :$dialog
+  ) {
+    $dialog.set-status("items '{@selections.join(', ')}' are selected");
   }
 
   method change-dd (
@@ -32,10 +46,22 @@ class HelperObject {
 my HelperObject $helper .= new;
 
 #-------------------------------------------------------------------------------
-my GnomeTools::Gtk::Dialog $dialog .= new(
-  :dialog-header('Test Dialog'), :add-statusbar
-);
+my @items = <class role method sub submethod for else unit package module>;
 
+with my GnomeTools::Gtk::Dialog $dialog .= new(
+  :dialog-header('Test Dialog'), :add-statusbar
+) {
+Gnome::N::debug(:on);
+  my GnomeTools::Gtk::DropDown $dropdown1 .= new(
+    :object($helper), :$dialog, :@items
+  );
+Gnome::N::debug(:off);
+  for @items -> $item {
+    $dropdown1.append($item);
+  }
+  .add-content( 'Select something 1', $dropdown1);
+
+#`{{
 my GnomeTools::Gtk::DropDown $dropdown1 .= new;
 $dropdown1.set-selection( <abc def ghi en nogiuyuiyuy wat dusiuyuiyuy>, :select-item<ghi>);
 $dialog.add-content( 'Select something 1', $dropdown1);
@@ -47,18 +73,19 @@ $dialog.add-content( 'Select something 2', $dropdown2);
 $dropdown2.trap-dropdown-changes(
   $helper, 'change-dd', :$dropdown1, :$dropdown2, :$dialog
 );
+}}
 
-# Buttons
-$dialog.add-button(
-  $helper, 'show-select', 'Get Selection 1', :$dialog, :dropdown($dropdown1)
-);
+  # Buttons
+  .add-button(
+    $helper, 'show-select', 'Get Selection 1', :$dialog, :dropdown($dropdown1)
+  );
 
-$dialog.add-button(
-  $helper, 'show-select', 'Get Selection 2', :$dialog, :dropdown($dropdown2)
-);
+  #.add-button(
+  #  $helper, 'show-select', 'Get Selection 2', :$dialog, :dropdown($dropdown2)
+  #);
 
-$dialog.add-button( $dialog, 'destroy-dialog', 'Cancel');
+  .add-button( $dialog, 'destroy-dialog', 'Cancel');
 
+  .show-dialog;
 
-$dialog.show-dialog;
-
+}
