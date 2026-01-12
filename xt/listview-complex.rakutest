@@ -159,7 +159,7 @@ my %items = load-yaml(Q:qq:to/EOYAML/);
 
 
 my GnomeTools::Gtk::ListView $listview .= new(
-  :object($helper), :$dialog, :%items
+  :multi-select, :object($helper), :$dialog, :%items
 );
 for %items.keys -> $item {
   $listview.append($item);

@@ -139,11 +139,11 @@ method unbind-list-item ( Gnome::Gtk4::Widget $widget, Str $item, *%options )
 method teardown-list-item ( Gnome::Gtk4::Widget $widget, *%options )
 =end code
 
-=item $!multi-select: Selection method. By default, more than one entry can be selected. Selections can be done a) by holding <CTRL> or <SHIFT> and click on the entries. b) by dragging the pointer over the entries (rubberband select).
+=item $!multi-select: Selection method. When True, more than one entry can be selected. By default False. Selections can be done a) by holding <CTRL> or <SHIFT> and click on the entries. b) by dragging the pointer over the entries (rubberband select).
 =item *%options: Any user options. The options are given to the methods in C<$object>.
 =end pod
 
-submethod BUILD ( Bool :$multi-select = True, :$object, *%options ) {
+submethod BUILD ( Bool :$multi-select = False, :$object, *%options ) {
   $!theme .= new;
   $!theme.add-css-class( self, 'listview-window');
 
@@ -151,20 +151,34 @@ submethod BUILD ( Bool :$multi-select = True, :$object, *%options ) {
   self.set-vexpand(True);
   self.set-propagate-natural-width(True);
 
-  # Prepare event handling
-  self.set-events( :$multi-select, :$object, |%options);
+#  # Prepare event handling
+#  self.set-events( :$multi-select, :$object, |%options);
+  self.init(:$multi-select);
 
   with $!list-view .= new-listview( N-Object, N-Object) {
     .set-model($!selection-type);
     .set-factory($!signal-factory);
     .set-enable-rubberband(True);
     .set-show-separators(True);
-    .register-signal(
-      self, 'activate-list-item', 'activate', :$object, |%options
-    ) if ?$object and $object.^can('activate-list-item');
+#    .register-signal(
+#      self, 'activate-list-item', 'activate', :$object, |%options
+#    ) if ?$object and $object.^can('activate-list-item');
 
     $!theme.add-css-class( $!list-view, 'listview-tool');
   }
 
   self.set-child($!list-view);
+}
+
+#-------------------------------------------------------------------------------
+method set-events ( :$object, *%options ) {
+
+  $!list-view.register-signal(
+    self, 'activate-list-item', 'activate', :$object, |%options
+  ) if ?$object and $object.^can('activate-list-item');
+
+#  self.set-events-helper( :$object, |%options);
+
+#note "$?LINE ", self.^can("set-events");
+#note "$?LINE ", self.methods;
 }

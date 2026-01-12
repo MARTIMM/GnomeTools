@@ -41,7 +41,7 @@ my GnomeTools::Gtk::Dialog $dialog .= new(
 my @items = <class role method sub submethod for else unit package module>;
 
 my GnomeTools::Gtk::ListView $listview .= new(
-  :object($helper), :$dialog, :@items
+  :multi-select, :object($helper), :$dialog, :@items
 );
 
 for @items -> $item {

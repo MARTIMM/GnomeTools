@@ -19,6 +19,8 @@ use Gnome::Gtk4::Label:api<2>;
 use Gnome::Gtk4::T-enums:api<2>;
 use Gnome::Gtk4::N-Bitset:api<2>;
 
+#use Method::Also;
+
 #-------------------------------------------------------------------------------
 unit role GnomeTools::Gtk::R-ListModel;
 
@@ -28,18 +30,25 @@ has $!selection-type;
 has Gnome::Gtk4::SignalListItemFactory $!signal-factory;
 
 #-------------------------------------------------------------------------------
-method set-events ( Bool :$multi-select = False, :$object, *%options ) {
+method init ( Bool :$multi-select = False ) {
   $!list-objects .= new-stringlist(CArray[Str].new(Str));
 
   $!selection-type = $multi-select
     ?? Gnome::Gtk4::MultiSelection.new-multiselection($!list-objects)
     !! Gnome::Gtk4::SingleSelection.new-singleselection($!list-objects);
+
+  $!signal-factory .= new-signallistitemfactory;
+}
+
+#-------------------------------------------------------------------------------
+method set-events ( :$object, *%options ) {
+
   $!selection-type.register-signal(
     self, 'selection-changed', 'selection-changed', :$object, |%options
   ) if ?$object and $object.^can('selection-changed');
 
   # See also https://docs.gtk.org/gtk4/class.SignalListItemFactory.html
-  with $!signal-factory .= new-signallistitemfactory {
+  with $!signal-factory {
     .register-signal( self, 'setup-list-item', 'setup', :$object, |%options);
     .register-signal( self, 'bind-list-item', 'bind', :$object, |%options);
     .register-signal( self, 'unbind-list-item', 'unbind', :$object, |%options)
