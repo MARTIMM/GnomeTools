@@ -9,11 +9,11 @@ use Gnome::Gtk4::DropDown:api<2>;
 #use Gnome::Gtk4::StringList:api<2>;
 use Gnome::Gtk4::T-types:api<2>;
 #use Gnome::Gtk4::SignalListItemFactory:api<2>;
-use Gnome::Gtk4::SingleSelection:api<2>;
+#use Gnome::Gtk4::SingleSelection:api<2>;
 
 use Gnome::N::GlibToRakuTypes:api<2>;
 use Gnome::N::N-Object:api<2>;
-use Gnome::N::X:api<2>;
+#use Gnome::N::X:api<2>;
 #Gnome::N::debug(:on);
 
 use GnomeTools::Gtk::Theming;
@@ -62,32 +62,6 @@ submethod BUILD ( ) {
 
   $!theme .= new;
   $!theme.add-css-class( self, 'dropdown-tool');
-
-#`{{
-  # Initialize the dropdown object with an empty list
-  $!list-objects .= new-stringlist(CArray[Str].new(Str));
-
-  $!selection-type =
-    Gnome::Gtk4::SingleSelection.new-singleselection($!list-objects);
-  $!selection-type.register-signal(
-    self, 'selection-changed', 'selection-changed', :$object, |%options
-  ) if ?$object and $object.^can('selection-changed');
-  $!selection-type.register-signal(
-    self, 'selection-changed', 'notify::selected', :$object, |%options
-  ) if ?$object and $object.^can('selection-changed');
-
-  with $!signal-factory .= new-signallistitemfactory {
-    .register-signal( self, 'setup-list-item', 'setup', :$object, |%options);
-    .register-signal( self, 'bind-list-item', 'bind', :$object, |%options);
-    .register-signal( self, 'unbind-list-item', 'unbind', :$object, |%options)
-      if ?$object and $object.^can('unbind-list-item');
-    .register-signal(
-      self, 'teardown-list-item', 'teardown', :$object, |%options
-    );
-  }
-}}
-
-# self.init( :$object, |%options);
 
   $!list-objects .= new-stringlist(CArray[Str].new(Str));
   self.set-model($!list-objects);

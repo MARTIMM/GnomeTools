@@ -57,10 +57,6 @@ with my Dialog $dialog .= new(
   }
   .add-content( 'Select something 2', $dropdown2);
 
-#  $dropdown2.trap-dropdown-changes(
-#    $helper, 'change-dd', :$dropdown1, :$dropdown2, :$dialog
-#  );
-
   # Buttons
   .add-button(
     $helper, 'show-select', 'Get Selection 1', :$dialog, :dropdown($dropdown1)
