@@ -48,7 +48,6 @@ method set-events ( Bool :$multi-select = False, :$object, *%options ) {
       self, 'teardown-list-item', 'teardown', :$object, |%options
     );
   }
-
 }
 
 #-------------------------------------------------------------------------------

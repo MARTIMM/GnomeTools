@@ -3,23 +3,16 @@ use NativeCall;
 
 use Gnome::N::GlibToRakuTypes:api<2>;
 use Gnome::N::N-Object:api<2>;
-use Gnome::N::X:api<2>;
+#use Gnome::N::X:api<2>;
 #Gnome::N::debug(:on);
 
 use Gnome::Gtk4::ListView:api<2>;
-#use Gnome::Gtk4::ListItem:api<2>;
-use Gnome::Gtk4::SignalListItemFactory:api<2>;
-use Gnome::Gtk4::StringList:api<2>;
-#use Gnome::Gtk4::StringObject:api<2>;
-use Gnome::Gtk4::SingleSelection:api<2>;
-use Gnome::Gtk4::MultiSelection:api<2>;
 use Gnome::Gtk4::ScrolledWindow:api<2>;
 use Gnome::Gtk4::Label:api<2>;
 use Gnome::Gtk4::T-enums:api<2>;
-use Gnome::Gtk4::N-Bitset:api<2>;
 
 use GnomeTools::Gtk::Theming;
-use GnomeTools::Gtk::R-ListControl;
+use GnomeTools::Gtk::R-ListModel;
 
 #-------------------------------------------------------------------------------
 =begin pod
@@ -88,9 +81,10 @@ $dialog.show-dialog;
 
 unit class GnomeTools::Gtk::ListView:auth<github:MARTIMM>;
 also is Gnome::Gtk4::ScrolledWindow;
-also does GnomeTools::Gtk::R-ListControl;
+also does GnomeTools::Gtk::R-ListModel;
 
 has GnomeTools::Gtk::Theming $!theme;
+has Gnome::Gtk4::ListView $!list-view;
 
 #-------------------------------------------------------------------------------
 method new ( |c ) {
@@ -106,7 +100,7 @@ method new ( |c ) {
 Instanciate the listview class.
 
 =begin code
-submethod BUILD ( :$object, Bool :$!multi-select = True, *%options )
+submethod BUILD ( Bool :$!multi-select = True, :$object, *%options )
 =end code
 
 =item $object: User object where methods are defined to process the events. There are many events which can be processed so the method names are fixed for simplicity. The method names are C<selection-changed> for the selection-changed event, C<activate-list-item> for the activate event, C<setup-list-item> to handle the setup event, C<bind-list-item> handles the bind event, C<unbind-list-item> handles the unbind event, and C<teardown-list-item> for the teardown event. The methods are not called when they are not defined.
@@ -147,7 +141,6 @@ method teardown-list-item ( Gnome::Gtk4::Widget $widget, *%options )
 
 =item $!multi-select: Selection method. By default, more than one entry can be selected. Selections can be done a) by holding <CTRL> or <SHIFT> and click on the entries. b) by dragging the pointer over the entries (rubberband select).
 =item *%options: Any user options. The options are given to the methods in C<$object>.
-
 =end pod
 
 submethod BUILD ( Bool :$multi-select = True, :$object, *%options ) {
@@ -159,7 +152,7 @@ submethod BUILD ( Bool :$multi-select = True, :$object, *%options ) {
   self.set-propagate-natural-width(True);
 
   # Prepare event handling
-  self.init( :$multi-select, :$object, |%options);
+  self.set-events( :$multi-select, :$object, |%options);
 
   with $!list-view .= new-listview( N-Object, N-Object) {
     .set-model($!selection-type);
