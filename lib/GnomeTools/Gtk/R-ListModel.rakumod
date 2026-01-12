@@ -7,7 +7,7 @@ use Gnome::N::N-Object:api<2>;
 use Gnome::N::X:api<2>;
 #Gnome::N::debug(:on);
 
-use Gnome::Gtk4::ListView:api<2>;
+#use Gnome::Gtk4::ListView:api<2>;
 use Gnome::Gtk4::ListItem:api<2>;
 use Gnome::Gtk4::SignalListItemFactory:api<2>;
 use Gnome::Gtk4::StringList:api<2>;
@@ -20,16 +20,15 @@ use Gnome::Gtk4::T-enums:api<2>;
 use Gnome::Gtk4::N-Bitset:api<2>;
 
 #-------------------------------------------------------------------------------
-unit role GnomeTools::Gtk::R-ListControl;
+unit role GnomeTools::Gtk::R-ListModel;
 
 has Gnome::Gtk4::StringList $!list-objects;
 #has Bool $!multi-select;
 has $!selection-type;
 has Gnome::Gtk4::SignalListItemFactory $!signal-factory;
-has Gnome::Gtk4::ListView $!list-view;
 
 #-------------------------------------------------------------------------------
-method init ( Bool :$multi-select = True, :$object, *%options ) {
+method set-events ( Bool :$multi-select = False, :$object, *%options ) {
   $!list-objects .= new-stringlist(CArray[Str].new(Str));
 
   $!selection-type = $multi-select
@@ -49,6 +48,7 @@ method init ( Bool :$multi-select = True, :$object, *%options ) {
       self, 'teardown-list-item', 'teardown', :$object, |%options
     );
   }
+
 }
 
 #-------------------------------------------------------------------------------
@@ -145,8 +145,12 @@ method activate-list-item ( UInt $position, :$object, *%options ) {
 method selection-changed (
   UInt $position, UInt $n-items, :$object, *%options
 ) {
-note "$?LINE selection-changed";
   $object.selection-changed( $position, self.get-selection, |%options);
+}
+
+#-------------------------------------------------------------------------------
+method selection-changed-notify ( N-Object $, :$object, *%options ) {
+  $object.selection-changed(|%options);
 }
 
 #-------------------------------------------------------------------------------
