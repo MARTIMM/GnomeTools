@@ -13,29 +13,20 @@ use Gnome::N::X:api<2>;
 
 %*ENV<IGNORE_GNOME_DEPRECATION_MESSAGES> = 1;
 
+my constant DropDown = GnomeTools::Gtk::DropDown;
+my constant Dialog = GnomeTools::Gtk::Dialog;
+
 #-------------------------------------------------------------------------------
 class HelperObject {
-  method show-select (
-    GnomeTools::Gtk::DropDown :$dropdown, GnomeTools::Gtk::Dialog :$dialog
-  ) {
+  method show-select ( DropDown :$dropdown, Dialog :$dialog ) {
     my Str $selection = $dropdown.get-text;
     $dialog.set-status("'$selection' selected");
 #note "$?LINE selection: ", $dropdown.get-selection, ', ', $dropdown.get-selection(:rows);
 #    $dropdown.remove(1);
   }
 
-  # ListView callbacks
   method selection-changed (
-    UInt $position, @selections, GnomeTools::Gtk::Dialog :$dialog
-  ) {
-    $dialog.set-status("items '{@selections.join(', ')}' are selected");
-  }
-
-  method change-dd (
-    N-Object $,
-    GnomeTools::Gtk::DropDown :$dropdown1,
-    GnomeTools::Gtk::DropDown :$dropdown2,
-    GnomeTools::Gtk::Dialog :$dialog
+    DropDown :$dropdown1, DropDown :$dropdown2, Dialog :$dialog
   ) {
     my Str $selection = $dropdown2.get-text;
     $dialog.set-status("'$selection' selected");
@@ -48,44 +39,38 @@ my HelperObject $helper .= new;
 #-------------------------------------------------------------------------------
 my @items = <class role method sub submethod for else unit package module>;
 
-with my GnomeTools::Gtk::Dialog $dialog .= new(
+with my Dialog $dialog .= new(
   :dialog-header('Test Dialog'), :add-statusbar
 ) {
-Gnome::N::debug(:on);
-  my GnomeTools::Gtk::DropDown $dropdown1 .= new(
-    :object($helper), :$dialog, :@items
-  );
-Gnome::N::debug(:off);
+  my DropDown $dropdown1 .= new;
+#  $dropdown1.init;
+
   for @items -> $item {
     $dropdown1.append($item);
   }
   .add-content( 'Select something 1', $dropdown1);
 
-#`{{
-my GnomeTools::Gtk::DropDown $dropdown1 .= new;
-$dropdown1.set-selection( <abc def ghi en nogiuyuiyuy wat dusiuyuiyuy>, :select-item<ghi>);
-$dialog.add-content( 'Select something 1', $dropdown1);
+  my DropDown $dropdown2 .= new;
+  $dropdown2.set-events(:object($helper), :$dialog, :$dropdown1, :$dropdown2);
+  for @items.reverse -> $item {
+    $dropdown2.append($item);
+  }
+  .add-content( 'Select something 2', $dropdown2);
 
-my GnomeTools::Gtk::DropDown $dropdown2 .= new;
-$dropdown2.set-selection( <abc def ghi en nogiuyuiyuy wat dusiuyuiyuy>, :select-item<ghi>);
-$dialog.add-content( 'Select something 2', $dropdown2);
-
-$dropdown2.trap-dropdown-changes(
-  $helper, 'change-dd', :$dropdown1, :$dropdown2, :$dialog
-);
-}}
+#  $dropdown2.trap-dropdown-changes(
+#    $helper, 'change-dd', :$dropdown1, :$dropdown2, :$dialog
+#  );
 
   # Buttons
   .add-button(
     $helper, 'show-select', 'Get Selection 1', :$dialog, :dropdown($dropdown1)
   );
 
-  #.add-button(
-  #  $helper, 'show-select', 'Get Selection 2', :$dialog, :dropdown($dropdown2)
-  #);
+  .add-button(
+    $helper, 'show-select', 'Get Selection 2', :$dialog, :dropdown($dropdown2)
+  );
 
   .add-button( $dialog, 'destroy-dialog', 'Cancel');
 
   .show-dialog;
-
 }

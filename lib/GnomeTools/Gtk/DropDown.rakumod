@@ -17,7 +17,7 @@ use Gnome::N::X:api<2>;
 #Gnome::N::debug(:on);
 
 use GnomeTools::Gtk::Theming;
-use GnomeTools::Gtk::R-ListControl;
+use GnomeTools::Gtk::R-ListModel;
 
 #-------------------------------------------------------------------------------
 =begin pod
@@ -29,7 +29,7 @@ use GnomeTools::Gtk::R-ListControl;
 
 unit class GnomeTools::Gtk::DropDown:auth<github:MARTIMM>;
 also is Gnome::Gtk4::DropDown;
-also does GnomeTools::Gtk::R-ListControl;
+also does GnomeTools::Gtk::R-ListModel;
 
 has GnomeTools::Gtk::Theming $!theme;
 
@@ -38,18 +38,28 @@ has GnomeTools::Gtk::Theming $!theme;
 #has Gnome::Gtk4::SingleSelection $!selection-type;
 
 #-------------------------------------------------------------------------------
+method set-events ( :$object, *%options ) {
+  $!list-objects .= new-stringlist(CArray[Str].new(Str)) unless ?$!list-objects;
+  self.register-signal(
+    self, 'selection-changed-notify', 'notify::selected', :$object, |%options
+  ) if ?$object and $object.^can('selection-changed');
+}
+
+#-------------------------------------------------------------------------------
 multi method new ( N-Object() $model, N-Object() $expression, |c ) {
   self.new-dropdown( $model, $expression);
 }
 
 #-------------------------------------------------------------------------------
 multi method new ( |c ) {
-  self.new-dropdown( N-Object, N-Object);
+  self.new-dropdown( N-Object, N-Object, |c);
 }
 
 #-------------------------------------------------------------------------------
 # Initialize from main page
-submethod BUILD ( :$object, *%options ) {
+#submethod BUILD ( :$object, *%options ) {
+submethod BUILD ( ) {
+
   $!theme .= new;
   $!theme.add-css-class( self, 'dropdown-tool');
 
@@ -77,8 +87,9 @@ submethod BUILD ( :$object, *%options ) {
   }
 }}
 
-  self.init( :!multi-select, :$object, |%options);
+# self.init( :$object, |%options);
 
+  $!list-objects .= new-stringlist(CArray[Str].new(Str));
   self.set-model($!list-objects);
 
 # No factory! default is ok. also shows mark of selection when list is visible
@@ -87,39 +98,6 @@ submethod BUILD ( :$object, *%options ) {
 #  self.set-header-factory($!signal-factory);
 
   self.set-show-arrow(True);
-}
-
-#-------------------------------------------------------------------------------
-method set-selection ( @items ) {
-#  my Gnome::Gtk4::StringList() $stringlist .= new-stringlist([]);
-#  self.set-model($stringlist);
-#  my Int $index = 0;
-#  my Bool $index-found = False;
-
-  # Add the container strings
-  for @items -> $item {
-    $!list-objects.append($item);
-#    $index-found = True if $item eq $select-item;
-#    $index++ unless $index-found;
-  }
-
-#  self.set-selected($index-found ?? $index !! 0);
-}
-
-#-------------------------------------------------------------------------------
-method add-selection ( $item ) {
-#  my Gnome::Gtk4::StringList() $stringlist = self.get-model;
-#  my Int $index = 0;
-#  my Bool $index-found = False;
-
-  # Add the container strings
-#  for @items -> $item {
-    $!list-objects.append($item);
-#    $index-found = True if $item eq $select-item;
-#    $index++ unless $index-found;
-#  }
-
-#  self.set-selected($index-found ?? $index !! 0);
 }
 
 #-------------------------------------------------------------------------------
@@ -145,10 +123,4 @@ method get-text ( --> Str ) {
   $s
 }
 
-#-------------------------------------------------------------------------------
-method trap-dropdown-changes (
-  Any:D $helper-object, Str:D $method, *%options
-) {
-  self.register-signal( $helper-object, $method, 'notify::selected', |%options);
-}
-
+=finish
