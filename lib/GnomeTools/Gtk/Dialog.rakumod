@@ -230,15 +230,11 @@ submethod BUILD (
 Content is added to the dialog. There is always a label on the left and a user defined widget on the right.
 
 =begin code
-multi method add-content (
-  Str:D $text, *@widgets, Int :$columns = 1, Int :$rows = 1
-)
-
-multi method add-content ( Str:D $text, Array:D $widgets, Int :$rows = 1 )
+method add-content ( Str:D $text, *@widgets, Int :$columns = 1, Int :$rows = 1 )
 
 =end code
 =item $text; The text shown on the left
-=item *@widgets or $widgets; One or more widgets placed horizontally
+=item *@widgets; One or more widgets placed horizontally
 =item $columns; The number of columns each widget needs. By default 1.
 =item $rows; The number of rows each widget needs. By default 1.
 
@@ -261,22 +257,6 @@ multi method add-content (
   );
 
   for @widgets -> $widget {
-    $widget.set-hexpand(True);
-    $!content.attach( $widget, $column, $!content-count, $columns, $rows);
-    $column += $columns;
-  }
-
-  $!content-count += $rows;
-}
-
-#-------------------------------------------------------------------------------
-multi method add-content ( Str:D $text, Array:D $widgets, Int :$rows = 1 ) {
-  my Int $column = 0;
-  $!content.attach(
-    self!make-content-label($text), $column++, $!content-count, 1, 1
-  );
-
-  for @$widgets -> Int $columns, $widget {
     $widget.set-hexpand(True);
     $!content.attach( $widget, $column, $!content-count, $columns, $rows);
     $column += $columns;
