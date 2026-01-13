@@ -153,7 +153,7 @@ submethod BUILD ( Bool :$multi-select = False, :$object, *%options ) {
 
 #  # Prepare event handling
 #  self.set-events( :$multi-select, :$object, |%options);
-  self.init(:$multi-select);
+  self!init(:$multi-select);
 
   with $!list-view .= new-listview( N-Object, N-Object) {
     .set-model($!selection-type);
