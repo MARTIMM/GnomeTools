@@ -41,7 +41,7 @@ method init ( Bool :$multi-select = False ) {
 }
 
 #-------------------------------------------------------------------------------
-method set-events ( :$object, *%options ) {
+method !set-events ( :$object, *%options ) {
 
   $!selection-type.register-signal(
     self, 'selection-changed', 'selection-changed', :$object, |%options

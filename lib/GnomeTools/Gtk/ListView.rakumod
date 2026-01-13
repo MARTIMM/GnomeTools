@@ -177,7 +177,8 @@ method set-events ( :$object, *%options ) {
     self, 'activate-list-item', 'activate', :$object, |%options
   ) if ?$object and $object.^can('activate-list-item');
 
-#  self.set-events-helper( :$object, |%options);
+  self!set-events( :$object, |%options);
+
 
 #note "$?LINE ", self.^can("set-events");
 #note "$?LINE ", self.methods;
