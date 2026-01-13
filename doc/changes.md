@@ -1,3 +1,6 @@
+* 2026 01 13 0.5.2
+  * Introduced role **GnomeTools::Gtk::R-ListModel** to move many methods from ListView. This makes it easier to make future classes like GridView and ColumnView. Also the eventconnection must not take place in BUILD() but later, called via an extra method `.set-events()`.
+
 * 2026 01 05 0.5.1
   * Pod doc completed for **GnomeTools::Gtk::ListView**.
 

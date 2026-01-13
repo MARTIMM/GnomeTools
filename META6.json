@@ -18,6 +18,7 @@
     "GnomeTools::Gtk::ListBox": "lib/GnomeTools/Gtk/ListBox.rakumod",
     "GnomeTools::Gtk::ListView": "lib/GnomeTools/Gtk/ListView.rakumod",
     "GnomeTools::Gtk::MessageDialog": "lib/GnomeTools/Gtk/MessageDialog.rakumod",
+    "GnomeTools::Gtk::R-ListModel": "lib/GnomeTools/Gtk/R-ListModel.rakumod",
     "GnomeTools::Gtk::Statusbar": "lib/GnomeTools/Gtk/Statusbar.rakumod",
     "GnomeTools::Gtk::Theming": "lib/GnomeTools/Gtk/Theming.rakumod"
   },
