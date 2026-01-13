@@ -38,14 +38,6 @@ has GnomeTools::Gtk::Theming $!theme;
 #has Gnome::Gtk4::SingleSelection $!selection-type;
 
 #-------------------------------------------------------------------------------
-method set-events ( :$object, *%options ) {
-  $!list-objects .= new-stringlist(CArray[Str].new(Str)) unless ?$!list-objects;
-  self.register-signal(
-    self, 'selection-changed-notify', 'notify::selected', :$object, |%options
-  ) if ?$object and $object.^can('selection-changed');
-}
-
-#-------------------------------------------------------------------------------
 multi method new ( N-Object() $model, N-Object() $expression, |c ) {
   self.new-dropdown( $model, $expression);
 }
@@ -72,6 +64,14 @@ submethod BUILD ( ) {
 #  self.set-header-factory($!signal-factory);
 
   self.set-show-arrow(True);
+}
+
+#-------------------------------------------------------------------------------
+method set-events ( :$object, *%options ) {
+  $!list-objects .= new-stringlist(CArray[Str].new(Str)) unless ?$!list-objects;
+  self.register-signal(
+    self, 'selection-changed-notify', 'notify::selected', :$object, |%options
+  ) if ?$object and $object.^can('selection-changed');
 }
 
 #-------------------------------------------------------------------------------
