@@ -6,10 +6,7 @@ use NativeCall;
 #TODO also make use of ObjectList to add widgets instead of strings only
 
 use Gnome::Gtk4::DropDown:api<2>;
-#use Gnome::Gtk4::StringList:api<2>;
 use Gnome::Gtk4::T-types:api<2>;
-#use Gnome::Gtk4::SignalListItemFactory:api<2>;
-#use Gnome::Gtk4::SingleSelection:api<2>;
 
 use Gnome::N::GlibToRakuTypes:api<2>;
 use Gnome::N::N-Object:api<2>;
@@ -24,6 +21,19 @@ use GnomeTools::Gtk::R-ListModel;
 =TITLE GnomeTools::Gtk::DropDown
 =head1 Description
 
+Dropdown class using the Gtk4 dropdown class. This module makes it a bit more easy to handle the Gtk4 class.
+
+=head2 Css
+
+There is only one css class defined. It is called `dropdown-tool`.
+
+=head2 Example
+
+  my @items = <class role method sub submethod for else unit package module>;
+  my GnomeTools::Gtk::DropDown $dropdown .= new;
+  for @items -> $item {
+    $dropdown.append($item);
+  }
 
 =end pod
 
@@ -33,14 +43,13 @@ also does GnomeTools::Gtk::R-ListModel;
 
 has GnomeTools::Gtk::Theming $!theme;
 
-#has Gnome::Gtk4::StringList $!list-objects;
-#has Gnome::Gtk4::SignalListItemFactory $!signal-factory;
-#has Gnome::Gtk4::SingleSelection $!selection-type;
-
+#`{{
+#TODO how to use the $expression
 #-------------------------------------------------------------------------------
 multi method new ( N-Object() $model, N-Object() $expression, |c ) {
   self.new-dropdown( $model, $expression);
 }
+}}
 
 #-------------------------------------------------------------------------------
 multi method new ( |c ) {
@@ -48,8 +57,16 @@ multi method new ( |c ) {
 }
 
 #-------------------------------------------------------------------------------
-# Initialize from main page
-#submethod BUILD ( :$object, *%options ) {
+=begin pod
+=head1 Methods
+=head2 new
+
+Create a new dropdown object.
+
+=begin code
+=end code
+=end pod
+
 submethod BUILD ( ) {
 
   $!theme .= new;
