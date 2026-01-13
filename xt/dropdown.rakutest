@@ -21,7 +21,8 @@ class HelperObject {
   method show-select ( DropDown :$dropdown, Dialog :$dialog ) {
     my Str $selection = $dropdown.get-text;
     $dialog.set-status("'$selection' selected");
-#note "$?LINE selection: ", $dropdown.get-selection, ', ', $dropdown.get-selection(:rows);
+note "$?LINE selection: ", $dropdown.get-selection;
+
 #    $dropdown.remove(1);
   }
 
@@ -43,8 +44,6 @@ with my Dialog $dialog .= new(
   :dialog-header('Test Dialog'), :add-statusbar
 ) {
   my DropDown $dropdown1 .= new;
-#  $dropdown1.init;
-
   for @items -> $item {
     $dropdown1.append($item);
   }
