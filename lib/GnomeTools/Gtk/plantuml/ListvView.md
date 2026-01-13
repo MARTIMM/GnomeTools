@@ -13,6 +13,7 @@ class GnomeTools::Gtk::R-ListModel <<(R,#80ffff)>>
 "GnomeTools::Gtk::R-ListModel" <|.. "GnomeTools::Gtk::ListView"
 "GnomeTools::Gtk::R-ListModel" <|.. "GnomeTools::Gtk::ColumnView"
 "GnomeTools::Gtk::R-ListModel" <|.. "GnomeTools::Gtk::GridView"
+"GnomeTools::Gtk::R-ListModel" <|.. "GnomeTools::Gtk::DropDown"
 @enduml
 ```
 
