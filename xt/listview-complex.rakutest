@@ -158,9 +158,8 @@ my %items = load-yaml(Q:qq:to/EOYAML/);
   EOYAML
 
 
-my GnomeTools::Gtk::ListView $listview .= new(
-  :multi-select, :object($helper), :$dialog, :%items
-);
+my GnomeTools::Gtk::ListView $listview .= new(:multi-select);
+$listview.set-events( :object($helper), :$dialog, :%items);
 for %items.keys -> $item {
   $listview.append($item);
 }

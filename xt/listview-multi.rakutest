@@ -40,10 +40,8 @@ my GnomeTools::Gtk::Dialog $dialog .= new(
 
 my @items = <class role method sub submethod for else unit package module>;
 
-my GnomeTools::Gtk::ListView $listview .= new(
-  :multi-select, :object($helper), :$dialog, :@items
-);
-
+my GnomeTools::Gtk::ListView $listview .= new(:multi-select);
+$listview.set-events( :object($helper), :$dialog, :@items);
 for @items -> $item {
   $listview.append($item);
 }
