@@ -22,6 +22,14 @@ use Gnome::Gtk4::N-Bitset:api<2>;
 #use Method::Also;
 
 #-------------------------------------------------------------------------------
+=begin pod
+=TITLE GnomeTools::Gtk::R-ListModel
+=head1 Description
+
+Role to be used for List objects like B<GnomeTools::Gtk::ListView>. 
+
+=end pod
+
 unit role GnomeTools::Gtk::R-ListModel;
 
 has Gnome::Gtk4::StringList $!list-objects;
@@ -30,7 +38,7 @@ has $!selection-type;
 has Gnome::Gtk4::SignalListItemFactory $!signal-factory;
 
 #-------------------------------------------------------------------------------
-method init ( Bool :$multi-select = False ) {
+method !init ( Bool :$multi-select = False ) {
   $!list-objects .= new-stringlist(CArray[Str].new(Str));
 
   $!selection-type = $multi-select
