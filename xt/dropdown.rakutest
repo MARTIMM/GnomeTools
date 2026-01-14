@@ -21,9 +21,6 @@ class HelperObject {
   method show-select ( DropDown :$dropdown, Dialog :$dialog ) {
     my Str $selection = $dropdown.get-text;
     $dialog.set-status("'$selection' selected");
-note "$?LINE selection: ", $dropdown.get-selection;
-
-#    $dropdown.remove(1);
   }
 
   method selection-changed (
