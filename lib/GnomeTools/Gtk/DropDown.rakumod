@@ -64,7 +64,9 @@ multi method new ( |c ) {
 Create a new dropdown object.
 
 =begin code
+submethod BUILD ( )
 =end code
+
 =end pod
 
 submethod BUILD ( ) {
@@ -76,6 +78,7 @@ submethod BUILD ( ) {
   self.set-model($!list-objects);
 
 # No factory! default is ok. also shows mark of selection when list is visible
+#  self!init(:!multi-select);
 #  self.set-factory($!signal-factory);
 #  self.set-list-factory($!signal-factory);
 #  self.set-header-factory($!signal-factory);
@@ -92,6 +95,18 @@ method set-events ( :$object, *%options ) {
 }
 
 #-------------------------------------------------------------------------------
+=begin pod
+=head2 select
+
+Select an entry to be shown from the dropdown list.
+
+=begin code
+method select ( Str:D $select-item )
+=end code
+=item $select-item; The item to be selected.
+
+=end pod
+
 method select ( Str:D $select-item ) {
 #  my Gnome::Gtk4::StringList() $stringlist = self.get-model;
   for ^$!list-objects.get-n-items -> $index {
@@ -103,6 +118,16 @@ method select ( Str:D $select-item ) {
 }
 
 #-------------------------------------------------------------------------------
+=begin pod
+=head2 get-text
+
+Get the text of the currently selected item.
+
+=begin code
+method get-text ( --> Str )
+=end code
+=end pod
+
 method get-text ( --> Str ) {
 #say Backtrace.new.nice;
 #  my Gnome::Gtk4::StringList() $stringlist = self.get-model;
@@ -113,5 +138,3 @@ method get-text ( --> Str ) {
 
   $s
 }
-
-=finish
