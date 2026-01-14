@@ -184,6 +184,8 @@ method get-selection ( Bool :$rows = False --> List )
 
 method get-selection ( Bool :$rows = False --> List ) {
 
+  return () unless ?$!selection-type;
+
   my @selections = ();
   my Gnome::Gtk4::N-Bitset $bitset .= new(
     :native-object($!selection-type.get-selection)
