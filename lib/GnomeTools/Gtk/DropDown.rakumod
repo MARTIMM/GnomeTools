@@ -7,6 +7,7 @@ use NativeCall;
 
 use Gnome::Gtk4::DropDown:api<2>;
 use Gnome::Gtk4::T-types:api<2>;
+use Gnome::Gtk4::SingleSelection:api<2>;
 
 use Gnome::N::GlibToRakuTypes:api<2>;
 use Gnome::N::N-Object:api<2>;
@@ -69,17 +70,17 @@ submethod BUILD ( )
 
 =end pod
 
-submethod BUILD ( ) {
+submethod BUILD () {
 
   $!theme .= new;
   $!theme.add-css-class( self, 'dropdown-tool');
 
-  $!list-objects .= new-stringlist(CArray[Str].new(Str));
-  self.set-model($!list-objects);
+#  $!list-objects .= new-stringlist(CArray[Str].new(Str));
+  self!init(:!multi-select);
+  self.set-model($!selection-type);
 
 # No factory! default is ok. also shows mark of selection when list is visible
-#  self!init(:!multi-select);
-#  self.set-factory($!signal-factory);
+  self.set-factory($!signal-factory);
 #  self.set-list-factory($!signal-factory);
 #  self.set-header-factory($!signal-factory);
 
@@ -88,11 +89,20 @@ submethod BUILD ( ) {
 
 #-------------------------------------------------------------------------------
 method set-events ( :$object, *%options ) {
-  $!list-objects .= new-stringlist(CArray[Str].new(Str)) unless ?$!list-objects;
+  self!set-events( :$object, |%options);
+#`{{
   self.register-signal(
     self, 'selection-changed-notify', 'notify::selected', :$object, |%options
   ) if ?$object and $object.^can('selection-changed');
+}}
 }
+
+#`{{
+#-------------------------------------------------------------------------------
+method selection-changed-notify ( N-Object $, :$object, *%options ) {
+  $object.selection-changed(|%options);
+}
+}}
 
 #-------------------------------------------------------------------------------
 =begin pod
@@ -129,8 +139,6 @@ method get-text ( --> Str )
 =end pod
 
 method get-text ( --> Str ) {
-#say Backtrace.new.nice;
-#  my Gnome::Gtk4::StringList() $stringlist = self.get-model;
   my UInt $p = self.get-selected;
 
   my Str $s = '';
