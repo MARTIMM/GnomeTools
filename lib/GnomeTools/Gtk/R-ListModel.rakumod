@@ -26,18 +26,19 @@ use Gnome::Gtk4::N-Bitset:api<2>;
 =TITLE GnomeTools::Gtk::R-ListModel
 =head1 Description
 
-Role to be used for List objects like B<GnomeTools::Gtk::ListView>. 
+Role to be used for List objects such as B<GnomeTools::Gtk::ListView>. 
 
 =end pod
 
 unit role GnomeTools::Gtk::R-ListModel;
 
 has Gnome::Gtk4::StringList $!list-objects;
-#has Bool $!multi-select;
 has $!selection-type;
 has Gnome::Gtk4::SignalListItemFactory $!signal-factory;
 
 #-------------------------------------------------------------------------------
+# Init called from role users like GnomeTools::Gtk::ListView to
+# initialize 
 method !init ( Bool :$multi-select = False ) {
   $!list-objects .= new-stringlist(CArray[Str].new(Str));
 
@@ -51,9 +52,25 @@ method !init ( Bool :$multi-select = False ) {
 #-------------------------------------------------------------------------------
 method !set-events ( :$object, *%options ) {
 
-  $!selection-type.register-signal(
-    self, 'selection-changed', 'selection-changed', :$object, |%options
-  ) if ?$object and $object.^can('selection-changed');
+  my $callframe = callframe(1);
+note "$?LINE ", $callframe.code.gist.Str;
+note "$?LINE ", $callframe.code.^name;
+note "$?LINE ", $callframe.code.package.^name;
+
+  # A DropDown has different events to cope with
+  if $callframe.code.gist ~~ 'set-events' and
+     $callframe.code.package.^name ~~ 'GnomeTools::Gtk::DropDown'
+  {
+    self.register-signal(
+      self, 'selection-changed-notify', 'notify::selected', :$object, |%options
+    ) if ?$object and $object.^can('selection-changed');
+  }
+
+  else {
+    $!selection-type.register-signal(
+      self, 'selection-changed', 'selection-changed', :$object, |%options
+    ) if ?$object and $object.^can('selection-changed');
+  }
 
   # See also https://docs.gtk.org/gtk4/class.SignalListItemFactory.html
   with $!signal-factory {
@@ -75,7 +92,6 @@ method !set-events ( :$object, *%options ) {
 method setup-list-item (
   Gnome::Gtk4::ListItem() $list-item, :$object, *%options
 ) {
-
   # If object and method exists, call the method to let the widget
   # be created by the user.
   if ?$object and $object.^can('setup-list-item') {
