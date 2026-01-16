@@ -53,9 +53,9 @@ method !init ( Bool :$multi-select = False ) {
 method !set-events ( :$object, *%options ) {
 
   my $callframe = callframe(1);
-note "$?LINE ", $callframe.code.gist.Str;
-note "$?LINE ", $callframe.code.^name;
-note "$?LINE ", $callframe.code.package.^name;
+#note "$?LINE ", $callframe.code.gist.Str;
+#note "$?LINE ", $callframe.code.^name;
+#note "$?LINE ", $callframe.code.package.^name;
 
   # A DropDown has different events to cope with
   if $callframe.code.gist ~~ 'set-events' and
