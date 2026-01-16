@@ -22,7 +22,7 @@ class HelperObject {
     my Str $selection = $dropdown.get-text;
     $dialog.set-status("'$selection' selected");
 
-note $?LINE, ', ', $dropdown.get-string($dropdown.get-selected);
+#note $?LINE, $dropdown.get-string($dropdown.get-selected);
 
 #$dropdown.remove($dropdown.get-selected);
 #$dropdown.splice( 3, 2, <abc def ghi>);
@@ -48,16 +48,12 @@ with my Dialog $dialog .= new(
 ) {
   my DropDown $dropdown1 .= new;
   $dropdown1.set-events;
-  for @items -> $item {
-    $dropdown1.append($item);
-  }
+  $dropdown1.append(|@items);
   .add-content( 'Select something 1', $dropdown1);
 
   my DropDown $dropdown2 .= new;
   $dropdown2.set-events( :object($helper), :$dialog, :$dropdown1, :$dropdown2);
-  for @items.reverse -> $item {
-    $dropdown2.append($item);
-  }
+  $dropdown2.append(|@items.reverse);
   .add-content( 'Select something 2', $dropdown2);
 
   # Buttons

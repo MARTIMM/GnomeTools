@@ -227,14 +227,16 @@ method get-selection ( Bool :$rows = False --> List ) {
 
 Add an item at the end of the list
 =begin code
-method append ( Str $list-item )
+method append ( *@list-item )
 =end code
 
-=item $list-item: The item to append.
+=item @list-item: Items to append. Items must be of C<Str> type
 =end pod
 
-method append ( Str $list-item ) {
-  $!list-objects.append($list-item);
+method append ( *@list-item ) {
+  for @list-item -> $list-item {
+    $!list-objects.append($list-item);
+  }
 }
 
 #-------------------------------------------------------------------------------

@@ -160,9 +160,7 @@ my %items = load-yaml(Q:qq:to/EOYAML/);
 
 my GnomeTools::Gtk::ListView $listview .= new(:multi-select);
 $listview.set-events( :object($helper), :$dialog, :%items);
-for %items.keys -> $item {
-  $listview.append($item);
-}
+$listview.append(|%items.keys);
 $dialog.add-content( 'Nice list', $listview);
 
 # Buttons
