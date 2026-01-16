@@ -77,7 +77,8 @@ submethod BUILD () {
 
 #  $!list-objects .= new-stringlist(CArray[Str].new(Str));
   self!init(:!multi-select);
-  self.set-model($!selection-type);
+#  self.set-model($!selection-type);
+  self.set-model($!list-objects);
 
 # No factory! default is ok. also shows mark of selection when list is visible
   self.set-factory($!signal-factory);
@@ -90,19 +91,15 @@ submethod BUILD () {
 #-------------------------------------------------------------------------------
 method set-events ( :$object, *%options ) {
   self!set-events( :$object, |%options);
-#`{{
   self.register-signal(
     self, 'selection-changed-notify', 'notify::selected', :$object, |%options
   ) if ?$object and $object.^can('selection-changed');
-}}
 }
 
-#`{{
 #-------------------------------------------------------------------------------
 method selection-changed-notify ( N-Object $, :$object, *%options ) {
   $object.selection-changed(|%options);
 }
-}}
 
 #-------------------------------------------------------------------------------
 =begin pod
