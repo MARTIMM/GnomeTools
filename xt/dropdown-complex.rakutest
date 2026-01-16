@@ -1,0 +1,162 @@
+use v6.d;
+#use Test;
+
+use YAMLish;
+
+use GnomeTools::Gtk::DropDown;
+use GnomeTools::Gtk::Dialog;
+
+use Gnome::Gtk4::Label:api<2>;
+use Gnome::Gtk4::Image:api<2>;
+use Gnome::Gtk4::T-enums:api<2>;
+
+use Gnome::N::N-Object:api<2>;
+use Gnome::N::X:api<2>;
+#Gnome::N::debug(:on);
+
+
+%*ENV<IGNORE_GNOME_DEPRECATION_MESSAGES> = 1;
+
+my constant DropDown = GnomeTools::Gtk::DropDown;
+my constant Dialog = GnomeTools::Gtk::Dialog;
+
+#-------------------------------------------------------------------------------
+class HelperObject {
+  method show-select ( DropDown :$dropdown, Dialog :$dialog, :%items ) {
+    my Str $selection = $dropdown.get-text;
+    $dialog.set-status(%items{$selection}<name>);
+
+#note "$?LINE, $selection, $dropdown.get-selected(), $dropdown.get-string($dropdown.get-selected), %items{$selection}<icon>";
+
+#$dropdown.remove($dropdown.get-selected);
+#$dropdown.splice( 3, 2, <abc def ghi>);
+  }
+
+##`{{
+  method selection-changed ( DropDown :$dropdown, Dialog :$dialog ) {
+    my UInt $row = $dropdown.get-selected;
+    my Str $txt;
+    with $row {
+      when 0 { $txt = '1st'; }
+      when 1 { $txt = '2nd'; }
+      when 2 { $txt = '3rd'; }
+      default { $txt = $row ~ 'th'; }
+    }
+    $dialog.set-status("$txt row selected");
+  }
+#}}
+
+  # Signal factory callbacks
+  method setup-list-item ( --> Gnome::Gtk4::Widget ) {
+    with my Gnome::Gtk4::Label $label .= new-label {
+      .set-hexpand(True);
+      .set-justify(GTK_JUSTIFY_LEFT);
+      .set-halign(GTK_ALIGN_START);
+    }
+
+    my Gnome::Gtk4::Image $image .= new-image;
+
+    with my Gnome::Gtk4::Grid $grid .= new-grid {
+      .set-column-spacing(10);
+      .attach( $image, 0, 0, 1, 1);
+      .attach( $label, 1, 0, 1, 1);
+    }
+
+    $grid
+  }
+
+  method bind-list-item ( Gnome::Gtk4::Grid() $grid, Str $item-key, :%items ) {
+    my Gnome::Gtk4::Image() $image = $grid.get-child-at( 0, 0);
+    my Gnome::Gtk4::Label() $label = $grid.get-child-at( 1, 0);
+    $image.set-from-icon-name(%items{$item-key}<icon>);
+    $label.set-text(%items{$item-key}<name>);
+
+    # Only remove the items text widget
+    if ?%items{$item-key}<text> {
+      with my Gnome::Gtk4::Label $extra-label .= new-label {
+        .set-hexpand(True);
+        .set-justify(GTK_JUSTIFY_LEFT);
+        .set-halign(GTK_ALIGN_START);
+        .set-text(%items{$item-key}<text>);
+      }
+      $grid.attach( $extra-label, 0, 1, 2, 1);
+    }
+  }
+
+  # unbind is needed, otherwise text of extra label is not removed
+  method unbind-list-item (
+    Gnome::Gtk4::Grid() $grid, Str $item-key, :%items
+  ) {
+    if ?%items{$item-key}<text> {
+      my N-Object $nw = $grid.get-child-at( 0, 1);
+      $grid.remove($nw);
+    }
+  }
+}
+
+my HelperObject $helper .= new;
+
+#-------------------------------------------------------------------------------
+
+# Items are keys used to find name and optionally a text. I found it easier to
+# type YAML and then convert it. At the same time it is an example of data read
+# from a file.
+my %items = load-yaml(Q:qq:to/EOYAML/);
+  t0:
+    name: class
+    icon: favorities
+    text: Full fledged type
+  t1:
+    name: role
+    icon: folder-android-symbolic
+    text: An interface type
+  r0:
+    name: method
+    icon: folder-network-symbolic
+  r1:
+    name: sub
+    icon: certificate-server-symbolic
+  r2:
+    name: submethod
+    icon: favorities-symbolic
+  c0:
+    name: for
+    icon: folder-activities-symbolic
+    text: Loop through a series of data
+  c1:
+    name: if
+    icon: folder-blender-symbolic
+  c2:
+    name: else
+    icon: folder-bookmark-symbolic
+    text: Decision making
+  p0:
+    name: unit
+    icon: folder-calculate-symbolic
+  p1:
+    name: package
+    icon: folder-design-symbolic
+  p2:
+    name: module
+    icon: folder-database-symbolic
+  EOYAML
+
+with my Dialog $dialog .= new(
+  :dialog-header('Test Dialog'), :add-statusbar
+) {
+  my DropDown $dropdown .= new;
+  $dropdown.set-events( :object($helper), :$dialog, :%items, :$dropdown);
+  $dropdown.append(|%items.keys);
+
+  .add-content( 'Select something 1', $dropdown);
+
+  # Buttons
+  .add-button(
+    $helper, 'show-select', 'Get Selection 1',
+    :$dialog, :dropdown($dropdown), :%items
+  );
+
+  .add-button( $dialog, 'destroy-dialog', 'Cancel');
+
+  .show-dialog;
+}
