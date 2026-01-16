@@ -25,14 +25,8 @@ class HelperObject {
   method show-select ( DropDown :$dropdown, Dialog :$dialog, :%items ) {
     my Str $selection = $dropdown.get-text;
     $dialog.set-status(%items{$selection}<name>);
-
-#note "$?LINE, $selection, $dropdown.get-selected(), $dropdown.get-string($dropdown.get-selected), %items{$selection}<icon>";
-
-#$dropdown.remove($dropdown.get-selected);
-#$dropdown.splice( 3, 2, <abc def ghi>);
   }
 
-##`{{
   method selection-changed ( DropDown :$dropdown, Dialog :$dialog ) {
     my UInt $row = $dropdown.get-selected;
     my Str $txt;
@@ -40,11 +34,10 @@ class HelperObject {
       when 0 { $txt = '1st'; }
       when 1 { $txt = '2nd'; }
       when 2 { $txt = '3rd'; }
-      default { $txt = $row ~ 'th'; }
+      default { $txt = ($row + 1) ~ 'th'; }
     }
     $dialog.set-status("$txt row selected");
   }
-#}}
 
   # Signal factory callbacks
   method setup-list-item ( --> Gnome::Gtk4::Widget ) {
