@@ -137,9 +137,5 @@ method get-text ( --> Str )
 
 method get-text ( --> Str ) {
   my UInt $p = self.get-selected;
-
-  my Str $s = '';
-  $s = $!list-objects.get-string($p) unless $p == GTK_INVALID_LIST_POSITION;
-
-  $s
+  $p == GTK_INVALID_LIST_POSITION ?? '' !! $!list-objects.get-string($p);
 }
