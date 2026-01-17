@@ -26,7 +26,7 @@ Dropdown class using the Gtk4 dropdown class. This module makes it a bit more ea
 
 =head2 Css
 
-There is only one css class defined. It is called `dropdown-tool`.
+There is only one css class defined. It is called C<dropdown-tool>.
 
 =head2 Example
 
@@ -75,12 +75,8 @@ submethod BUILD () {
   $!theme .= new;
   $!theme.add-css-class( self, 'dropdown-tool');
 
-#  $!list-objects .= new-stringlist(CArray[Str].new(Str));
   self!init(:!multi-select);
-#  self.set-model($!selection-type);
-  self.set-model($!list-objects);
-
-# No factory! default is ok. also shows mark of selection when list is visible
+  self.set-model($!selection-type);
   self.set-factory($!signal-factory);
 #  self.set-list-factory($!signal-factory);
 #  self.set-header-factory($!signal-factory);

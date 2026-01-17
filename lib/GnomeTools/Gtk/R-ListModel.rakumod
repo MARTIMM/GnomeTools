@@ -26,14 +26,18 @@ use Gnome::Gtk4::N-Bitset:api<2>;
 =TITLE GnomeTools::Gtk::R-ListModel
 =head1 Description
 
-Role to be used for List objects such as B<GnomeTools::Gtk::ListView>. 
+Role to be used for classes such as B<GnomeTools::Gtk::ListView>. The prurpose of the role is to register and process events. When an event fires, user methods are called when they are defined. The user must provide an object where the methods are defined. The call to be used is C<.set-events()> defined in the classes using this role.
 
 =item2 Selection type events.
-=item3 Method selection-changed; The C<selection-changed> event is emitted when the selection state of some of the items in the model changes.
-Note that this signal does not specify the new selection state of the items, they need to be queried manually. It is also not necessary for a model to change the selection state of any of the items in the selection model, though it would be rather useless to emit such a signal. $position is the position of the last clicked selection and @selections is the selection of items used to add items to the list. Any named arguments C<*%options> given to C<.new()> are given to the method.
+=item3 The C<selection-changed> event is emitted when the selection state of some of the items in the model changes. Note that this signal does not specify the new selection state of the items, they need to be queried manually. It is also not necessary for a model to change the selection state of any of the items in the selection model, though it would be rather useless to emit such a signal.
+
+The user method must be named C<selection-changed> and its API must be
 =begin code
 method selection-changed ( UInt $position, @selections, *%options )
 =end code
+=item4 $position is the position of the last clicked selection
+=item4 @selections is the selection of items used to add items to the list.
+=item4 %options. Any named arguments C<.new()> are given to the method.
 
 =item2 Signal factory type events.
 =item3 Method setup-list-item; Handles the C<setup> event. The event is emitted to set up permanent things on the B<Gnome::Gtk4::ListItem>. However, the list item is kept under the hood of this class. So, this means the called routine only needs to create and return the widget used in the row. Any named arguments C<*%options> given to C<.new()> are given to the method.
@@ -90,9 +94,6 @@ method !set-events ( :$object, *%options ) {
   if $callframe.code.gist ~~ 'set-events' and
      $callframe.code.package.^name ~~ 'GnomeTools::Gtk::DropDown'
   {
-#    self.register-signal(
-#      self, 'selection-changed-notify', 'notify::selected', :$object, |%options
-#    ) if ?$object and $object.^can('selection-changed');
   }
 
   else {

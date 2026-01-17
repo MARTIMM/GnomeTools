@@ -153,11 +153,10 @@ Where;
 =end pod
 
 method set-events ( :$object, *%options ) {
+  self!set-events( :$object, |%options);
   $!list-view.register-signal(
     self, 'activate-list-item', 'activate', :$object, |%options
   ) if ?$object and $object.^can('activate-list-item');
-
-  self!set-events( :$object, |%options);
 }
 
 #-------------------------------------------------------------------------------
