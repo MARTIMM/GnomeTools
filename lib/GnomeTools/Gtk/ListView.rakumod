@@ -59,10 +59,9 @@ my GnomeTools::Gtk::Dialog $dialog .= new(
 
 my @items = <class role method sub submethod for else unit package module>;
 
-my GnomeTools::Gtk::ListView $listview .= new( :object($helper), :$dialog);
-for @items -> $item {
-  $listview.append($item);
-}
+my GnomeTools::Gtk::ListView $listview .= new(:!multi-select);
+$listview.set-events( :object($helper), :$dialog);
+$listview.append(|@items);
 $dialog.add-content( 'Nice list', $listview);
 
 # Buttons
@@ -97,10 +96,10 @@ method new ( |c ) {
 
 =head2 new
 
-Instanciate the listview class.
+Instantiate the C<GnomeTools::Gtk::ListView> class.
 
 =begin code
-submethod BUILD ( Bool :$!multi-select = True )
+submethod BUILD ( Bool :$!multi-select = False )
 =end code
 
 =item $!multi-select: Selection method. When True, more than one entry can be selected. By default False. Selections can be done a) by holding <CTRL> or <SHIFT> and click on the entries. b) by dragging the pointer over the entries (rubberband select).
@@ -132,31 +131,33 @@ submethod BUILD ( Bool :$multi-select = False ) {
 =begin pod
 =head2 set-events
 
-Register a series of events based on the B<Gnome::Gtk4::SignalListItemFactory> class.
-
-=item2 Events from ListView.
-=item3 Method activate-list-item; The C<activate> event is emitted when a row has been activated by the user. If an item is activatable, double-clicking on the item, using the Return key or calling C<.activate() in Gnome::Gtk4::Widget> will activate the item. Activating instructs the containing view to handle activation. $position is the position of the last clicked selection and @selections is the selection of items used to add items to the list. Any named arguments C<*%options> given to C<.new()> are given to the method.
-=begin code
-method activate-list-item ( UInt $position, @selections, *%options )
-=end code
+Register a series of events. One defined in B<Gnome::Gtk4::ListView> and the rest from B<Gnome::Gtk4::SignalListItemFactory> class.
 
 =begin code
 method set-events ( :$object, *%options )
 =end code
-=item $object; User object where methods are defined to process the events. There are many events which can be processed so the method names are fixed for simplicity. The method names are C<selection-changed> for the selection-changed event, C<activate-list-item> for the activate event, C<setup-list-item> to handle the setup event, C<bind-list-item> handles the bind event, C<unbind-list-item> handles the unbind event, and C<teardown-list-item> for the teardown event. The methods are not called when they are not defined.
-=item *%options: Any user options. The options are given to the methods in C<$object>.
-=end pod
-method set-events ( :$object, *%options ) {
+=item $object; User object where methods are defined to process the events. There are many events, so the method names are fixed for simplicity. Most events are defined by B<Gnome::Gtk4::SignalListItemFactory>. The info can be looked up L<here|/content-docs/api2/reference/Gtk4/SignalListItemFactory> or L<here|/content-docs/GnomeTools/reference/Gtk/R-ListModel>.
+  The method is not called when it isn't defined.
+=item *%options: Any user options. The options is given to the method in C<$object>.
 
+The event defined in B<nome::Gtk4::ListView> is C<activate> and the method called will be C<activate-list-item>. The C<activate> event is emitted when a row has been activated by the user. If an item is activatable, double-clicking on the item, using the Return key or calling C<.activate() in Gnome::Gtk4::Widget> will activate the item. Activating instructs the containing view to handle activation.
+
+The user callback interface must be like;
+=begin code
+method activate-list-item ( UInt $position, @selections, *%options )
+=end code
+
+Where;
+=item $position; Position is the last clicked selection.
+=item @selections; The list of selections in the ListView. Any named arguments C<*%options> given to C<.new()> are given to the method.
+=end pod
+
+method set-events ( :$object, *%options ) {
   $!list-view.register-signal(
     self, 'activate-list-item', 'activate', :$object, |%options
   ) if ?$object and $object.^can('activate-list-item');
 
   self!set-events( :$object, |%options);
-
-
-#note "$?LINE ", self.^can("set-events");
-#note "$?LINE ", self.methods;
 }
 
 #-------------------------------------------------------------------------------
