@@ -43,6 +43,10 @@ hide empty members
 Interface GnomeTools::Gtk::R-ListModel < Interface >
 class GnomeTools::Gtk::R-ListModel <<(R,#80ffff)>>
 
+class GnomeTools::Gtk::ListView {
+  set-events()
+}
+
 "GnomeTools::Gtk::R-ListModel" <|.. "GnomeTools::Gtk::ListView"
 '"GnomeTools::Gtk::R-ListEventModel" <|.. "GnomeTools::Gtk::ListView"
 "Gnome::Gtk4::ListView" <|- "GnomeTools::Gtk::ListView"
