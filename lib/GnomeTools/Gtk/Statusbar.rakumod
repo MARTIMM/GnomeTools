@@ -24,7 +24,7 @@ has GnomeTools::Gtk::Theming $!theme;
 #-------------------------------------------------------------------------------
 =begin pod
 =head1 new
-To instanciate the statusbar you do not need any arguments.
+To Instantiate the statusbar you do not need any arguments.
 
   my GnomeTools::Gtk::Statusbar $statusbar .= new;
 
