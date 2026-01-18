@@ -26,37 +26,45 @@ use Gnome::Gtk4::N-Bitset:api<2>;
 =TITLE GnomeTools::Gtk::R-ListModel
 =head1 Description
 
-Role to be used for classes such as B<GnomeTools::Gtk::ListView>. The prurpose of the role is to register and process events. When an event fires, user methods are called when they are defined. The user must provide an object where the methods are defined. The call to be used is C<.set-events()> defined in the classes using this role.
+Role to be used for classes such as B<GnomeTools::Gtk::ListView>. Its purpose is to register and process events. The role is also used to add, find and remove items from the list in the model.
 
-=item2 Selection type events.
-=item3 The C<selection-changed> event is emitted when the selection state of some of the items in the model changes. Note that this signal does not specify the new selection state of the items, they need to be queried manually. It is also not necessary for a model to change the selection state of any of the items in the selection model, though it would be rather useless to emit such a signal.
+When an event fires, user methods are called when they are defined. The user must provide an object where these methods are defined. The call to be used is C<.set-events()> defined in the classes using this role.
+
+=item Selection type events.
+=item2 The C<selection-changed> event is emitted when the selection state of some of the items in the model changes. Note that this signal does not specify the new selection state of the items, they need to be queried manually. It is also not necessary for a model to change the selection state of any of the items in the selection model, though it would be rather useless to emit such a signal.
 
 The user method must be named C<selection-changed> and its API must be
+
 =begin code
 method selection-changed ( UInt $position, @selections, *%options )
 =end code
-=item4 $position is the position of the last clicked selection
-=item4 @selections is the selection of items used to add items to the list.
-=item4 %options. Any named arguments C<.new()> are given to the method.
 
-=item2 Signal factory type events.
-=item3 Method setup-list-item; Handles the C<setup> event. The event is emitted to set up permanent things on the B<Gnome::Gtk4::ListItem>. However, the list item is kept under the hood of this class. So, this means the called routine only needs to create and return the widget used in the row. Any named arguments C<*%options> given to C<.new()> are given to the method.
+=item3 $position is the position of the last clicked selection
+=item3 @selections is the selection of items used to add items to the list.
+=item3 %options. Any named arguments C<.new()> are given to the method.
+
+=item Signal factory type events.
+=item2 Method setup-list-item; Handles the C<setup> event. The event is emitted to set up permanent things on the B<Gnome::Gtk4::ListItem>. However, the list item is kept under the hood of this class. So, this means the called routine only needs to create and return the widget used in the row. Any named arguments C<*%options> given to C<.new()> are given to the method.
+
 =begin code
 method setup-list-item ( *%options --> Gnome::Gtk4::Widget )
 =end code
 
-=item3 Method bind-list-item; Handles the C<bind> event. The event is emitted to bind the widgets created by C<.setup-list-item()> to their values and, optionally, add entry specific widgets to the given widget. Signals are connected to listen to changes - both to changes in the item to update the widgets or to changes in the widgets to update the item. After this signal has been called, the listitem may be shown in a list widget. The C<$item> is the string inserted in the list using e.g. C<.append()>. Any named arguments in C<*%options> given to C<.new()> are given to the method.
+=item2 Method bind-list-item; Handles the C<bind> event. The event is emitted to bind the widgets created by C<.setup-list-item()> to their values and, optionally, add entry specific widgets to the given widget. Signals are connected to listen to changes - both to changes in the item to update the widgets or to changes in the widgets to update the item. After this signal has been called, the listitem may be shown in a list widget. The C<$item> is the string inserted in the list using e.g. C<.append()>. Any named arguments in C<*%options> given to C<.new()> are given to the method.
+
 =begin code
 method bind-list-item ( Gnome::Gtk4::Widget $widget, Str $item, *%options )
 =end code
 
-=item3 Method unbind-list-item; Handles the C<unbind> event. The event is emitted to undo everything done when binding. Usually this means disconnecting signal handlers or removing non-permanent widgets. Once this signal has been called, the listitem will no longer be used in a list widget.
+=item2 Method unbind-list-item; Handles the C<unbind> event. The event is emitted to undo everything done when binding. Usually this means disconnecting signal handlers or removing non-permanent widgets. Once this signal has been called, the listitem will no longer be used in a list widget.
   The C<bind> and C<unbind> events may be emitted multiple times again to bind the listitem for use with new items. By reusing listitems, potentially costly setup can be avoided. However, it means code needs to make sure to properly clean up the listitem when unbinding so that no information from the previous use leaks into the next one. Any named arguments in C<*%options> given to C<.new()> are given to the method.
+
 =begin code
 method unbind-list-item ( Gnome::Gtk4::Widget $widget, Str $item, *%options )
 =end code
 
-=item3 Method teardown-list-item; Handles the C<teardown> event. The event is emitted to undo the effects of the C<setup> event. After this signal was emitted on a listitem, the listitem will be destroyed and not be used again. No C<$item> is provided because the item is already destroyed. Any named arguments in C<*%options> given to C<.new()> are given to the method.
+=item2 Method teardown-list-item; Handles the C<teardown> event. The event is emitted to undo the effects of the C<setup> event. After this signal was emitted on a listitem, the listitem will be destroyed and not be used again. No C<$item> is provided because the item is already destroyed. Any named arguments in C<*%options> given to C<.new()> are given to the method.
+
 =begin code
 method teardown-list-item ( Gnome::Gtk4::Widget $widget, *%options )
 =end code
@@ -246,6 +254,7 @@ method get-selection ( Bool :$rows = False --> List ) {
 =head2 append
 
 Add an item at the end of the list
+
 =begin code
 method append ( *@list-item )
 =end code
@@ -281,7 +290,7 @@ method find ( Str $list-item --> UInt ) {
 =begin pod
 =head2 get-string
 
-Gets the item at C<$pos>ition of the item in the list. The return value can be undefined.
+Gets the item at C<$pos> of the item in the list. The return value can be undefined.
 
 =begin code
 method get-string ( UInt $pos --> Str )
@@ -298,7 +307,7 @@ method get-string ( UInt $pos --> Str ) {
 =begin pod
 =head2 remove
 
-Remove the item at C<$pos>ition of the item in the list.
+Remove the item at C<$pos> of the item in the list.
 
 =begin code
 method remove ( UInt $pos )
@@ -331,7 +340,7 @@ method remove ( UInt $pos ) {
 =begin pod
 =head2 splice
 
-Remove and/or insert items at C<$pos>ition.
+Remove and/or insert items at position given by C<$pos>.
 
 =begin code
 method splice ( UInt $pos, UInt $nremove, @str-array )
