@@ -7,7 +7,6 @@ use Gnome::N::N-Object:api<2>;
 use Gnome::N::X:api<2>;
 #Gnome::N::debug(:on);
 
-#use Gnome::Gtk4::ListView:api<2>;
 use Gnome::Gtk4::ListItem:api<2>;
 use Gnome::Gtk4::SignalListItemFactory:api<2>;
 use Gnome::Gtk4::StringList:api<2>;
@@ -19,58 +18,7 @@ use Gnome::Gtk4::Label:api<2>;
 use Gnome::Gtk4::T-enums:api<2>;
 use Gnome::Gtk4::N-Bitset:api<2>;
 
-#use Method::Also;
-
 #-------------------------------------------------------------------------------
-=begin pod
-=TITLE GnomeTools::Gtk::R-ListModel
-=head1 Description
-
-Role to be used for classes such as B<GnomeTools::Gtk::ListView>. Its purpose is to register and process events. The role is also used to add, find and remove items from the list in the model.
-
-When an event fires, user methods are called when they are defined. The user must provide an object where these methods are defined. The call to be used is C<.set-events()> defined in the classes using this role.
-
-=item Selection type events.
-=item2 The C<selection-changed> event is emitted when the selection state of some of the items in the model changes. Note that this signal does not specify the new selection state of the items, they need to be queried manually. It is also not necessary for a model to change the selection state of any of the items in the selection model, though it would be rather useless to emit such a signal.
-
-The user method must be named C<selection-changed> and its API must be
-
-=begin code
-method selection-changed ( UInt $position, @selections, *%options )
-=end code
-
-=item3 $position is the position of the last clicked selection
-=item3 @selections is the selection of items used to add items to the list.
-=item3 %options. Any named arguments C<.new()> are given to the method.
-
-=item Signal factory type events.
-=item2 Method setup-list-item; Handles the C<setup> event. The event is emitted to set up permanent things on the B<Gnome::Gtk4::ListItem>. However, the list item is kept under the hood of this class. So, this means the called routine only needs to create and return the widget used in the row. Any named arguments C<*%options> given to C<.new()> are given to the method.
-
-=begin code
-method setup-list-item ( *%options --> Gnome::Gtk4::Widget )
-=end code
-
-=item2 Method bind-list-item; Handles the C<bind> event. The event is emitted to bind the widgets created by C<.setup-list-item()> to their values and, optionally, add entry specific widgets to the given widget. Signals are connected to listen to changes - both to changes in the item to update the widgets or to changes in the widgets to update the item. After this signal has been called, the listitem may be shown in a list widget. The C<$item> is the string inserted in the list using e.g. C<.append()>. Any named arguments in C<*%options> given to C<.new()> are given to the method.
-
-=begin code
-method bind-list-item ( Gnome::Gtk4::Widget $widget, Str $item, *%options )
-=end code
-
-=item2 Method unbind-list-item; Handles the C<unbind> event. The event is emitted to undo everything done when binding. Usually this means disconnecting signal handlers or removing non-permanent widgets. Once this signal has been called, the listitem will no longer be used in a list widget.
-  The C<bind> and C<unbind> events may be emitted multiple times again to bind the listitem for use with new items. By reusing listitems, potentially costly setup can be avoided. However, it means code needs to make sure to properly clean up the listitem when unbinding so that no information from the previous use leaks into the next one. Any named arguments in C<*%options> given to C<.new()> are given to the method.
-
-=begin code
-method unbind-list-item ( Gnome::Gtk4::Widget $widget, Str $item, *%options )
-=end code
-
-=item2 Method teardown-list-item; Handles the C<teardown> event. The event is emitted to undo the effects of the C<setup> event. After this signal was emitted on a listitem, the listitem will be destroyed and not be used again. No C<$item> is provided because the item is already destroyed. Any named arguments in C<*%options> given to C<.new()> are given to the method.
-
-=begin code
-method teardown-list-item ( Gnome::Gtk4::Widget $widget, *%options )
-=end code
-
-=end pod
-
 unit role GnomeTools::Gtk::R-ListModel;
 
 has Gnome::Gtk4::StringList $!list-objects;
@@ -214,18 +162,6 @@ method selection-changed (
 }
 
 #-------------------------------------------------------------------------------
-=begin pod
-=head2 get-selection
-
-Get the current selection.
-
-=begin code
-method get-selection ( Bool :$rows = False --> List )
-=end code
-
-=item $rows: By default a list of items are returned. When row numbers are needed set the variable to True.
-=end pod
-
 method get-selection ( Bool :$rows = False --> List ) {
 
   return () unless ?$!selection-type;
@@ -250,18 +186,6 @@ method get-selection ( Bool :$rows = False --> List ) {
 }
 
 #-------------------------------------------------------------------------------
-=begin pod
-=head2 append
-
-Add an item at the end of the list
-
-=begin code
-method append ( *@list-item )
-=end code
-
-=item @list-item: Items to append. Items must be of C<Str> type
-=end pod
-
 method append ( *@list-item ) {
   for @list-item -> $list-item {
     $!list-objects.append($list-item);
@@ -270,87 +194,21 @@ method append ( *@list-item ) {
 
 #-------------------------------------------------------------------------------
 # find() not yet available. only after 4.18
-=begin pod
-=head2 find
-
-Gets the position of the item in the list. The return value can be undefined.
-
-=begin code
-method find ( Str $list-item --> UInt )
-=end code
-
-=item $list-item: The item to find.
-=end pod
-
 method find ( Str $list-item --> UInt ) {
   $!list-objects.find($list-item);
 }
 
 #-------------------------------------------------------------------------------
-=begin pod
-=head2 get-string
-
-Gets the item at C<$pos> of the item in the list. The return value can be undefined.
-
-=begin code
-method get-string ( UInt $pos --> Str )
-=end code
-
-=item $pos: The item at the position.
-=end pod
-
 method get-string ( UInt $pos --> Str ) {
   $!list-objects.get-string($pos);
 }
 
 #-------------------------------------------------------------------------------
-=begin pod
-=head2 remove
-
-Remove the item at C<$pos> of the item in the list.
-
-=begin code
-method remove ( UInt $pos )
-=end code
-
-=item $pos: The item at the position.
-
-=head3 An example to remove selected items
-
-=begin code
-# Reverse rows because after each removal the row count decreases
-# This causes to remove wrong rows or throwing errors like:
-# (process:8769): Gtk-CRITICAL **: 18:25:48.324: gtk_string_list_splice:
-# assertion 'position + n_removals <= objects_get_size (&self->items)'
-# failed.
-# The error shows that under the hood, splice() is used
-
-my @selections = $listview.get-selection(:rows).reverse;
-for @selections -> $selection {
-  $listview.remove($selection);
-}
-=end code
-=end pod
-
 method remove ( UInt $pos ) {
   $!list-objects.remove($pos);
 }
 
 #-------------------------------------------------------------------------------
-=begin pod
-=head2 splice
-
-Remove and/or insert items at position given by C<$pos>.
-
-=begin code
-method splice ( UInt $pos, UInt $nremove, @str-array )
-=end code
-
-=item $pos: The item at the position.
-=item $nremove: Number of rows to remove at $pos.
-=item @str-array: The array of items to insert at $pos after removal.
-=end pod
-
 method splice ( UInt $pos, UInt $nremove, @str-array ) {
   my $array = CArray[Str].new( |@str-array, Str);
   $!list-objects.splice( $pos, $nremove, $array);
