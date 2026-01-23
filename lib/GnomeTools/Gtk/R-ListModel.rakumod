@@ -43,7 +43,7 @@ method !init ( Bool :$multi-select = False ) {
 # Only defaults
 method !set-events ( ) {
 
-  my $callframe = callframe(1);
+#  my $callframe = callframe(1);
 #note "$?LINE ", $callframe.code.gist.Str;
 #note "$?LINE ", $callframe.code.^name;
 #note "$?LINE ", $callframe.code.package.^name;
@@ -199,9 +199,9 @@ method teardown (
 
 #-------------------------------------------------------------------------------
 method selection-changed (
-  UInt $position, UInt $n-items, :$object, *%options
+  UInt $position, UInt $n-items, :$object, :$method, *%options
 ) {
-  $object.selection-changed( $position, self.get-selection, |%options);
+  $object."$method"( $position, self.get-selection, |%options);
 }
 
 #-------------------------------------------------------------------------------
