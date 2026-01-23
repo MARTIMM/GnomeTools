@@ -87,14 +87,19 @@ submethod BUILD () {
 #-------------------------------------------------------------------------------
 method set-events ( :$object, *%options ) {
   self!set-events( :$object, |%options);
-  self.register-signal(
-    self, 'selection-changed-notify', 'notify::selected', :$object, |%options
-  ) if ?$object and $object.^can('selection-changed');
 }
 
 #-------------------------------------------------------------------------------
-method selection-changed-notify ( N-Object $, :$object, *%options ) {
-  $object.selection-changed(|%options);
+method set-selection-changed ( Any:D :$object, Str:D :$method, *%options ) {
+  self.register-signal(
+    self, 'this-selection-changed', 'notify::selected',
+    :$object, :$method, |%options
+  );
+}
+
+#-------------------------------------------------------------------------------
+method this-selection-changed ( N-Object $, :$object, :$method, *%options ) {
+  $object."$method"(|%options);
 }
 
 #-------------------------------------------------------------------------------
