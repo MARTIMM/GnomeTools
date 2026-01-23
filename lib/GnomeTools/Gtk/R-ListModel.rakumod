@@ -38,14 +38,17 @@ method !init ( Bool :$multi-select = False ) {
   $!signal-factory .= new-signallistitemfactory;
 }
 
+##`{{
 #-------------------------------------------------------------------------------
-method !set-events ( :$object, *%options ) {
+# Only defaults
+method !set-events ( ) {
 
   my $callframe = callframe(1);
 #note "$?LINE ", $callframe.code.gist.Str;
 #note "$?LINE ", $callframe.code.^name;
 #note "$?LINE ", $callframe.code.package.^name;
 
+#`{{
   # A DropDown has different events to cope with
   if $callframe.code.gist ~~ 'set-events' and
      $callframe.code.package.^name ~~ 'GnomeTools::Gtk::DropDown'
@@ -54,20 +57,60 @@ method !set-events ( :$object, *%options ) {
 
   else {
     $!selection-type.register-signal(
-      self, 'selection-changed', 'selection-changed', :$object, |%options
+      self, $methods<selection-changed> // 'selection-changed',
+      'selection-changed', :$object, |%options
     ) if ?$object and $object.^can('selection-changed');
   }
+}}
 
   # See also https://docs.gtk.org/gtk4/class.SignalListItemFactory.html
   with $!signal-factory {
-    .register-signal( self, 'setup-list-item', 'setup', :$object, |%options);
-    .register-signal( self, 'bind-list-item', 'bind', :$object, |%options);
-    .register-signal( self, 'unbind-list-item', 'unbind', :$object, |%options)
-      if ?$object and $object.^can('unbind-list-item');
-    .register-signal(
-      self, 'teardown-list-item', 'teardown', :$object, |%options
-    );
+    .register-signal( self, 'setup', 'setup');
+
+    .register-signal( self, 'bind', 'bind');
+
+    # unbind doesn't need a default
+    #.register-signal( self, 'unbind', 'unbind');
+
+    .register-signal( self, 'teardown', 'teardown');
   }
+}
+#}}
+
+#-------------------------------------------------------------------------------
+method set-setup ( Any :$object, Str :$method, *%options ) {
+  $!signal-factory.register-signal(
+    self, 'setup', 'setup', :$object, :$method, |%options
+  );
+}
+
+#-------------------------------------------------------------------------------
+method set-bind ( Any :$object, Str :$method, *%options ) {
+  $!signal-factory.register-signal(
+    self, 'bind', 'bind', :$object, :$method, |%options
+  );
+}
+
+#-------------------------------------------------------------------------------
+method set-unbind ( Any:D :$object, Str:D :$method, *%options ) {
+  $!signal-factory.register-signal(
+    self, 'unbind', 'unbind', :$object, :$method, |%options
+  );
+}
+
+#-------------------------------------------------------------------------------
+method set-teardown ( Any :$object, Str :$method, *%options ) {
+  $!signal-factory.register-signal(
+    self, 'teardown', 'teardown', :$object, :$method, |%options
+  );
+}
+
+#-------------------------------------------------------------------------------
+method set-selection-changed ( Any:D :$object, Str:D :$method, *%options ) {
+  $!selection-type.register-signal(
+    self, 'selection-changed', 'selection-changed',
+    :$object, :$method, |%options
+  )
 }
 
 #-------------------------------------------------------------------------------
@@ -75,13 +118,13 @@ method !set-events ( :$object, *%options ) {
 # Purpose of this call is to make a widget without any values. This widget
 # is placed in the list item. Later, on bind event, the values must be filled
 # in.
-method setup-list-item (
-  Gnome::Gtk4::ListItem() $list-item, :$object, *%options
+method setup (
+  Gnome::Gtk4::ListItem() $list-item, :$object, Str :$method, *%options
 ) {
   # If object and method exists, call the method to let the widget
   # be created by the user.
-  if ?$object and $object.^can('setup-list-item') {
-    my Gnome::Gtk4::Widget $widget = $object."setup-list-item"(|%options);
+  if ?$object and $object.^can($method) {
+    my Gnome::Gtk4::Widget $widget = $object."$method"(|%options);
     $list-item.set-child($widget);
   }
 
@@ -100,10 +143,10 @@ method setup-list-item (
 #-------------------------------------------------------------------------------
 # When bind event fires, the listview wants to show the item but must
 # be filled first
-method bind-list-item (
-  Gnome::Gtk4::ListItem() $list-item, :$object, *%options
+method bind (
+  Gnome::Gtk4::ListItem() $list-item, :$object, Str :$method, *%options
 ) {
- 
+
   my Gnome::Gtk4::StringObject $string-object .=  new(
     :native-object($list-item.get-item)
   );
@@ -111,8 +154,8 @@ method bind-list-item (
 
   # If object and method exists, call the method to let the widget
   # be filled in by the user.
-  if ?$object and $object.^can('bind-list-item') {
-    $object."bind-list-item"( $list-item.get-child, $text, |%options);
+  if ?$object and $object.^can($method) {
+    $object."$method"( $list-item.get-child, $text, |%options);
   }
 
   else {
@@ -130,22 +173,22 @@ method bind-list-item (
 # Checks made in BUILD() prevents calling this method if $object
 # and method .unbind-list-item() is not defined.
 # There is no need to unbind a Label value.
-method unbind-list-item (
-  Gnome::Gtk4::ListItem() $list-item, :$object, *%options
+method unbind (
+  Gnome::Gtk4::ListItem() $list-item, :$object, Str :$method, *%options
 ) {
   my Gnome::Gtk4::StringObject $string-object;
   $string-object .=  new(:native-object($list-item.get-item));
   my Str $text = $string-object.get-string;
-  $object."unbind-list-item"( $list-item.get-child, $text, |%options);
+  $object."$method"( $list-item.get-child, $text, |%options);
 }
 
 #-------------------------------------------------------------------------------
 # When teardown event fires, the listview wants to remove the widget entirely.
-method teardown-list-item (
-  Gnome::Gtk4::ListItem() $list-item, :$object, *%options
+method teardown (
+  Gnome::Gtk4::ListItem() $list-item, :$object, Str :$method, *%options
 ) {
-  if ?$object and $object.^can('teardown-list-item') {
-    $object."teardown-list-item"( $list-item.get-child, |%options);
+  if ?$object and $object.^can($method) {
+    $object."$method"( $list-item.get-child, |%options);
   }
 
   else {
