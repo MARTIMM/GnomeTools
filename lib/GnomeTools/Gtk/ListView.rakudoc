@@ -3,7 +3,9 @@ use v6.d;
 =TITLE GnomeTools::Gtk::ListView
 =head1 Description
 
-A listview is like a listbox where objects can be inserted horizontally or vertically. The listbox is used for simple and short lists while the listview can be used for much longer lists and complex objects. The listview is filled using a factory and is created in steps. The list is often partly visible and only asks for the objects to be created when they become visible.
+A listview is like a list where objects can be inserted horizontally or vertically. The listview is filled using a factory and is created in steps. The list is often partly visible and only asks for the objects to be created when they become visible.
+
+This class has some easy setups when simple strings are to be inserted in the list. When more complex widgets are required for each list item.
 
 There are several events which needs to be captured if complex objects must be created. Other entries are available to get the number of selected items for example.
 
