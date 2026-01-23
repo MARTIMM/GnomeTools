@@ -38,30 +38,9 @@ method !init ( Bool :$multi-select = False ) {
   $!signal-factory .= new-signallistitemfactory;
 }
 
-##`{{
 #-------------------------------------------------------------------------------
-# Only defaults
+# Only for default callback work
 method !set-events ( ) {
-
-#  my $callframe = callframe(1);
-#note "$?LINE ", $callframe.code.gist.Str;
-#note "$?LINE ", $callframe.code.^name;
-#note "$?LINE ", $callframe.code.package.^name;
-
-#`{{
-  # A DropDown has different events to cope with
-  if $callframe.code.gist ~~ 'set-events' and
-     $callframe.code.package.^name ~~ 'GnomeTools::Gtk::DropDown'
-  {
-  }
-
-  else {
-    $!selection-type.register-signal(
-      self, $methods<selection-changed> // 'selection-changed',
-      'selection-changed', :$object, |%options
-    ) if ?$object and $object.^can('selection-changed');
-  }
-}}
 
   # See also https://docs.gtk.org/gtk4/class.SignalListItemFactory.html
   with $!signal-factory {
@@ -75,7 +54,6 @@ method !set-events ( ) {
     .register-signal( self, 'teardown', 'teardown');
   }
 }
-#}}
 
 #-------------------------------------------------------------------------------
 method set-setup ( Any :$object, Str :$method, *%options ) {
