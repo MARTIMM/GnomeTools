@@ -53,6 +53,10 @@ submethod BUILD ( Bool :$multi-select = False ) {
 #-------------------------------------------------------------------------------
 method set-events ( :$object, *%options ) {
   self!set-events( :$object, |%options);
+}
+
+#-------------------------------------------------------------------------------
+method set-activate( :$object, *%options )
   $!list-view.register-signal(
     self, 'activate-list-item', 'activate', :$object, |%options
   ) if ?$object and $object.^can('activate-list-item');
