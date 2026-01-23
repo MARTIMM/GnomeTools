@@ -1,8 +1,6 @@
 use v6.d;
 #use Test;
 
-#use lib '/home/marcel/Languages/Raku/Projects/gnome-source-skim-tool/gnome-api2/gnome-gtk4/lib';
-
 use YAMLish;
 
 use GnomeTools::Gtk::ListView;
@@ -159,7 +157,15 @@ my %items = load-yaml(Q:qq:to/EOYAML/);
 
 
 my GnomeTools::Gtk::ListView $listview .= new(:multi-select);
-$listview.set-events( :object($helper), :$dialog, :%items);
+$listview.set-setup( :object($helper), :method<setup-list-item>);
+$listview.set-bind( :object($helper), :method<bind-list-item>, :%items);
+$listview.set-unbind( :object($helper), :method<unbind-list-item>, :%items);
+$listview.set-teardown( :object($helper), :method<teardown-list-item>, :%items);
+
+$listview.set-selection-changed(
+  :object($helper), :method<selection-changed>, :$dialog
+);
+
 $listview.append(|%items.keys);
 $dialog.add-content( 'Nice list', $listview);
 
