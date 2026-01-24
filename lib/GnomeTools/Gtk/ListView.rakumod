@@ -28,7 +28,9 @@ method new ( |c ) {
 }
 
 #-------------------------------------------------------------------------------
-submethod BUILD ( Bool :$multi-select = False ) {
+submethod BUILD (
+  Bool :$multi-select = False, :$orientation = GTK_ORIENTATION_VERTICAL
+) {
   $!theme .= new;
   $!theme.add-css-class( self, 'listview-window');
 
@@ -39,6 +41,8 @@ submethod BUILD ( Bool :$multi-select = False ) {
   self!init(:$multi-select);
 
   with $!list-view .= new-listview( N-Object, N-Object) {
+    .set-orientation($orientation);
+    
     .set-model($!selection-type);
     .set-factory($!signal-factory);
     .set-enable-rubberband(True);
@@ -56,7 +60,7 @@ method set-events ( :$object, *%options ) {
 }
 
 #-------------------------------------------------------------------------------
-method set-activate( :$object, *%options )
+method set-activate( :$object, *%options ) {
   $!list-view.register-signal(
     self, 'activate-list-item', 'activate', :$object, |%options
   ) if ?$object and $object.^can('activate-list-item');
