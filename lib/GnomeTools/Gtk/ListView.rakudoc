@@ -11,7 +11,7 @@ There are several events which needs to be captured if complex objects must be c
 
 =head2 CSS classes
 
-The B<GnomeTools::Gtk::ListView> class is placed in a B<Gnome::Gtk4::ScrolledWindow>. That object has a classname C<listview-window> and the B<GnomeTools::Gtk::ListView> object has a classname C<listview-tool> 
+The B<GnomeTools::Gtk::ListView> class is placed in a B<Gnome::Gtk4::ScrolledWindow>. That object has a classname C<listview-window> and the B<GnomeTools::Gtk::ListView> object has a classname C<listview-tool>. Other CSS nodes are defined for L<Gnome::Gtk4::ListView|content-docs/api2/reference/Gtk4/ListView.html#CSS_nodes>.
 
 =head2 Example
 
@@ -21,23 +21,26 @@ First define a helper class.
 =begin code
 class HelperObject {
   method show-select (
-    GnomeTools::Gtk::ListView :$listview, GnomeTools::Gtk::Dialog :$dialog,
-    :@items
+    GnomeTools::Gtk::ListView :$listview,
+    GnomeTools::Gtk::Dialog :$dialog, :@items
   ) {
-    my @selections = @items[$listview.get-selection];
-    $dialog.set-status(@selections.join(', '));
+    $dialog.set-status($listview.get-selection.join(', '));
   }
 
-  method selection-changed ( @selections, GnomeTools::Gtk::Dialog :$dialog ) {
-    $dialog.set-status("Rows '{@selections.join(', ')}' are selected");
+  method selection-changed (
+    UInt $position, @selections, GnomeTools::Gtk::Dialog :$dialog, :@items
+  ) {
+    my @rows = @selections.map: {@items.first( $_, :k)};
+    $dialog.set-status("Rows '{@rows.join(', ')}' are selected");
   }
 }
+
+my HelperObject $helper .= new;
 =end code
 
 Instantiate the class and setup the B<GnomeTools::Gtk::ListView>. In this example the ListView is placed in a B<GnomeTools::Gtk::Dialog>.
 
 =begin code
-my HelperObject $helper .= new;
 
 my GnomeTools::Gtk::Dialog $dialog .= new(
   :dialog-header('Test Dialog'), :add-statusbar
