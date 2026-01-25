@@ -55,13 +55,16 @@ submethod BUILD (
 }
 
 #-------------------------------------------------------------------------------
-method set-activate( :$object, *%options ) {
+method set-activate( :$object, Str :$method, *%options ) {
   $!list-view.register-signal(
-    self, 'activate-list-item', 'activate', :$object, |%options
-  ) if ?$object and $object.^can('activate-list-item');
+    self, 'activate-list-item', 'activate', :$object, :$method, |%options
+  )
 }
 
 #-------------------------------------------------------------------------------
-method activate-list-item ( UInt $position, :$object, *%options ) {
-  $object.activate-list-item( $position, self.get-selection, |%options);
+# callback
+method activate-list-item (
+  UInt $position, :$object, Str :$method, *%options
+) {
+  $object."$method"( $position, self.get-selection, |%options);
 }

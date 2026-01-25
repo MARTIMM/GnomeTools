@@ -5,9 +5,7 @@ use v6.d;
 
 A listview is like a list where objects can be inserted horizontally or vertically. The listview is filled using a factory and is created in steps. The list is often partly visible and only asks for the objects to be created when they become visible.
 
-This class has some easy setups when simple strings are to be inserted in the list. When more complex widgets are required for each list item.
-
-There are several events which needs to be captured if complex objects must be created. Other entries are available to get the number of selected items for example.
+There are several events which needs to be captured if complex objects must be created. This class has only one event which is C<activate> and can be set using C<.set-activate()>.
 
 =head2 CSS classes
 
@@ -41,21 +39,23 @@ my HelperObject $helper .= new;
 Instantiate the class and setup the B<GnomeTools::Gtk::ListView>. In this example the ListView is placed in a B<GnomeTools::Gtk::Dialog>.
 
 =begin code
-
 my GnomeTools::Gtk::Dialog $dialog .= new(
   :dialog-header('Test Dialog'), :add-statusbar
 );
 
 my @items = <class role method sub submethod for else unit package module>;
 
-my GnomeTools::Gtk::ListView $listview .= new(:!multi-select);
-$listview.set-events( :object($helper), :$dialog);
+my GnomeTools::Gtk::ListView $listview .= new(:multi-select);
+$listview.set-events;
+$listview.set-selection-changed(
+  :object($helper), :method<selection-changed>, :$dialog, :@items
+);
 $listview.append(|@items);
 $dialog.add-content( 'Nice list', $listview);
 
 # Buttons
 $dialog.add-button(
-  $helper, 'show-select', 'Get Selection 2',
+  $helper, 'show-select', 'Get Selection',
   :$dialog, :@items, :$listview
 );
 
@@ -74,24 +74,13 @@ $dialog.show-dialog;
 Instantiate the C<GnomeTools::Gtk::ListView> class.
 
 =begin code
-submethod BUILD ( Bool :$!multi-select = False )
+submethod BUILD (
+  Bool :$multi-select = False, :$orientation = GTK_ORIENTATION_VERTICAL
+)
 =end code
 
-=item $!multi-select: Selection method. When True, more than one entry can be selected. By default False. Selections can be done a) by holding <CTRL> or <SHIFT> and click on the entries. b) by dragging the pointer over the entries (rubberband select).
-
-=comment -----------------------------------------------------------------------
-=head2 set-events
-
-Register a series of events. One defined in B<Gnome::Gtk4::ListView> and the rest from B<Gnome::Gtk4::SignalListItemFactory> class.
-
-=begin code
-method set-events ( :$object, *%options )
-=end code
-=item $object; User object where methods are defined to process the events. Most events are defined by B<Gnome::Gtk4::SignalListItemFactory>. The info can be looked up L<here|/content-docs/api2/reference/Gtk4/SignalListItemFactory> or L<here|/content-docs/GnomeTools/reference/Gtk/R-ListModel>.
-  The method is not called when it isn't defined.
-=item *%options: Any user options. The options is given to the method in C<$object>.
-
-The event defined in B<nome::Gtk4::ListView> is C<activate> and the method called will be C<activate-list-item>. The C<activate> event is emitted when a row has been activated by the user. If an item is activatable, double-clicking on the item, using the Return key or calling C<.activate() in Gnome::Gtk4::Widget> will activate the item. Activating instructs the containing view to handle activation.
+=item $multi-select; Selection method. When True, more than one entry can be selected. By default False. Selections can be done a) by holding <CTRL> or <SHIFT> and click on the entries. b) by dragging the pointer over the entries (rubberband select).
+=item $orientation; Orientation of the list. By default shown vertically.
 
 The user callback interface must be like;
 =begin code
@@ -101,4 +90,27 @@ method activate-list-item ( UInt $position, @selections, *%options )
 Where;
 =item $position; Position is the last clicked selection.
 =item @selections; The list of selections in the ListView. Any named arguments C<*%options> given to C<.new()> are given to the method.
+
+=comment -----------------------------------------------------------------------
+=head2 set-activate
+
+Define a callback routine for the C<activate> event. The C<activate> event is emitted when a row has been activated by the user. If an item is activatable, double-clicking on the item, using the Return key or calling C<.activate() in Gnome::Gtk4::Widget> will activate the item. Activating instructs the containing view to handle activation.
+
+=begin code
+method set-activate ( :$object, Str :$method, *%options )
+=end code
+
+=item $object; User object where methods are defined to process the events.
+=item $method; Method in user C<$object> to call when event arrives.
+=item *%options: Any user options. The options are given to the method in C<$object>.
+
+The API of C<$method> must be
+
+=begin code
+$object."$method"( UInt $position, @selections, *%options);
+=end code
+
+=item $position; The position of the activated entry.
+=item @selections; A list of the currently selected entries.
+=item %options. Any remaining named arguments given to C<.new()> are passed to the method.
 =end pod

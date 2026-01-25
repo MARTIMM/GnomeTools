@@ -6,6 +6,31 @@ use v6.d;
 
 Role to be used for classes such as B<GnomeTools::Gtk::ListView>. Its purpose is to register and process events. The role is also used to add, find and remove items from the list in the model.
 
+For simple use, use C<.set-events()>. For more elaborate widgets for each list entry use one or more methods C<.set-setup()>, C<.set-bind()>, C<.set-unbind()>, and  C<.set-teardown()>.
+
+=head1 Methods
+
+=comment -----------------------------------------------------------------------
+=head2 set-events
+
+Register a series of events. One defined in B<Gnome::Gtk4::ListView> and the rest from B<Gnome::Gtk4::SignalListItemFactory> class. The purpose of this method is to register a series of events at once without the need of user method to capture the events. The lists of the classes using this role are populated with B<Gnome::Gtk4::Label>s. The label entries are set with the user text from C<.append()>.
+
+=begin code
+method set-events ( )
+=end code
+
+=comment -----------------------------------------------------------------------
+=head2 
+
+
+=item $object; User object where methods are defined to process the events. Most events are defined by B<Gnome::Gtk4::SignalListItemFactory>. The info can be looked up L<here|/content-docs/api2/reference/Gtk4/SignalListItemFactory> or L<here|/content-docs/GnomeTools/reference/Gtk/R-ListModel>.
+  The method is not called when it isn't defined.
+=item *%options: Any user options. The options is given to the method in C<$object>.
+
+The event defined in B<nome::Gtk4::ListView> is C<activate> and the method called will be C<activate-list-item>. The C<activate> event is emitted when a row has been activated by the user. If an item is activatable, double-clicking on the item, using the Return key or calling C<.activate() in Gnome::Gtk4::Widget> will activate the item. Activating instructs the containing view to handle activation.
+
+=head2 Events
+
 When an event fires, user methods are called when they are defined. The user must provide an object where these methods are defined. There are many events, so the method names are fixed for simplicity. The call to be used is C<.set-events()> defined in the classes using this role.
 
 =head2 Selection type events.
@@ -148,5 +173,5 @@ method splice ( UInt $pos, UInt $nremove, @str-array )
 =item $pos: The item at the position.
 =item $nremove: Number of rows to remove at $pos.
 =item @str-array: The array of items to insert at $pos after removal.
-=end pod
 
+=end pod
