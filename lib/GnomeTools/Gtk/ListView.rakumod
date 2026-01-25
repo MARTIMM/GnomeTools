@@ -55,11 +55,6 @@ submethod BUILD (
 }
 
 #-------------------------------------------------------------------------------
-method set-events ( :$object, *%options ) {
-  self!set-events( :$object, |%options);
-}
-
-#-------------------------------------------------------------------------------
 method set-activate( :$object, *%options ) {
   $!list-view.register-signal(
     self, 'activate-list-item', 'activate', :$object, |%options

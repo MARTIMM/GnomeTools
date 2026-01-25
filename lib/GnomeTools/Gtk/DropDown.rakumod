@@ -85,11 +85,6 @@ submethod BUILD () {
 }
 
 #-------------------------------------------------------------------------------
-method set-events ( :$object, *%options ) {
-  self!set-events( :$object, |%options);
-}
-
-#-------------------------------------------------------------------------------
 method set-selection-changed ( Any:D :$object, Str:D :$method, *%options ) {
   self.register-signal(
     self, 'this-selection-changed', 'notify::selected',
