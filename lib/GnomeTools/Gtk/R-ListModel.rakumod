@@ -40,7 +40,7 @@ method !init ( Bool :$multi-select = False ) {
 
 #-------------------------------------------------------------------------------
 # Only for default callback work
-method !set-events ( ) {
+method set-events ( ) {
 
   # See also https://docs.gtk.org/gtk4/class.SignalListItemFactory.html
   with $!signal-factory {
