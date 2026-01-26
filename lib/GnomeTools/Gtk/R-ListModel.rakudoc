@@ -4,23 +4,100 @@ use v6.d;
 =TITLE GnomeTools::Gtk::R-ListModel
 =head1 Description
 
-Role to be used for classes such as B<GnomeTools::Gtk::ListView>. Its purpose is to register and process events. The role is also used to add, find and remove items from the list in the model.
+Role to be used for classes such as B<GnomeTools::Gtk::ListView>. Its purpose is to register and process events. The role is also used to add, find and remove items from the list used by the model.
 
-For simple use, use C<.set-events()>. For more elaborate widgets for each list entry use one or more methods C<.set-setup()>, C<.set-bind()>, C<.set-unbind()>, and  C<.set-teardown()>.
+For simple use, use C<.set-events()>. For more elaborate widgets for each list entry use one or more methods C<.set-setup()>, C<.set-bind()>, C<.set-unbind()>, and  C<.set-teardown()>. Do not call C<.set-events()> in that case.
+
+Most events are defined by B<Gnome::Gtk4::SignalListItemFactory>. The info can be looked up L<here|/content-docs/api2/reference/Gtk4/SignalListItemFactory> or L<here|/content-docs/GnomeTools/reference/Gtk/R-ListModel>.
+
+The C<selection-changed> event is defined in B<Gnome::Gtk4::R-SelectionModel>. While B<GnomeTools::Gtk::DropDown> also uses B<GnomeTools::Gtk::R-ListModel> role, the selection mechanism is a bit different. Please look for C<.set-selection-changed()> in B<nomeTools::Gtk::DropDown> to get the proper info.
 
 =head1 Methods
 
 =comment -----------------------------------------------------------------------
 =head2 set-events
 
-Register a series of events. One defined in B<Gnome::Gtk4::ListView> and the rest from B<Gnome::Gtk4::SignalListItemFactory> class. The purpose of this method is to register a series of events at once without the need of user method to capture the events. The lists of the classes using this role are populated with B<Gnome::Gtk4::Label>s. The label entries are set with the user text from C<.append()>.
+Register a series of events defined in the B<Gnome::Gtk4::SignalListItemFactory> class. The purpose of this method is to register a series of events at once without the need of user methods to capture the events. The entries in the list are populated with B<Gnome::Gtk4::Label>s. The text in the labels are set with user text from C<.append()>.
 
 =begin code
 method set-events ( )
 =end code
 
 =comment -----------------------------------------------------------------------
-=head2 
+=head2 set-setup
+
+When new items are appended using C<.append()> or C<.splice()> the C<setup> event is emitted to set up permanent things in a B<Gnome::Gtk4::ListItem>. In this role, however, the list item is kept hidden and controlled. The only thing the user must do, when called, is; create and return a widget without any content that is depending on the data you give. That part comes when the C<bind> event arrives.
+
+=begin code
+method set-setup ( Any:D $object, Str:D $method, *%options )
+=end code
+=item $object; the object where the callback method is defined.
+=item $method; the method called when the C<setup> event arrives.
+=item %options; any named arguments are passed to the callback method.
+
+The callback method must have the following API;
+
+=begin code
+method $object."$method" ( *%options --> Gnome::Gtk4::Widget )
+=end code
+=item %options. Any named arguments provided to C<.set-setup()>.
+
+=comment -----------------------------------------------------------------------
+=head2 set-bind
+
+After the return of a widget, created by the callback when the setup event fired, another event arrives, the C<bind> event. Here the widget is bound to the data and any other extra widgets needed for the data to be displayed is created.
+
+After this, the listitem may be shown in a list widget. The C<$item> is the string inserted in the list using e.g. C<.append()>. Any named arguments in C<*%options> given to C<.new()> are given to the method.
+
+=begin code
+method set-bind ( Any:D $object, Str:D $method, *%options )
+=end code
+=item $object; the object where the callback method is defined.
+=item $method; the method called when the C<bind> event arrives.
+=item %options; any named arguments are passed to the callback method.
+
+The callback method must have the following API;
+
+=begin code
+method $object."$method" ( Gnome::Gtk4::Widget $widget, Str $item, *%options )
+=end code
+=item $widget; the widget created before.
+=item $item; the list item provided when new items are added.
+=item %options. Any named arguments provided to C<.set-bind()>.
+
+=comment -----------------------------------------------------------------------
+=head2 set-unbind
+
+This C<.set-unbind()> method must be called if in the bind phase any extra widgets are added. The C<unbind> event is emitted to undo everything done when binding. Usually this means disconnecting signal handlers or removing non-permanent widgets. Once this signal has been called, the listitem will no longer be used in a list widget.
+
+The C<bind> and C<unbind> events may be emitted multiple times again to bind the listitem for use with new items. By reusing listitems, potentially costly setup can be avoided. However, it means code needs to make sure to properly clean up the listitem when unbinding so that no information from the previous use leaks into the next one. Any named arguments in C<*%options> given to C<.new()> are given to the method.
+
+=begin code
+method set-unbind ( Any:D $object, Str:D $method, *%options )
+=end code
+=item $object; the object where the callback method is defined.
+=item $method; the method called when the C<bind> event arrives.
+=item %options; any named arguments are passed to the callback method.
+
+The callback method must have the following API;
+
+=begin code
+method $object."$method" ( Gnome::Gtk4::Widget $widget, Str $item, *%options )
+=end code
+=item $widget; the widget created before.
+=item $item; the list item provided when new items are added.
+=item %options. Any named arguments provided to C<.set-bind()>.
+
+=comment -----------------------------------------------------------------------
+=head2 set-teardown
+
+The C<teardown> event is emitted to undo the effects of the C<setup> event. After this signal was emitted on a listitem, the listitem will be destroyed and not be used again. No C<$item> is provided because the item is already destroyed. Any named arguments in C<*%options> given to C<.new()> are given to the method.
+
+=begin code
+method teardown-list-item ( Gnome::Gtk4::Widget $widget, *%options )
+=end code
+
+
 
 
 =item $object; User object where methods are defined to process the events. Most events are defined by B<Gnome::Gtk4::SignalListItemFactory>. The info can be looked up L<here|/content-docs/api2/reference/Gtk4/SignalListItemFactory> or L<here|/content-docs/GnomeTools/reference/Gtk/R-ListModel>.
@@ -50,40 +127,8 @@ method selection-changed ( UInt $position, @selections, *%options )
 =item %options. Any named arguments C<.new()> are given to the method.
 
 
-
+=comment ---
 =head2 Signal factory type events.
-
-=head3 setup
-
-The C<setup> event is emitted to set up permanent things on the B<Gnome::Gtk4::ListItem>. However, the list item is kept under the hood of this class. So, this means the called routine only needs to create and return the widget used in the row.
-
-The user method must be named C<setup-list-item> and its API must be
-
-=begin code
-method setup-list-item ( *%options --> Gnome::Gtk4::Widget )
-=end code
-=item %options. Any named arguments C<.new()> are given to the method.
-
-
-
-=item2 Method bind-list-item; Handles the C<bind> event. The event is emitted to bind the widgets created by C<.setup-list-item()> to their values and, optionally, add entry specific widgets to the given widget. Signals are connected to listen to changes - both to changes in the item to update the widgets or to changes in the widgets to update the item. After this signal has been called, the listitem may be shown in a list widget. The C<$item> is the string inserted in the list using e.g. C<.append()>. Any named arguments in C<*%options> given to C<.new()> are given to the method.
-
-=begin code
-method bind-list-item ( Gnome::Gtk4::Widget $widget, Str $item, *%options )
-=end code
-
-=item2 Method unbind-list-item; Handles the C<unbind> event. The event is emitted to undo everything done when binding. Usually this means disconnecting signal handlers or removing non-permanent widgets. Once this signal has been called, the listitem will no longer be used in a list widget.
-  The C<bind> and C<unbind> events may be emitted multiple times again to bind the listitem for use with new items. By reusing listitems, potentially costly setup can be avoided. However, it means code needs to make sure to properly clean up the listitem when unbinding so that no information from the previous use leaks into the next one. Any named arguments in C<*%options> given to C<.new()> are given to the method.
-
-=begin code
-method unbind-list-item ( Gnome::Gtk4::Widget $widget, Str $item, *%options )
-=end code
-
-=item2 Method teardown-list-item; Handles the C<teardown> event. The event is emitted to undo the effects of the C<setup> event. After this signal was emitted on a listitem, the listitem will be destroyed and not be used again. No C<$item> is provided because the item is already destroyed. Any named arguments in C<*%options> given to C<.new()> are given to the method.
-
-=begin code
-method teardown-list-item ( Gnome::Gtk4::Widget $widget, *%options )
-=end code
 
 
 
