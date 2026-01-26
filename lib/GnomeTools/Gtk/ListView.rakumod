@@ -55,7 +55,7 @@ submethod BUILD (
 }
 
 #-------------------------------------------------------------------------------
-method set-activate( :$object, Str :$method, *%options ) {
+method set-activate( Any:D $object, Str:D $method, *%options ) {
   $!list-view.register-signal(
     self, 'activate-list-item', 'activate', :$object, :$method, |%options
   )

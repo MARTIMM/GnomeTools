@@ -49,8 +49,7 @@ with my Dialog $dialog .= new(
   my DropDown $dropdown2 .= new;
   $dropdown2.set-events;
   $dropdown2.set-selection-changed(
-    :object($helper), :method<selection-changed>,
-    :$dialog, :$dropdown1, :$dropdown2
+    $helper, 'selection-changed', :$dialog, :$dropdown1, :$dropdown2
   );
 
   $dropdown2.append(@items.reverse);

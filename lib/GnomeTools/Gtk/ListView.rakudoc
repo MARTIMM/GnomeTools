@@ -82,35 +82,26 @@ submethod BUILD (
 =item $multi-select; Selection method. When True, more than one entry can be selected. By default False. Selections can be done a) by holding <CTRL> or <SHIFT> and click on the entries. b) by dragging the pointer over the entries (rubberband select).
 =item $orientation; Orientation of the list. By default shown vertically.
 
-The user callback interface must be like;
-=begin code
-method activate-list-item ( UInt $position, @selections, *%options )
-=end code
-
-Where;
-=item $position; Position is the last clicked selection.
-=item @selections; The list of selections in the ListView. Any named arguments C<*%options> given to C<.new()> are given to the method.
-
 =comment -----------------------------------------------------------------------
 =head2 set-activate
 
 Define a callback routine for the C<activate> event. The C<activate> event is emitted when a row has been activated by the user. If an item is activatable, double-clicking on the item, using the Return key or calling C<.activate() in Gnome::Gtk4::Widget> will activate the item. Activating instructs the containing view to handle activation.
 
 =begin code
-method set-activate ( :$object, Str :$method, *%options )
+method set-activate ( Any:D $object, Str:D $method, *%options )
 =end code
 
-=item $object; User object where methods are defined to process the events.
-=item $method; Method in user C<$object> to call when event arrives.
-=item *%options: Any user options. The options are given to the method in C<$object>.
+=item $object; user object where methods are defined to process the events.
+=item $method; the method called when the C<activate> event arrives.
+=item *%options: any named arguments are passed to the callback method.
 
-The API of C<$method> must be
+The callback method must have the following API;
 
 =begin code
-$object."$method"( UInt $position, @selections, *%options);
+method $object."$method" ( UInt $position, @selections, *%options);
 =end code
 
 =item $position; The position of the activated entry.
 =item @selections; A list of the currently selected entries.
-=item %options. Any remaining named arguments given to C<.new()> are passed to the method.
+=item %options. Any named arguments provided to C<.set-activate()>.
 =end pod

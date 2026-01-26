@@ -56,35 +56,35 @@ method set-events ( ) {
 }
 
 #-------------------------------------------------------------------------------
-method set-setup ( Any :$object, Str :$method, *%options ) {
+method set-setup ( Any:D $object, Str:D $method, *%options ) {
   $!signal-factory.register-signal(
     self, 'setup', 'setup', :$object, :$method, |%options
   );
 }
 
 #-------------------------------------------------------------------------------
-method set-bind ( Any :$object, Str :$method, *%options ) {
+method set-bind ( Any:D $object, Str:D $method, *%options ) {
   $!signal-factory.register-signal(
     self, 'bind', 'bind', :$object, :$method, |%options
   );
 }
 
 #-------------------------------------------------------------------------------
-method set-unbind ( Any:D :$object, Str:D :$method, *%options ) {
+method set-unbind ( Any:D $object, Str:D $method, *%options ) {
   $!signal-factory.register-signal(
     self, 'unbind', 'unbind', :$object, :$method, |%options
   );
 }
 
 #-------------------------------------------------------------------------------
-method set-teardown ( Any :$object, Str :$method, *%options ) {
+method set-teardown ( Any:D $object, Str:D $method, *%options ) {
   $!signal-factory.register-signal(
     self, 'teardown', 'teardown', :$object, :$method, |%options
   );
 }
 
 #-------------------------------------------------------------------------------
-method set-selection-changed ( Any:D :$object, Str:D :$method, *%options ) {
+method set-selection-changed ( Any:D $object, Str:D $method, *%options ) {
   $!selection-type.register-signal(
     self, 'selection-changed', 'selection-changed',
     :$object, :$method, |%options
@@ -124,7 +124,7 @@ method setup (
 method bind (
   Gnome::Gtk4::ListItem() $list-item, :$object, Str :$method, *%options
 ) {
-
+# Coersion error:  my Gnome::Gtk4::StringObject() $string-object = $list-item.get-item;
   my Gnome::Gtk4::StringObject $string-object .=  new(
     :native-object($list-item.get-item)
   );

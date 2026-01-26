@@ -138,13 +138,13 @@ with my Dialog $dialog .= new(
   :dialog-header('Test Dialog'), :add-statusbar
 ) {
   my DropDown $dropdown .= new;
-  $dropdown.set-setup( :object($helper), :method<setup-list-item>);
-  $dropdown.set-bind( :object($helper), :method<bind-list-item>, :%items);
-  $dropdown.set-unbind( :object($helper), :method<unbind-list-item>, :%items);
+  $dropdown.set-setup( $helper, 'setup-list-item');
+  $dropdown.set-bind( $helper, 'bind-list-item', :%items);
+  $dropdown.set-unbind( $helper, 'unbind-list-item', :%items);
   $dropdown.append(|%items.keys);
 
   $dropdown.set-selection-changed(
-    :object($helper), :method<selection-changed>, :$dialog, :%items, :$dropdown
+    $helper, 'selection-changed', :$dialog, :%items, :$dropdown
   );
 
   .add-content( 'Select something', $dropdown);
