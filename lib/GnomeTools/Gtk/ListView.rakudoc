@@ -5,7 +5,7 @@ use v6.d;
 
 A listview is like a list where objects can be inserted horizontally or vertically. The listview is filled using a factory and is created in steps. The list is often partly visible and only asks for the objects to be created when they become visible.
 
-There are several events which needs to be captured if complex objects must be created. This class has only one event which is C<activate> and can be set using C<.set-activate()>.
+There are several events which needs to be captured if complex objects must be created. This class has only one event which is C<activate> and can be set using C<.set-activate()>. Other events which may be needed are defined in B<GnomeTools::Gtk::R-ListModel> using the Gtk class B<Gnome::Gtk4::SignalListItemFactory>.
 
 =head2 CSS classes
 
