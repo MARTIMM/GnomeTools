@@ -225,8 +225,16 @@ method get-string ( UInt $pos --> Str ) {
 }
 
 #-------------------------------------------------------------------------------
-method remove ( UInt $pos ) {
-  $!list-objects.remove($pos);
+method remove ( @pos ) {
+  # Reverse rows because after each removal the row count decreases
+  # This causes to remove wrong rows or throwing errors like:
+  # (process:8769): Gtk-CRITICAL **: 18:25:48.324: gtk_string_list_splice:
+  # assertion 'position + n_removals <= objects_get_size (&self->items)'
+  # failed.
+  # The error shows that under the hood, splice() is used
+  for @pos.reverse -> UInt $pos {
+    $!list-objects.remove($pos);
+  }
 }
 
 #-------------------------------------------------------------------------------
