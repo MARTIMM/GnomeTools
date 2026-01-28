@@ -32,17 +32,7 @@ class HelperObject {
     GnomeTools::Gtk::Dialog :$dialog,
     :%items
   ) {
-    # Reverse rows because after each removal the row count decreases
-    # This causes to remove wrong rows or throwing errors like:
-    # (process:8769): Gtk-CRITICAL **: 18:25:48.324: gtk_string_list_splice:
-    # assertion 'position + n_removals <= objects_get_size (&self->items)'
-    # failed.
-    # The error shows that under the hood, splice() is used
-
-    my @selections = $listview.get-selection(:rows).reverse;
-    for @selections -> $selection {
-      $listview.remove($selection);
-    }
+    $listview.remove(my @selections = $listview.get-selection(:rows));
     $dialog.set-status("Removed rows @selections.join(', ')");
   }
 
