@@ -10,44 +10,64 @@ For simple use, use C<.set-events()>. For more elaborate widgets for each list e
 
 Most events are defined by B<Gnome::Gtk4::SignalListItemFactory>. The info can be looked up L<here|/content-docs/api2/reference/Gtk4/SignalListItemFactory> or L<here|/content-docs/GnomeTools/reference/Gtk/R-ListModel>.
 
-The C<selection-changed> event is defined in B<Gnome::Gtk4::R-SelectionModel>. While B<GnomeTools::Gtk::DropDown> also uses B<GnomeTools::Gtk::R-ListModel> role, the selection mechanism is a bit different. Please look for C<.set-selection-changed()> in B<nomeTools::Gtk::DropDown> to get the proper info.
+The C<selection-changed> event is defined in B<Gnome::Gtk4::R-SelectionModel>. Note that while B<GnomeTools::Gtk::DropDown> also uses B<GnomeTools::Gtk::R-ListModel> role, the selection mechanism is a bit different. Please look for C<.set-selection-changed()> in B<nomeTools::Gtk::DropDown> to get the proper info.
 
 =head1 Methods
 
 =comment -----------------------------------------------------------------------
-=head2 set-events
-
-Register a series of events defined in the B<Gnome::Gtk4::SignalListItemFactory> class. The purpose of this method is to register a series of events at once without the need of user methods to capture the events. The entries in the list are populated with B<Gnome::Gtk4::Label>s. The text in the labels are set with user text from C<.append()>.
+=head2 append
 
 =begin code
-method set-events ( )
+method append ( *@list-item )
 =end code
+=item @list-item; list item strings. The bind and unbind callback routines will receive these strings to properly fill in the data or remove it.
 
 =comment -----------------------------------------------------------------------
-=head2 set-setup
+=head2 find
 
-When new items are appended using C<.append()> or C<.splice()> the C<setup> event is emitted to set up permanent things in a B<Gnome::Gtk4::ListItem>. In this role, however, the list item is kept hidden and controlled. The only thing the user must do, when called, is; create and return a widget without any content that is depending on the data you give. That part comes when the C<bind> event arrives.
-
-=begin code
-method set-setup ( Any:D $object, Str:D $method, *%options )
-=end code
-=item $object; the object where the callback method is defined.
-=item $method; the method called when the C<setup> event arrives.
-=item %options; any named arguments are passed to the callback method.
-
-The callback method must have the following API;
+Find the position of the list item in the list.
 
 =begin code
-method $object."$method" ( *%options --> Gnome::Gtk4::Widget )
+method find ( Str $list-item --> UInt )
 =end code
-=item %options. Any named arguments provided to C<.set-setup()>.
+=item $list-item; the string to look for.
+
+=comment -----------------------------------------------------------------------
+=head2 get-selection
+
+Get the list of currently selected items
+
+=begin code
+method get-selection ( Bool :$rows = False --> List )
+=end code
+=item $rows; When set, return the positions in the list, otherwise return a list of item strings.
+
+=comment -----------------------------------------------------------------------
+=head2 get-string
+
+Get the list item string given the position in the list.
+
+=begin code
+method get-string ( UInt $pos --> Str )
+=end code
+=item $pos; the position in the list
+
+=comment -----------------------------------------------------------------------
+=head2 remove
+
+Remove the list item given its position in the list.
+
+=begin code
+method remove ( @pos )
+=end code
+=item @pos; a list of positions to be removed
 
 =comment -----------------------------------------------------------------------
 =head2 set-bind
 
-After the return of a widget, created by the callback when the setup event fired, another event arrives, the C<bind> event. Here the widget is bound to the data and any other extra widgets needed for the data to be displayed is created.
+After the return of a widget, created by the callback when the setup event fired, another event arrives, the C<bind> event. Here the widget is bound to the data and any other non permanent widgets created and registering signal handlers for data to be displayed is created.
 
-After this, the listitem may be shown in a list widget. The C<$item> is the string inserted in the list using e.g. C<.append()>. Any named arguments in C<*%options> given to C<.new()> are given to the method.
+After this, the list item may be shown in a list widget. The C<$item> is the string inserted in the list using e.g. C<.append()>. Any named arguments in C<*%options> given to C<.new()> are given to the method.
 
 =begin code
 method set-bind ( Any:D $object, Str:D $method, *%options )
@@ -66,9 +86,78 @@ method $object."$method" ( Gnome::Gtk4::Widget $widget, Str $item, *%options )
 =item %options. Any named arguments provided to C<.set-bind()>.
 
 =comment -----------------------------------------------------------------------
+=head2 set-events
+
+Register a series of events defined in the B<Gnome::Gtk4::SignalListItemFactory> class. The purpose of this method is to register a series of events at once without the need of user methods to capture the events. The entries in the list are populated with B<Gnome::Gtk4::Label>s. The text in the labels are set with user text from C<.append()>.
+
+=begin code
+method set-events ( )
+=end code
+
+=comment -----------------------------------------------------------------------
+=head2 set-selection-changed
+
+The C<selection-changed> event is emitted when the selection state of some of the items in the model changes.
+
+=begin code
+method set-selection-changed ( Any:D $object, Str:D $method, *%options )
+=end code
+=item $object; the object where the callback method is defined.
+=item $method; the method called when the C<setup> event arrives.
+=item %options; any named arguments are passed to the callback method.
+
+The user method must have the following API;
+
+=begin code
+method $object."$method" ( $position, @selections, |%options )
+=end code
+=item $position is the position of the last clicked selection
+=item @selections is the selection of items used to add items to the list.
+=item %options. Any named arguments C<.new()> are given to the method.
+
+=comment -----------------------------------------------------------------------
+=head2 set-setup
+
+When new items are appended using C<.append()> or C<.splice()> the C<setup> event is emitted to set up permanent widgets in a B<Gnome::Gtk4::ListItem>. The meaning of permanent is that it does not change whatever is given as list data. In this role, however, the list item is kept hidden and controlled. The only thing the user must do, when called, is; create and return a widget without any content that is depending on the data you give. That part comes when the C<bind> event arrives.
+
+=begin code
+method set-setup ( Any:D $object, Str:D $method, *%options )
+=end code
+=item $object; the object where the callback method is defined.
+=item $method; the method called when the C<setup> event arrives.
+=item %options; any named arguments are passed to the callback method.
+
+The callback method must have the following API;
+
+=begin code
+method $object."$method" ( *%options --> Gnome::Gtk4::Widget )
+=end code
+=item %options. Any named arguments provided to C<.set-setup()>.
+
+=comment -----------------------------------------------------------------------
+=head2 set-teardown
+
+The C<teardown> event is emitted to undo the effects of the C<setup> event. After this signal was emitted on a listitem, the listitem will be destroyed and not be used again. No C<$item> is provided because the item is already destroyed. Any named arguments in C<*%options> given to C<.new()> are given to the method.
+
+=begin code
+method set-teardown ( Any:D $object, Str:D $method, *%options )
+=end code
+=item $object; the object where the callback method is defined.
+=item $method; the method called when the C<bind> event arrives.
+=item %options; any named arguments are passed to the callback method.
+
+The callback method must have the following API;
+
+=begin code
+method $object."$method" ( Gnome::Gtk4::Widget $widget, *%options )
+=end code
+=item $widget; the widget created before.
+=item %options. Any named arguments provided to C<.set-bind()>.
+
+=comment -----------------------------------------------------------------------
 =head2 set-unbind
 
-This C<.set-unbind()> method must be called if in the bind phase any extra widgets are added. The C<unbind> event is emitted to undo everything done when binding. Usually this means disconnecting signal handlers or removing non-permanent widgets. Once this signal has been called, the listitem will no longer be used in a list widget.
+This C<.set-unbind()> method must be called if in the bind phase any extra non-permanent widgets are added. The C<unbind> event is emitted to undo everything done when binding. Usually this means disconnecting signal handlers or removing non-permanent widgets. Once this signal has been called, the listitem will no longer be used in a list widget.
 
 The C<bind> and C<unbind> events may be emitted multiple times again to bind the listitem for use with new items. By reusing listitems, potentially costly setup can be avoided. However, it means code needs to make sure to properly clean up the listitem when unbinding so that no information from the previous use leaks into the next one. Any named arguments in C<*%options> given to C<.new()> are given to the method.
 
@@ -89,134 +178,16 @@ method $object."$method" ( Gnome::Gtk4::Widget $widget, Str $item, *%options )
 =item %options. Any named arguments provided to C<.set-bind()>.
 
 =comment -----------------------------------------------------------------------
-=head2 set-teardown
-
-The C<teardown> event is emitted to undo the effects of the C<setup> event. After this signal was emitted on a listitem, the listitem will be destroyed and not be used again. No C<$item> is provided because the item is already destroyed. Any named arguments in C<*%options> given to C<.new()> are given to the method.
-
-=begin code
-method teardown-list-item ( Gnome::Gtk4::Widget $widget, *%options )
-=end code
-
-
-
-
-=item $object; User object where methods are defined to process the events. Most events are defined by B<Gnome::Gtk4::SignalListItemFactory>. The info can be looked up L<here|/content-docs/api2/reference/Gtk4/SignalListItemFactory> or L<here|/content-docs/GnomeTools/reference/Gtk/R-ListModel>.
-  The method is not called when it isn't defined.
-=item *%options: Any user options. The options is given to the method in C<$object>.
-
-The event defined in B<nome::Gtk4::ListView> is C<activate> and the method called will be C<activate-list-item>. The C<activate> event is emitted when a row has been activated by the user. If an item is activatable, double-clicking on the item, using the Return key or calling C<.activate() in Gnome::Gtk4::Widget> will activate the item. Activating instructs the containing view to handle activation.
-
-=head2 Events
-
-When an event fires, user methods are called when they are defined. The user must provide an object where these methods are defined. There are many events, so the method names are fixed for simplicity. The call to be used is C<.set-events()> defined in the classes using this role.
-
-=head2 Selection type events.
-
-=head3 selection-changed
-
-The C<selection-changed> event is emitted when the selection state of some of the items in the model changes. Note that this signal does not specify the new selection state of the items, they need to be queried manually. It is also not necessary for a model to change the selection state of any of the items in the selection model, though it would be rather useless to emit such a signal.
-
-The user method must be named C<selection-changed> and its API must be
-
-=begin code
-method selection-changed ( UInt $position, @selections, *%options )
-=end code
-
-=item $position is the position of the last clicked selection
-=item @selections is the selection of items used to add items to the list.
-=item %options. Any named arguments C<.new()> are given to the method.
-
-
-=comment ---
-=head2 Signal factory type events.
-
-
-
-
-=head2 get-selection
-
-Get the current selection.
-
-=begin code
-method get-selection ( Bool :$rows = False --> List )
-=end code
-
-=item $rows: By default a list of items are returned. When row numbers are needed set the variable to True.
-
-
-
-=head2 append
-
-Add an item at the end of the list
-
-=begin code
-method append ( *@list-item )
-=end code
-
-=item @list-item: Items to append. Items must be of C<Str> type
-
-
-
-=head2 find
-
-Gets the position of the item in the list. The return value can be undefined.
-
-=begin code
-method find ( Str $list-item --> UInt )
-=end code
-
-=item $list-item: The item to find.
-
-
-
-=head2 get-string
-
-Gets the item at C<$pos> of the item in the list. The return value can be undefined.
-
-=begin code
-method get-string ( UInt $pos --> Str )
-=end code
-
-=item $pos: The item at the position.
-
-
-
-=head2 remove
-
-Remove the item at C<$pos> of the item in the list.
-
-=begin code
-method remove ( UInt $pos )
-=end code
-
-=item $pos: The item at the position.
-
-=head3 An example to remove selected items
-
-=begin code
-# Reverse rows because after each removal the row count decreases
-# This causes to remove wrong rows or throwing errors like:
-# (process:8769): Gtk-CRITICAL **: 18:25:48.324: gtk_string_list_splice:
-# assertion 'position + n_removals <= objects_get_size (&self->items)'
-# failed.
-# The error shows that under the hood, splice() is used
-
-my @selections = $listview.get-selection(:rows).reverse;
-for @selections -> $selection {
-  $listview.remove($selection);
-}
-=end code
-
 =head2 splice
 
-Remove and/or insert items at position given by C<$pos>.
+Remove list items at given position in the list. Then insert new items at that position.
 
 =begin code
 method splice ( UInt $pos, UInt $nremove, @str-array )
 =end code
-
-=item $pos: The item at the position.
-=item $nremove: Number of rows to remove at $pos.
-=item @str-array: The array of items to insert at $pos after removal.
+=item $pos; position in the list
+=item $nremove; number of list items to remove
+=item @str-array; list items to insert at position
 
 =end pod
+
