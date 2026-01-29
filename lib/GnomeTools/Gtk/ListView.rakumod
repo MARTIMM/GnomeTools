@@ -62,7 +62,7 @@ method set-activate( Any:D $object, Str:D $method, *%options ) {
 }
 
 #-------------------------------------------------------------------------------
-# callback
+# callback private
 method activate-list-item (
   UInt $position, :$object, Str :$method, *%options
 ) {
