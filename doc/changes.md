@@ -1,3 +1,7 @@
+
+* 2026 01 29 0.6.0
+  * Add class **GnomeTools::Gtk::GridView**.
+
 * 2026 01 13 0.5.2
   * Introduced role **GnomeTools::Gtk::R-ListModel** to move many methods from ListView. This makes it easier to make future classes like GridView and ColumnView. Also the eventconnection must not take place in BUILD() but later, called via an extra method `.set-events()`.
   * **GnomeTools::Gtk::DropDown** changed to use the routines from R-ListModel and to use the `.set-events()` method.
