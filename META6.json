@@ -1,7 +1,7 @@
 {
   "description": "Widget Toolbox based on Gnome::Gtk4",
   "name": "GnomeTools",
-  "version": "0.5.2",
+  "version": "0.6.0",
   "auth": "zef:martimm",
   "author": "Marcel Timmerman",
   "tags": [ "Tool", "Gnome", "Gtk4"],
@@ -15,6 +15,7 @@
     "GnomeTools::Gtk::Application": "lib/GnomeTools/Gtk/Application.rakumod",
     "GnomeTools::Gtk::Dialog": "lib/GnomeTools/Gtk/Dialog.rakumod",
     "GnomeTools::Gtk::DropDown": "lib/GnomeTools/Gtk/DropDown.rakumod",
+    "GnomeTools::Gtk::GridView": "lib/GnomeTools/Gtk/GridView.rakumod",
     "GnomeTools::Gtk::ListBox": "lib/GnomeTools/Gtk/ListBox.rakumod",
     "GnomeTools::Gtk::ListView": "lib/GnomeTools/Gtk/ListView.rakumod",
     "GnomeTools::Gtk::MessageDialog": "lib/GnomeTools/Gtk/MessageDialog.rakumod",

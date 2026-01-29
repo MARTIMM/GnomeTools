@@ -1,0 +1,64 @@
+use v6.d;
+#use Test;
+
+#use lib '/home/marcel/Languages/Raku/Projects/gnome-source-skim-tool/gnome-api2/gnome-gtk4/lib';
+
+use GnomeTools::Gtk::GridView;
+use GnomeTools::Gtk::Dialog;
+
+use Gnome::Gtk4::T-enums:api<2>;
+use Gnome::Gtk4::Label:api<2>;
+
+use Gnome::N::N-Object:api<2>;
+
+%*ENV<IGNORE_GNOME_DEPRECATION_MESSAGES> = 1;
+
+
+#-------------------------------------------------------------------------------
+class HelperObject {
+  method show-select (
+    GnomeTools::Gtk::GridView :$gridview, GnomeTools::Gtk::Dialog :$dialog,
+    :@items
+  ) {
+    $dialog.set-status($gridview.get-selection[0]);
+  }
+
+  method selection-changed (
+    UInt $position, @selections, GnomeTools::Gtk::Dialog :$dialog, :@items
+  ) {
+    $dialog.set-status(
+      "Row '{@items.first( @selections[0], :k)}' are selected"
+    );
+  }
+}
+
+my HelperObject $helper .= new;
+
+#-------------------------------------------------------------------------------
+my GnomeTools::Gtk::Dialog $dialog .= new(
+  :dialog-header('Test Dialog'), :add-statusbar
+);
+
+my @items = <class role method sub submethod for else unit package module>;
+
+my GnomeTools::Gtk::GridView $gridview .= new(
+  :!multi-select, :orientation(GTK_ORIENTATION_HORIZONTAL)
+);
+$gridview.set-events;
+$gridview.set-selection-changed(
+  $helper, 'selection-changed', :$dialog, :@items
+);
+$gridview.append(|@items);
+$dialog.add-content( 'Nice list', $gridview);
+
+# Buttons
+$dialog.add-button(
+  $helper, 'show-select', 'Get Selection',
+  :$dialog, :@items, :$gridview
+);
+
+$dialog.add-button( $dialog, 'destroy-dialog', 'Cancel');
+
+$dialog.set-size-request( 400, 300);
+$dialog.show-dialog;
+
