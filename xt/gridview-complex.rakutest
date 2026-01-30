@@ -1,0 +1,161 @@
+use v6.d;
+#use Test;
+
+use YAMLish;
+
+#use lib '/home/marcel/Languages/Raku/Projects/gnome-source-skim-tool/gnome-api2/gnome-gtk4/lib';
+
+use GnomeTools::Gtk::GridView;
+use GnomeTools::Gtk::Dialog;
+use GnomeTools::Gtk::Theming;
+
+use Gnome::Gtk4::Grid:api<2>;
+use Gnome::Gtk4::Image:api<2>;
+use Gnome::Gtk4::T-enums:api<2>;
+use Gnome::Gtk4::Label:api<2>;
+
+use Gnome::N::N-Object:api<2>;
+
+%*ENV<IGNORE_GNOME_DEPRECATION_MESSAGES> = 1;
+
+
+#-------------------------------------------------------------------------------
+class HelperObject {
+  method show-select (
+    GnomeTools::Gtk::GridView :$gridview, GnomeTools::Gtk::Dialog :$dialog,
+    :%items
+  ) {
+    $dialog.set-status($gridview.get-selection[0]);
+  }
+
+  method selection-changed (
+    UInt $position, @selections, GnomeTools::Gtk::Dialog :$dialog, :%items
+  ) {
+    $dialog.set-status(
+      "Status %items{@selections[0]}<name> is %items{@selections[0]}<state>");
+  }
+
+  # Signal factory callbacks
+  method setup ( --> Gnome::Gtk4::Widget ) {
+    with my Gnome::Gtk4::Label $label .= new-label {
+      .set-hexpand(True);
+      .set-justify(GTK_JUSTIFY_LEFT);
+      .set-halign(GTK_ALIGN_START);
+    }
+
+    my Gnome::Gtk4::Image $image .= new-image;
+
+    with my Gnome::Gtk4::Grid $grid .= new-grid {
+      .set-column-spacing(10);
+      .attach( $image, 0, 0, 1, 1);
+      .attach( $label, 0, 1, 1, 1);
+    }
+
+    $grid
+  }
+
+  method bind ( Gnome::Gtk4::Grid() $grid, Str $item-key, :%items ) {
+    my Gnome::Gtk4::Image() $image = $grid.get-child-at( 0, 0);
+    my Gnome::Gtk4::Label() $label = $grid.get-child-at( 0, 1);
+    my $filename = '';
+    with %items{$item-key}<state> {
+      when 'ok' {
+        $filename = 'green-on-256.png';
+      }
+
+      when 'error' {
+        $filename = 'red-on-256.png';
+      }
+
+      when 'slow' {
+        $filename = 'amber-on-256.png';
+      }
+
+      when 'cooling' {
+        $filename = 'blue-on-256.png';
+      }
+   }
+
+    $image.set-from-file("./xt/data/$filename");
+    $label.set-text(%items{$item-key}<name>);
+
+    # Only remove the items text widget
+    if ?%items{$item-key}<text> {
+      with my Gnome::Gtk4::Label $extra-label .= new-label {
+        .set-hexpand(True);
+        .set-justify(GTK_JUSTIFY_LEFT);
+        .set-halign(GTK_ALIGN_START);
+        .set-text(%items{$item-key}<text>);
+      }
+      $grid.attach( $extra-label, 0, 1, 2, 1);
+    }
+  }
+
+  method unbind ( Gnome::Gtk4::Grid() $grid, Str $item-key, :%items ) {
+
+  }
+}
+
+my HelperObject $helper .= new;
+
+#-------------------------------------------------------------------------------
+my GnomeTools::Gtk::Dialog $dialog .= new(
+  :dialog-header('Test Dialog'), :add-statusbar
+);
+
+# Items are keys used to find name and optionally a text. I found it easier to
+# type YAML and then convert it. At the same time it is an example of data read
+# from a file.
+my %items = load-yaml(Q:qq:to/EOYAML/);
+  school:
+    name: www.school.com
+    state: ok
+  db1:
+    name: library-db
+    state: error
+  db2:
+    name: books-db
+    state: slow
+  freezer:
+    name: kitchen-freezer
+    state: cooling
+  EOYAML
+
+my $orientation = GTK_ORIENTATION_HORIZONTAL;
+my GnomeTools::Gtk::GridView $gridview .= new( :!multi-select, :$orientation);
+
+$gridview.set-setup( $helper, 'setup');
+$gridview.set-bind( $helper, 'bind', :%items);
+$gridview.set-unbind( $helper, 'unbind', :%items);
+#$gridview.set-teardown( $helper, 'teardown-list-item', :%items);
+
+$gridview.set-selection-changed(
+  $helper, 'selection-changed', :$dialog, :%items
+);
+$gridview.append(%items.keys);
+$dialog.add-content( 'servers', $gridview);
+
+#`{{
+# Buttons
+$dialog.add-button(
+  $helper, 'show-select', 'Get Selection',
+  :$dialog, :%items, :$gridview
+);
+}}
+
+$dialog.add-button( $dialog, 'destroy-dialog', 'Cancel');
+
+$dialog.set-size-request( 400, 300);
+
+my GnomeTools::Gtk::Theming $theme .= new(:css-text(Q:q:to/EOCSS/));
+  gridview grid {
+    margin: 5px;
+    border-width: 1px;
+    border-color: white;
+    border-style: solid;
+  }
+
+  EOCSS
+
+$dialog.show-dialog;
+
