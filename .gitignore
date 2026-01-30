@@ -9,3 +9,4 @@ Old/*
 **/Old
 
 *.tgz
+xt/data/*
