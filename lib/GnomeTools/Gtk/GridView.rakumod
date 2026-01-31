@@ -29,7 +29,8 @@ method new ( |c ) {
 
 #-------------------------------------------------------------------------------
 submethod BUILD (
-  Bool :$multi-select = False, :$orientation = GTK_ORIENTATION_VERTICAL
+  Bool :$multi-select = False, :$orientation = GTK_ORIENTATION_VERTICAL,
+  UInt :$min-columns, UInt :$max-columns
 ) {
   $!theme .= new;
   $!theme.add-css-class( self, 'gridview-window');
@@ -42,6 +43,8 @@ submethod BUILD (
 
   with $!gridview .= new-gridview( N-Object, N-Object) {
     .set-orientation($orientation);
+    .set-min-columns($min-columns) if ?$min-columns;
+    .set-max-columns($max-columns) if ?$max-columns;
     
     .set-model($!selection-type);
     .set-factory($!signal-factory);

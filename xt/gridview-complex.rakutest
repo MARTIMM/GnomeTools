@@ -74,6 +74,10 @@ class HelperObject {
       when 'cooling' {
         $filename = 'blue-on-256.png';
       }
+
+      when 'cooling' {
+        $filename = 'green-off-256.png';
+      }
    }
 
     $image.set-from-file("./xt/data/$filename");
@@ -108,7 +112,7 @@ my GnomeTools::Gtk::Dialog $dialog .= new(
 # from a file.
 my %items = load-yaml(Q:qq:to/EOYAML/);
   school:
-    name: www.school.com
+    name: www.school.org
     state: ok
   db1:
     name: library-db
@@ -119,10 +123,16 @@ my %items = load-yaml(Q:qq:to/EOYAML/);
   freezer:
     name: kitchen-freezer
     state: cooling
+  corp:
+    name: www.corp.com
+    state: off
   EOYAML
 
 my $orientation = GTK_ORIENTATION_HORIZONTAL;
-my GnomeTools::Gtk::GridView $gridview .= new( :!multi-select, :$orientation);
+my GnomeTools::Gtk::GridView $gridview .= new(
+  :!multi-select, :$orientation
+  :min-columns(10)
+);
 
 $gridview.set-setup( $helper, 'setup');
 $gridview.set-bind( $helper, 'bind', :%items);
