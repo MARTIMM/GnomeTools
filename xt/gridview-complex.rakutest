@@ -131,7 +131,7 @@ my %items = load-yaml(Q:qq:to/EOYAML/);
 my $orientation = GTK_ORIENTATION_HORIZONTAL;
 my GnomeTools::Gtk::GridView $gridview .= new(
   :!multi-select, :$orientation
-  :min-columns(10)
+  :max-columns(3)
 );
 
 $gridview.set-setup( $helper, 'setup');
