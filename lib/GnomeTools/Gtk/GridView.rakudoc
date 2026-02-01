@@ -1,0 +1,56 @@
+use v6.d;
+=begin pod
+=TITLE GnomeTools::Gtk::GridView
+=head1 Description
+
+A gridview is like the listview class a list of objects. The list however, can wrap to the next when the edge of the window or when the maximum columns is reached.
+
+This class has only one event which is C<activate> and can be set using C<.set-activate()>. Other events which may be needed are defined in B<GnomeTools::Gtk::R-ListModel> using the Gtk class B<Gnome::Gtk4::SignalListItemFactory>.
+
+=head2 CSS classes
+
+The B<GnomeTools::Gtk::GridView> class is placed in a B<Gnome::Gtk4::ScrolledWindow>. That object has a classname C<gridview-window> and the B<GnomeTools::Gtk::GridView> object has a classname C<listview-tool>. Other CSS nodes are defined for L<Gnome::Gtk4::GridView|content-docs/api2/reference/Gtk4/GridView.html#CSS_nodes>.
+
+=comment -----------------------------------------------------------------------
+
+=head1 Methods
+
+=head2 new
+
+Instantiate the C<GnomeTools::Gtk::GridView> class.
+
+=begin code
+submethod BUILD (
+  Bool :$multi-select = False, :$orientation = GTK_ORIENTATION_VERTICAL,
+  UInt :$min-columns, UInt :$max-columns
+)
+=end code
+
+=item $multi-select; Selection method. When True, more than one entry can be selected. By default False. Selections can be done a) by holding <CTRL> or <SHIFT> and click on the entries. b) by dragging the pointer over the entries (rubberband select).
+=item $orientation; orientation of the list. By default shown vertically.
+=item $min-columns; minimum columns before wrapping to next row. When the orientation is set to horizontal, the value is about the number of rows!
+=item $max-columns; maximum number of columns to use for a row. Also here, when horizontal, the number is about rows!
+
+=comment -----------------------------------------------------------------------
+=head2 set-activate
+
+Define a callback routine for the C<activate> event. The C<activate> event is emitted when a row has been activated by the user. If an item is activatable, double-clicking on the item, using the Return key or calling C<.activate() in Gnome::Gtk4::Widget> will activate the item. Activating instructs the containing view to handle activation.
+
+=begin code
+method set-activate ( Any:D $object, Str:D $method, *%options )
+=end code
+
+=item $object; user object where methods are defined to process the events.
+=item $method; the method called when the C<activate> event arrives.
+=item *%options: any named arguments are passed to the callback method.
+
+The callback method must have the following API;
+
+=begin code
+method $object."$method" ( UInt $position, @selections, *%options);
+=end code
+
+=item $position; The position of the activated entry.
+=item @selections; A list of the currently selected entries.
+=item %options. Any named arguments provided to C<.set-activate()>.
+=end pod
