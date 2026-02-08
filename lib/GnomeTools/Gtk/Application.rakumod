@@ -153,7 +153,7 @@ In this example you can see that there are two phases where options are processe
 #-------------------------------------------------------------------------------
 unit class GnomeTools::Gtk::Application;
 
-has Gnome::Gtk4::Application $!application handles <activate>;
+has Gnome::Gtk4::Application $!application handles <activate quit>;
 has Gnome::Gtk4::ApplicationWindow $!application-window;
 
 #-------------------------------------------------------------------------------
