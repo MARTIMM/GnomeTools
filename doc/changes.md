@@ -1,4 +1,7 @@
 
+* 2026 02 08 0.6.1
+  * Application must handle quit method
+
 * 2026 01 29 0.6.0
   * Add class **GnomeTools::Gtk::GridView**.
 
