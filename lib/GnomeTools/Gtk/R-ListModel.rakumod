@@ -170,7 +170,7 @@ method teardown (
   }
 
   else {
-    my Label() $label = $list-item.get-child;
+    my Gnome::Gtk4::Label() $label = $list-item.get-child;
     $label.clear-object;
   }
 }
@@ -204,6 +204,11 @@ method get-selection ( Bool :$rows = False --> List ) {
   }
 
   @selections
+}
+
+#-------------------------------------------------------------------------------
+method get-n-items ( --> UInt ) {
+  $!list-objects.get-n-items;
 }
 
 #-------------------------------------------------------------------------------
