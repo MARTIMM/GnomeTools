@@ -32,15 +32,30 @@ method find ( Str $list-item --> UInt )
 =end code
 =item $list-item; the string to look for.
 
+Returns the position of the string if found.
+
+=comment -----------------------------------------------------------------------
+=head2 get-n-items
+
+Get the number of items in the list.
+
+=begin code
+method get-n-items ( --> UInt )
+=end code
+
+Returns the number of items in the list.
+
 =comment -----------------------------------------------------------------------
 =head2 get-selection
 
-Get the list of currently selected items
+Get the list of currently selected items.
 
 =begin code
 method get-selection ( Bool :$rows = False --> List )
 =end code
 =item $rows; When set, return the positions in the list, otherwise return a list of item strings.
+
+Returns the list of currently selected items.
 
 =comment -----------------------------------------------------------------------
 =head2 get-string
@@ -51,6 +66,8 @@ Get the list item string given the position in the list.
 method get-string ( UInt $pos --> Str )
 =end code
 =item $pos; the position in the list
+ 
+ Returns the list item string given the position in the list.
 
 =comment -----------------------------------------------------------------------
 =head2 remove
@@ -133,6 +150,8 @@ The callback method must have the following API;
 method $object."$method" ( *%options --> Gnome::Gtk4::Widget )
 =end code
 =item %options. Any named arguments provided to C<.set-setup()>.
+
+The callback routine must return the top leve widget.
 
 =comment -----------------------------------------------------------------------
 =head2 set-teardown
