@@ -1,4 +1,8 @@
 
+* 2026 02 13 0.6.2
+  * Added `.get-n-items()` to **GnomeTools::Gtk::R-ListModel**. Added to pod doc as well.
+  * Bug fix in `.teardown()`.
+
 * 2026 02 08 0.6.1
   * Application must handle quit method
 
