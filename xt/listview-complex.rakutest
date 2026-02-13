@@ -24,7 +24,10 @@ class HelperObject {
     :%items
   ) {
     my @selections = $listview.get-selection.map: {%items{$_}<name>};
-    $dialog.set-status(@selections.join(', '));
+    $dialog.set-status(
+      "List length: " ~ $listview.get-n-items ~ ". selections: "
+      ~ @selections.join(', ')
+    );
   }
 
   method remove (
