@@ -248,7 +248,7 @@ $dialog.add-content(
 );
 =end code
 =end pod
-multi method add-content (
+method add-content (
   Str:D $text, *@widgets, Int :$columns = 1, Int :$rows = 1
 ) {
   my Int $column = 0;
