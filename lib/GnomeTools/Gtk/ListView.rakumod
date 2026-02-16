@@ -42,7 +42,7 @@ submethod BUILD (
 
   with $!list-view .= new-listview( N-Object, N-Object) {
     .set-orientation($orientation);
-    
+
     .set-model($!selection-type);
     .set-factory($!signal-factory);
     .set-enable-rubberband(True);
