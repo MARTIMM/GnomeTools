@@ -124,7 +124,8 @@ method setup (
 method bind (
   Gnome::Gtk4::ListItem() $list-item, :$object, Str :$method, *%options
 ) {
-# Coersion error:  my Gnome::Gtk4::StringObject() $string-object = $list-item.get-item;
+# TODO Coersion error:
+# my Gnome::Gtk4::StringObject() $string-object = $list-item.get-item;
   my Gnome::Gtk4::StringObject $string-object .=  new(
     :native-object($list-item.get-item)
   );
@@ -132,12 +133,13 @@ method bind (
 
   # If object and method exists, call the method to let the widget
   # be filled in by the user.
+  my N-Object $n-child = $list-item.get-child;
   if ?$object and $object.^can($method) {
-    $object."$method"( $list-item.get-child, $text, |%options);
+    $object."$method"( $n-child, $text, |%options);
   }
 
   else {
-    my Gnome::Gtk4::Label() $label = $list-item.get-child;
+    my Gnome::Gtk4::Label() $label = $n-child;
     $label.set-text($text);
   }
 
