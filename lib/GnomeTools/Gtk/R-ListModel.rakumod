@@ -245,7 +245,7 @@ method remove ( @pos ) {
 }
 
 #-------------------------------------------------------------------------------
-method splice ( UInt $pos, UInt $nremove, @str-array ) {
+method splice ( UInt $pos, UInt $nremove, *@str-array ) {
   my $array = CArray[Str].new( |@str-array, Str);
   $!list-objects.splice( $pos, $nremove, $array);
 }
