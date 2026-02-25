@@ -160,6 +160,9 @@ $listview.set-selection-changed( $helper, 'selection-changed', :$dialog);
 $listview.append(|%items.keys);
 $dialog.add-content( 'Nice list', $listview);
 
+# Set selections in the list
+$listview.set-selection( 0, 3, 7, 10);
+
 # Buttons
 $dialog.add-button(
   $helper, 'show-select', 'Get Selection',

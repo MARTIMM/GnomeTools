@@ -130,7 +130,7 @@ my %items = load-yaml(Q:qq:to/EOYAML/);
 
 my $orientation = GTK_ORIENTATION_HORIZONTAL;
 my GnomeTools::Gtk::GridView $gridview .= new(
-  :!multi-select, :$orientation
+  :multi-select, :$orientation
   :max-columns(3)
 );
 
@@ -144,6 +144,9 @@ $gridview.set-selection-changed(
 );
 $gridview.append(%items.keys);
 $dialog.add-content( 'servers', $gridview);
+
+# Set selections in the grid
+$gridview.set-selection( 0, 3);
 
 #`{{
 # Buttons

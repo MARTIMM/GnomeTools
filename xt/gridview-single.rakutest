@@ -51,6 +51,9 @@ $gridview.set-selection-changed(
 $gridview.append(|@items);
 $dialog.add-content( 'Nice list', $gridview);
 
+# Set selections in the grid
+$gridview.set-selection( 0, 3);
+
 # Buttons
 $dialog.add-button(
   $helper, 'show-select', 'Get Selection',
