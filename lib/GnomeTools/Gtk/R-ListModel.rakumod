@@ -7,8 +7,6 @@ use Gnome::N::N-Object:api<2>;
 use Gnome::N::X:api<2>;
 #Gnome::N::debug(:on);
 
-use Gnome::GObject::T-Signal:api<2>;
-
 use Gnome::Gtk4::ListItem:api<2>;
 use Gnome::Gtk4::SignalListItemFactory:api<2>;
 use Gnome::Gtk4::StringList:api<2>;
@@ -208,12 +206,13 @@ method get-selection ( Bool :$rows = False --> List ) {
 }
 
 #-------------------------------------------------------------------------------
-method set-selection ( UInt $pos ) {
-  my Gnome::GObject::T-Signal $signal-control .= new;
-  $signal-control.emit-by-name(
-    self, 'selection-changed', $pos, self.get-n-items
-  );
-#signal-emit-by-name => %( :type(Function), :is-symbol<g_signal_emit_by_name>, :variable-list, :parameters([ gpointer, Str]), ),
+method set-selection ( *@pos --> Bool ) {
+  my Gnome::Gtk4::N-Bitset $bitset .= new-empty;
+  for @pos -> $p {
+    $bitset.add($p);
+  }
+
+  $!selection-type.set-selection( $bitset, $bitset);
 }
 
 #-------------------------------------------------------------------------------
