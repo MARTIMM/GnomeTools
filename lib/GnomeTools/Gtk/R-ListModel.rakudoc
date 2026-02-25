@@ -18,9 +18,9 @@ The C<selection-changed> event is defined in B<Gnome::Gtk4::R-SelectionModel>. N
 =head2 append
 
 =begin code
-method append ( *@list-item )
+method append ( *@items )
 =end code
-=item @list-item; list item strings. The bind and unbind callback routines will receive these strings to properly fill in the data or remove it.
+=item @items; item strings. The bind and unbind callback routines will receive these strings to properly fill in the data or remove it.
 
 =comment -----------------------------------------------------------------------
 =head2 find
@@ -28,9 +28,9 @@ method append ( *@list-item )
 Find the position of the list item in the list.
 
 =begin code
-method find ( Str $list-item --> UInt )
+method find ( Str $item --> UInt )
 =end code
-=item $list-item; the string to look for.
+=item $item; the string to look for.
 
 Returns the position of the string if found.
 
@@ -67,15 +67,15 @@ method get-string ( UInt $pos --> Str )
 =end code
 =item $pos; the position in the list
  
- Returns the list item string given the position in the list.
+ Returns the item string given the position in the list.
 
 =comment -----------------------------------------------------------------------
 =head2 remove
 
-Remove the list item given its position in the list.
+Remove the item given its position in the list.
 
 =begin code
-method remove ( @pos )
+method remove ( *@pos )
 =end code
 =item @pos; a list of positions to be removed
 
@@ -110,6 +110,16 @@ Register a series of events defined in the B<Gnome::Gtk4::SignalListItemFactory>
 =begin code
 method set-events ( )
 =end code
+
+=comment -----------------------------------------------------------------------
+=head2 set-selection
+
+Make selection changes.
+
+=begin code
+method set-selection ( *@pos )
+=end code
+=item @pos; one or more positions in the list to select. If the model uses single selection, only one item is selected.
 
 =comment -----------------------------------------------------------------------
 =head2 set-selection-changed
@@ -202,11 +212,11 @@ method $object."$method" ( Gnome::Gtk4::Widget $widget, Str $item, *%options )
 Remove list items at given position in the list. Then insert new items at that position.
 
 =begin code
-method splice ( UInt $pos, UInt $nremove, @str-array )
+method splice ( UInt $pos, UInt $nremove, *@str-array )
 =end code
 =item $pos; position in the list
 =item $nremove; number of list items to remove
-=item @str-array; list items to insert at position
+=item @str-array; list items to insert at the position
 
 =end pod
 
