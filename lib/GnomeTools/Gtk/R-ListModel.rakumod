@@ -36,6 +36,9 @@ method !init ( Bool :$!multi-select = False ) {
     ?? Gnome::Gtk4::MultiSelection.new-multiselection($!list-objects)
     !! Gnome::Gtk4::SingleSelection.new-singleselection($!list-objects);
 
+  # Do not auto select when single selection is used.
+  $!selection-type.set-autoselect(False) unless $!multi-select;
+
   $!signal-factory .= new-signallistitemfactory;
 }
 
