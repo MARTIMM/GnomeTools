@@ -1,4 +1,7 @@
 
+* 2026 02 27 0.6.4
+  * Bug fix in selection method `.set-selection()`.
+
 * 2026 02 25 0.6.3
   * Add method .set-selection() to **GnomeTools::Gtk::R-ListModel**.
 
