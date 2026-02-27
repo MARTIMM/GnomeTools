@@ -1,7 +1,7 @@
 
 * 2026 02 27 0.6.4
   * Bug fix in selection method `.set-selection()`.
-  * auto selection is turned off.
+  * Auto selection is turned off. Problems arise when `.set-selection-changed()` is used. The specified callback will not be called when first item is selected.
 
 * 2026 02 25 0.6.3
   * Add method .set-selection() to **GnomeTools::Gtk::R-ListModel**.
