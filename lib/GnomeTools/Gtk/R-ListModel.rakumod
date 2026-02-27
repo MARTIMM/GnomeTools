@@ -24,14 +24,15 @@ unit role GnomeTools::Gtk::R-ListModel;
 has Gnome::Gtk4::StringList $!list-objects;
 has $!selection-type;
 has Gnome::Gtk4::SignalListItemFactory $!signal-factory;
+has Bool $!multi-select;
 
 #-------------------------------------------------------------------------------
 # Init called from role users like GnomeTools::Gtk::ListView to
 # initialize 
-method !init ( Bool :$multi-select = False ) {
+method !init ( Bool :$!multi-select = False ) {
   $!list-objects .= new-stringlist(CArray[Str].new(Str));
 
-  $!selection-type = $multi-select
+  $!selection-type = $!multi-select
     ?? Gnome::Gtk4::MultiSelection.new-multiselection($!list-objects)
     !! Gnome::Gtk4::SingleSelection.new-singleselection($!list-objects);
 
@@ -178,6 +179,7 @@ method teardown (
 method selection-changed (
   UInt $position, UInt $n-items, :$object, :$method, *%options
 ) {
+note "$?LINE $position, $n-items";
   $object."$method"( $position, self.get-selection, |%options);
 }
 
@@ -206,13 +208,21 @@ method get-selection ( Bool :$rows = False --> List ) {
 }
 
 #-------------------------------------------------------------------------------
-method set-selection ( *@pos --> Bool ) {
-  my Gnome::Gtk4::N-Bitset $bitset .= new-empty;
-  for @pos -> $p {
-    $bitset.add($p);
+method set-selection ( *@pos ) {
+  if $!multi-select {
+    my Gnome::Gtk4::N-Bitset $bitset .= new-empty;
+    for @pos -> $p {
+      $bitset.add($p);
+    }
+
+    # Set the selection with the same mask as its selected items.
+    # Ignore boolean return.
+    $!selection-type.set-selection( $bitset, $bitset);
   }
 
-  $!selection-type.set-selection( $bitset, $bitset);
+  else {
+    $!selection-type.set-selected(@pos[0]);
+  }
 }
 
 #-------------------------------------------------------------------------------
