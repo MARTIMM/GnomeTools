@@ -179,7 +179,6 @@ method teardown (
 method selection-changed (
   UInt $position, UInt $n-items, :$object, :$method, *%options
 ) {
-note "$?LINE $position, $n-items";
   $object."$method"( $position, self.get-selection, |%options);
 }
 
