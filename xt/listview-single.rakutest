@@ -47,6 +47,8 @@ $listview.set-selection-changed(
   $helper, 'selection-changed', :$dialog, :@items
 );
 $listview.append(|@items);
+$listview.set-selection(2);
+
 $dialog.add-content( 'Nice list', $listview);
 
 # Buttons
