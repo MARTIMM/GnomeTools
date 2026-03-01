@@ -1,4 +1,7 @@
 
+* 2026 03 01 0.6.5
+  * Fixed a subtile problem in menu items. It wasn't possible to refer to the same methods in different objects.
+
 * 2026 02 27 0.6.4
   * Bug fix in selection method `.set-selection()`.
   * Auto selection is turned off. Problems arise when `.set-selection-changed()` is used. The specified callback will not be called when first item is selected.
