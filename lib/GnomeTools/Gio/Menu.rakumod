@@ -135,16 +135,18 @@ method item (
   Str:D $name, Mu:D $object, Str:D $method, Bool :$checkbox = False,
   *%options
 ) {
-  my Str $action-name = 'app.' ~ $method;
+  my Str $objectname = $object.^name;
+  $objectname ~~ s:g/ '::' //;
+  my Str $actionname = "app.$objectname$method";
 
   # Make a menu entry
-  my Gnome::Gio::MenuItem $menu-item .= new-menuitem( $name, $action-name);
+  my Gnome::Gio::MenuItem $menu-item .= new-menuitem( $name, $actionname);
 
   $!menu.append-item($menu-item);
 
   # Use the method name
   my Gnome::Gio::SimpleAction $action;
-  $action .= new-simpleaction( $method, gpointer);
+  $action .= new-simpleaction( "$objectname$method", gpointer);
 
   $action.register-signal( $object, $method, 'activate', :$action, |%options);
   $actions.push: $action;
