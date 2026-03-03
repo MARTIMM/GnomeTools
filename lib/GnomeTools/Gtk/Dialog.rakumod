@@ -178,6 +178,8 @@ submethod BUILD (
     .set-row-spacing(10);
     .set-column-spacing(20);
     .set-hexpand(True);
+    .set-column-homogeneous(False);
+
 
     $!theme.add-css-class( $!content, 'dialog-content');
   }
@@ -196,6 +198,7 @@ submethod BUILD (
     .set-wrap(False);
     .set-visible(True);
   }
+
   $!button-row.append($button-row-strut);
   $!statusbar .= new if $add-statusbar;
 
@@ -256,10 +259,18 @@ method add-content (
     self!make-content-label($text), $column++, $!content-count, 1, 1
   );
 
+  my Int $c = $columns;
   for @widgets -> $widget {
+    if $widget ~~ Int {
+      $c = $widget;
+      next;
+    }
+
     $widget.set-hexpand(True);
-    $!content.attach( $widget, $column, $!content-count, $columns, $rows);
+    $!content.attach( $widget, $column, $!content-count, $c, $rows);
     $column += $columns;
+    
+    $c = $columns;
   }
 
   $!content-count += $rows;
