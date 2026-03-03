@@ -1,6 +1,6 @@
 
 * 2026 03 01 0.6.5
-  * Fixed a subtile problem in menu items. It wasn't possible to refer to the same methods in different objects.
+  * Fixed a subtle problem in menu items. It wasn't possible to refer to the same methods in different objects.
 
 * 2026 02 27 0.6.4
   * Bug fix in selection method `.set-selection()`.
