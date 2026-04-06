@@ -39,6 +39,7 @@ method !init ( Bool :$!multi-select = False ) {
   # Do not auto select when single selection is used.
   $!selection-type.set-autoselect(False) unless $!multi-select;
 
+
   $!signal-factory .= new-signallistitemfactory;
 }
 
@@ -188,6 +189,7 @@ method selection-changed (
 #-------------------------------------------------------------------------------
 method get-selection ( Bool :$rows = False --> List ) {
 
+#note "$?LINE $!selection-type.gist()";
   return () unless ?$!selection-type;
 
   my @selections = ();
@@ -196,6 +198,7 @@ method get-selection ( Bool :$rows = False --> List ) {
   );
 
   my Int $n = $bitset.get-size;
+#note "$?LINE $bitset.gist(), $n";
   for ^$n -> $i {
     if $rows {
       @selections.push: $bitset.get-nth($i);
