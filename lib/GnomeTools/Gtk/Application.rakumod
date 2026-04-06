@@ -176,7 +176,7 @@ submethod BUILD (
 
 =end pod
 submethod BUILD (
-  Str:D :$app-id, GApplicationFlags :$app-flags = G_APPLICATION_DEFAULT_FLAGS
+  Str:D :$app-id, UInt :$app-flags = G_APPLICATION_DEFAULT_FLAGS
 ) {
   $!application .= new-application( $app-id, $app-flags);
 }
