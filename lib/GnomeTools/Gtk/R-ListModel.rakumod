@@ -39,7 +39,6 @@ method !init ( Bool :$!multi-select = False ) {
   # Do not auto select when single selection is used.
   $!selection-type.set-autoselect(False) unless $!multi-select;
 
-
   $!signal-factory .= new-signallistitemfactory;
 }
 
