@@ -1,0 +1,63 @@
+#!/usr/bin/env raku
+
+use v6.d;
+#use lib '/home/marcel/Languages/Raku/Projects/gnome-source-skim-tool/gnome-api2/gnome-gtk4/lib';
+#use lib '/home/marcel/Languages/Raku/Projects/GnomeTools/lib';
+
+
+use Gnome::Gtk4::Window:api<2>;
+
+use Gnome::N::N-Object:api<2>;
+use Gnome::N::GlibToRakuTypes:api<2>;
+
+use Gnome::Glib::N-MainLoop:api<2>;
+
+use GnomeTools::Gtk::Shortcut;
+
+#-------------------------------------------------------------------------------
+my Gnome::Glib::N-MainLoop $main-loop .= new-mainloop( N-Object, True);
+
+#-------------------------------------------------------------------------------
+class Helper {
+  method ctrl-x-trigger ( ) {
+    note "CTRL x pressed";
+  }
+
+  method exit ( ) {
+    $main-loop.quit;
+
+    0
+  }
+}
+
+#-------------------------------------------------------------------------------
+class SCTest {
+  has GnomeTools::Gtk::Shortcut $!shortcut;
+#  has GnomeTools::Gtk::Application $!application;
+  has Helper $!helper;
+
+  submethod BUILD ( ) {
+    $!helper .= new;
+    $!shortcut .= new;
+
+    my Gnome::Gtk4::Window $window;
+    with $window .= new-window {
+      .set-title('second method');
+      .register-signal( $!helper, 'exit', 'close-request');
+
+      .set-size-request( 500, 500);
+      $!shortcut.set-shortcut(  
+        '<Ctl>x', $window, $!helper, 'ctrl-x-trigger'
+      );
+
+      .present;
+    }
+  }
+}
+
+#-------------------------------------------------------------------------------
+my SCTest $app .= new;
+
+$main-loop.run;
+
+say 'done it';
