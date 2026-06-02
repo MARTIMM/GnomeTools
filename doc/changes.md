@@ -1,6 +1,9 @@
 
+* 2026 06 02 0.7.0
+  * Add module **GnomeTools::Gtk::Shortcut** to define shortcut keys and run callback method when pressed.
+
 * 2026 04 06 0.6.6
-  * Bug fixed. Application accepted the specific `GApplicationFlags` type while it can be ored with several of those. So it is changed into `UInt`.
+  * Bug fixed. Application accepted the specific `GApplicationFlags` type while it can be or-ed with several of those. So it is changed into `UInt`.
 
 * 2026 03 01 0.6.5
   * Fixed a subtle problem in menu items. It wasn't possible to refer to the same methods in different objects.
