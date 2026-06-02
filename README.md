@@ -16,6 +16,7 @@ The set of tools are Raku library modules to help the user with some common GUI 
 * **GnomeTools::Gtk::ListBox**. List boxes are used to show columns of information. The default case is to show text strings. With extra work you are able to show any kind of widget in each row of the listbox. This class needs some extra work to get everything right.
 * **GnomeTools::Gtk::ListView**. A ListView is used for the same reason as a ListBox but can handle much longer lists and can handle complex widgets in a row.
 * **GnomeTools::Gtk::MessageDialog**. The message dialog is based on the dialog class.
+* **GnomeTools::Gtk::Shortcut**. Define shortcut keys and run callback method when pressed.
 * **GnomeTools::Gtk::Statusbar**. The statusbar is deprecated since version 4.10 of Gtk. With a bit less facilities then the original, it is just like a label widget which takes the total width of its container.
 * **GnomeTools::Gtk::Theming**. A small toolbox to set css class names on widgets and to read a css file or text and set the context for all widgets.
 
