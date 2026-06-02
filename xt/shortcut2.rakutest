@@ -1,0 +1,110 @@
+#!/usr/bin/env raku
+
+use v6.d;
+#use lib '/home/marcel/Languages/Raku/Projects/gnome-source-skim-tool/gnome-api2/gnome-gtk4/lib';
+#use lib '/home/marcel/Languages/Raku/Projects/GnomeTools/lib';
+
+use GnomeTools::Gtk::Application;
+use GnomeTools::Gtk::Shortcut;
+
+use Gnome::Gtk4::Widget:api<2>;
+use Gnome::Gtk4::Frame:api<2>;
+#use Gnome::Gtk4::ShortcutController:api<2>;
+#use Gnome::Gtk4::Shortcut:api<2>;
+#use Gnome::Gtk4::ShortcutTrigger:api<2>;
+#use Gnome::Gtk4::CallbackAction:api<2>;
+#use Gnome::Gtk4::T-enums:api<2>;
+
+#use Gnome::Gdk4::T-enums:api<2>;
+
+#use Gnome::Gio::SimpleAction:api<2>;
+#use GnomeTools::Gio::Menu;
+
+use Gnome::N::N-Object:api<2>;
+use Gnome::N::GlibToRakuTypes:api<2>;
+
+#use Gnome::Glib::N-MainLoop:api<2>;
+
+
+constant Widget = Gnome::Gtk4::Widget;
+constant Frame = Gnome::Gtk4::Frame;
+#constant ShortcutController = Gnome::Gtk4::ShortcutController;
+#constant Shortcut = Gnome::Gtk4::Shortcut;
+#constant CallbackAction = Gnome::Gtk4::CallbackAction;
+#constant ShortcutTrigger = Gnome::Gtk4::ShortcutTrigger;
+#constant  = Gnome::Gtk4::;
+
+#my Gnome::Glib::N-MainLoop $main-loop .= new-mainloop( N-Object, True);
+
+#-------------------------------------------------------------------------------
+class Helper {
+  method ctrl-x-trigger ( N-Object $parameter ) {
+    note "CTRL X pressed";
+  }
+
+  method exit ( :$application ) {
+    $application.quit;
+  }
+}
+
+#-------------------------------------------------------------------------------
+class SCTest {
+  constant APP_ID = 'ShortcutTest.myapp';
+
+  has GnomeTools::Gtk::Shortcut $!shortcut;
+  has GnomeTools::Gtk::Application $!application;
+  has Helper $!helper;
+
+  #-----------------------------------------------------------------------------
+  submethod BUILD ( ) {
+    $!helper .= new;
+    $!shortcut .= new;
+
+    with $!application .= new(:app-id(APP_ID)) {
+      .set-activate( self, 'activate');
+      .run;
+    }
+  }
+
+  #-----------------------------------------------------------------------------
+  method activate ( ) {
+    $!application.set-window-content(
+      self.window-content, self.menu, :title("Application Title")
+    );
+  }
+
+  #-----------------------------------------------------------------------------
+  method menu ( --> GnomeTools::Gio::Menu ) {
+    my GnomeTools::Gio::Menu $bar .= new;
+    my GnomeTools::Gio::Menu $m1 .= new( :parent-menu($bar), :name<File>);
+    $m1.item( 'Quit', self, 'file-quit');
+
+    $bar
+  }
+
+  #-----------------------------------------------------------------------------
+  method file-quit ( N-Object $parameter ) {
+    note 'File Quit';
+    $!application.quit
+  }
+
+  #-----------------------------------------------------------------------------
+  method window-content ( --> Widget ) {
+    $!shortcut.set-shortcut(
+      $!application, '<Control>x', $!helper, 'ctrl-x-trigger'
+    );
+
+    with my Frame $frame .= new-frame('Shortcut key test') {
+      .set-size-request( 500, 500);
+    }
+
+    $frame
+  }
+}
+
+#-------------------------------------------------------------------------------
+my SCTest $app .= new;
+
+#$main-loop.run;
+
+say 'done it';
