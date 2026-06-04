@@ -1,0 +1,85 @@
+
+use v6.d;
+
+#use lib '/home/marcel/Languages/Raku/Projects/gnome-source-skim-tool/gnome-api2/gnome-native/lib';
+
+use NativeCall;
+
+use Gnome::N::GlibToRakuTypes:api<2>;
+use Gnome::N::N-Object:api<2>;
+use Gnome::N::X:api<2>;
+#Gnome::N::debug(:on);
+
+use GnomeTools::Gtk::DND;
+
+use Gnome::Gdk4::Drag:api<2>;
+use Gnome::Gdk4::Drop:api<2>;
+
+use Gnome::Glib::N-MainLoop:api<2>;
+
+use Gnome::Gtk4::Window:api<2>;
+use Gnome::Gtk4::Grid:api<2>;
+use Gnome::Gtk4::Picture:api<2>;
+use Gnome::Gtk4::DragSource:api<2>;
+
+#-------------------------------------------------------------------------------
+constant DATA_PATH =
+  $*HOME ~ '/Languages/Raku/Projects/gnome-source-skim-tool/xt/Other/data/';
+
+my Gnome::Glib::N-MainLoop $main-loop .= new-mainloop( N-Object, True);
+
+#-------------------------------------------------------------------------------
+class Helper {
+  method exit ( ) {
+    $main-loop.quit;
+  }
+
+  #-----------------------------------------------------------------------------
+  method drag-begin (
+    Gnome::Gdk4::Drag() $drag,
+    Gnome::Gtk4::DragSource() :_native-object($ds),
+    Gnome::Gtk4::Picture :$pic,
+  ) {
+    note "\ndrag-begin";
+#    $ds.set-icon( $pic.get-paintable, -20, 20);
+  }
+#`{{
+  #-----------------------------------------------------------------------------
+  method drag-end ( Gnome::Gdk4::Drag() $drag, Bool() $delete-data ) {
+    note "drag-end: delete data $delete-data";
+  }
+
+  #-----------------------------------------------------------------------------
+  method drag-cancel ( Gnome::Gdk4::Drag() $drag, UInt $reason ) {
+    note "drag-cancel: $reason";
+  }
+}}
+}
+
+#-------------------------------------------------------------------------------
+my Helper $helper .= new;
+my GnomeTools::Gtk::DND $dnd .= new;
+
+my Gnome::Gtk4::Picture $red =
+  $dnd.set-dragsource( $helper, DATA_PATH ~ 'red-on-256.png');
+my Gnome::Gtk4::Picture $amber = 
+  $dnd.set-dragsource( $helper, DATA_PATH ~ 'amber-on-256.png');
+my Gnome::Gtk4::Picture $green =
+  $dnd.set-dragsource( $helper, DATA_PATH ~ 'green-on-256.png');
+
+with my Gnome::Gtk4::Grid $grid .= new-grid {
+  .attach( $red,      0, 0, 1, 1);
+  .attach( $green,    1, 0, 1, 1);
+  .attach( $amber,    2, 0, 1, 1);
+}
+
+with my Gnome::Gtk4::Window $window .= new-window {
+  .set-title('Drag and Drop test');
+  .set-child($grid);
+
+  .register-signal( $helper, 'exit', 'close-request');
+  .present;
+}
+
+$main-loop.run;
+say 'done it';
