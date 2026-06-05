@@ -31,24 +31,47 @@ use Gnome::GObject::N-Value:api<2>;
 use Gnome::GObject::T-value:api<2>;
 
 #-------------------------------------------------------------------------------
-constant DATA_PATH =
-  $*HOME ~ '/Languages/Raku/Projects/gnome-source-skim-tool/xt/Other/data/';
-
 my Gnome::Glib::N-MainLoop $main-loop .= new-mainloop( N-Object, True);
 
 #-------------------------------------------------------------------------------
 class Helper {
-  method exit ( ) {
+  constant DATA_PATH =
+    $*HOME ~ '/Languages/Raku/Projects/gnome-source-skim-tool/xt/Other/data/';
+  has GnomeTools::Gtk::DND $!dnd;
+  has Gnome::Gtk4::Picture $!bullseye;
+
+  #-----------------------------------------------------------------------------
+  submethod BUILD ( ) {
+    $!dnd .= new;
+
+    $!bullseye = $!dnd.set-droptarget( self, DATA_PATH ~ 'bullseye.jpg');
+
+    with my Gnome::Gtk4::Grid $grid .= new-grid {
+      .attach( $!bullseye, 0, 1, 3, 3);
+    }
+
+    with my Gnome::Gtk4::Window $window .= new-window {
+      .set-title('Drop test');
+      .set-child($grid);
+
+      .register-signal( self, 'exit', 'close-request');
+      .present;
+    }
+  }
+
+  #-----------------------------------------------------------------------------
+   method exit ( ) {
     $main-loop.quit;
   }
 
   #-----------------------------------------------------------------------------
-  method accept (
+  method drag-accept (
     Gnome::Gdk4::Drop() $drop, 
     Gnome::Gtk4::DropTarget() :_native-object($dt),
     --> gboolean
   ) {
     note "\n$?LINE accept";
+#`{{
     my Bool $accept-ok = False;
 #    $drop.set-gtypes( CArray[GType].new($f.get-class-gtype), 1);
 
@@ -66,10 +89,13 @@ class Helper {
     note "accept: $accept-ok";
     $dt.set-preload(False);
     $accept-ok
+}}
+    $dt.set-preload(False);
+    $!dnd.accept-test( $drop, 'text');
   }
 
   #-----------------------------------------------------------------------------
-  method drop (
+  method drag-drop (
     N-Value() $n-value, Rat() $x, Rat() $y,
     Gnome::Gtk4::DropTarget() :_native-object($dt),
     --> gboolean
@@ -121,100 +147,37 @@ note $?LINE, ', ', $value.get-string;
     True; #$drop-ok;
   }
 
-#`{{
-  #-----------------------------------------------------------------------------
-  method get-mimetypes ( Gnome::Gdk4::Drop $drop --> Array ) {
-    my Gnome::Gdk4::N-ContentFormats() $formats = $drop.get-formats;
-    my $size = CArray[gsize].new(0);
-    my Array $mime-types = $formats.get-mime-types($size);
-
-    $mime-types
-  }
-
-  #-----------------------------------------------------------------------------
-  method show-mimetypes ( Array $mime-types ) {
-    for @$mime-types -> $mime-type {
-      note "show-mimetypes: Mime type: $mime-type";
-    }
-  }
-
-  #-----------------------------------------------------------------------------
-  method show-actions ( GFlag $actions ) {
-    for GDK_ACTION_COPY, GDK_ACTION_MOVE, GDK_ACTION_LINK -> $action {
-      note "Action $action found" if $actions &? $action;
-    }
-  }
-
-  #-----------------------------------------------------------------------------
-  method check-mimetype (
-    Str $lookfor, Array $mime-types --> Bool
-  ) {
-    my Bool $ok = False;
-    for @$mime-types -> $mime-type {
-      if $mime-types ~~ m/ $lookfor / {
-        $ok = True;
-        last;
-      }
-    }
-
-    $ok
-  }
-
-  #-----------------------------------------------------------------------------
-  method enter ( Rat() $x, Rat() $y --> GFlag ) {
-    note "Enter at $x, $y";
-    GDK_ACTION_COPY   # +| GDK_ACTION_MOVE +| GDK_ACTION_LINK
-  }
-
-  #-----------------------------------------------------------------------------
-  method leave ( ) {
-    note "Left";
-  }
-
-  #-----------------------------------------------------------------------------
-  method motion ( Rat() $x, Rat() $y --> GFlag ) {
-    note "move to $x, $y";
-    GDK_ACTION_COPY +| GDK_ACTION_MOVE +| GDK_ACTION_LINK
-  }
-}}
-
   #-----------------------------------------------------------------------------
   method drag-enter (
-    Gnome::Gdk4::Drop() $drop, Rat() $x, Rat() $y --> GFlag
+    Rat() $x, Rat() $y --> GFlag
   ) {
     note "Enter at $x, $y";
-    GDK_ACTION_COPY +| GDK_ACTION_MOVE +| GDK_ACTION_LINK
+    GDK_ACTION_COPY;# +| GDK_ACTION_MOVE +| GDK_ACTION_LINK
   }
 
   #-----------------------------------------------------------------------------
-  method drag-leave ( Gnome::Gdk4::Drop() $drop ) {
+  method drag-leave ( ) {
     note "Left";
   }
 
   #-----------------------------------------------------------------------------
   method drag-motion (
-    Gnome::Gdk4::Drop() $drop, Rat() $x, Rat() $y --> GFlag
+    Rat() $x, Rat() $y --> GFlag
   ) {
     note "move to $x, $y";
-    GDK_ACTION_COPY +| GDK_ACTION_MOVE +| GDK_ACTION_LINK
+    GDK_ACTION_COPY; # +| GDK_ACTION_MOVE +| GDK_ACTION_LINK
   }
 }
 
 
 my Helper $helper .= new;
-my GnomeTools::Gtk::DND $dnd .= new;
-#my Gnome::Gtk4::Picture $red = set-drag-source('red-on-256.png');
-#my Gnome::Gtk4::Picture $amber = set-drag-source('amber-on-256.png');
-#my Gnome::Gtk4::Picture $green = set-drag-source('green-on-256.png');
 
+#`{{
+my GnomeTools::Gtk::DND $dnd .= new;
 my Gnome::Gtk4::Picture $bullseye =
   $dnd.set-droptarget( $helper, DATA_PATH ~ 'bullseye.jpg');
-#my Gnome::Gtk4::Picture $bullseye = $dnd.set-droptarget2('bullseye.jpg');
 
 with my Gnome::Gtk4::Grid $grid .= new-grid {
-#  .attach( $red,      0, 0, 1, 1);
-#  .attach( $green,    1, 0, 1, 1);
-#  .attach( $amber,    2, 0, 1, 1);
   .attach( $bullseye, 0, 1, 3, 3);
 }
 
@@ -225,8 +188,9 @@ with my Gnome::Gtk4::Window $window .= new-window {
   .register-signal( $helper, 'exit', 'close-request');
   .present;
 }
+}}
 
-Gnome::N::debug(:on);
+#Gnome::N::debug(:on);
 
 $main-loop.run;
 say 'done it';

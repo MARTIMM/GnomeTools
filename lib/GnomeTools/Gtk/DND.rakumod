@@ -17,8 +17,13 @@ use Gnome::N::X:api<2>;
 
 use Gnome::Gdk4::ContentProvider;
 use Gnome::Gdk4::Drag:api<2>;
-use Gnome::Gdk4::T-drag:api<2>;
+use Gnome::Gdk4::Drop:api<2>;
+use Gnome::Gdk4::ContentProvider:api<2>;
+use Gnome::Gdk4::N-ContentFormats:api<2>;
+use Gnome::Gdk4::T-contentformats:api<2>;
+#use Gnome::Gdk4::N-FileList:api<2>;
 use Gnome::Gdk4::T-enums:api<2>;
+use Gnome::Gdk4::T-drag:api<2>;
 
 use Gnome::Glib::N-Error:api<2>;
 use Gnome::Glib::T-error:api<2>;
@@ -72,24 +77,21 @@ method set-droptarget (
   $object, Str $pic-file, *%options
   --> Gnome::Gtk4::Picture
 ) {
-
   my Gnome::Gtk4::Picture $pic;
   my Gnome::Gtk4::DropTarget $target;
   with $target .= new-droptarget( G_TYPE_STRING, GDK_ACTION_COPY) {
 #    .set-gtypes( CArray[GType].new($n-fl.get-class-gtype), 1);
-note "$?LINE Preload: ", .get-preload;
 
     my Gnome::Gdk4::N-ContentFormats() $formats = .get-formats;
     my $size = CArray[gsize].new(0);
     my Array $mime-types = $formats.get-mime-types($size);
 
-note "$?LINE $size.gist(), $mime-types.elems()";
     loop ( my Int $i = 0; $i < $size[0]; $i++ ) {
       note "Mime type: ", $mime-types[$i];
     }
 
-#    .register-signal( $object, 'drag-accept', 'accept', |%options)
-#      if $object.^can('drag-accept');
+    .register-signal( $object, 'drag-accept', 'accept', |%options)
+      if $object.^can('drag-accept');
     .register-signal( $object, 'drag-drop', 'drop', |%options)
       if $object.^can('drag-drop');
     .register-signal( $object, 'drag-enter', 'enter', |%options)
@@ -105,4 +107,64 @@ note "$?LINE $size.gist(), $mime-types.elems()";
   }
 
   $pic
+}
+
+#-------------------------------------------------------------------------------
+method accept-test ( Gnome::Gdk4::Drop() $drop, Str $test-mime --> Bool ) {
+  my Bool $accept-ok = False;
+#    $drop.set-gtypes( CArray[GType].new($f.get-class-gtype), 1);
+
+#`{{
+  my Gnome::Gdk4::N-ContentFormats() $formats = $drop.get-formats;
+  my $size = CArray[gsize].new(0);
+  my Array $mime-types = $formats.get-mime-types($size);
+}}
+  my Array $mime-types = self.get-mimetypes($drop);
+  self.show-mimetypes($mime-types);
+  self.check-mimetype( $test-mime, $mime-types)
+#`{{
+#note "\n\n$?LINE accept: $size.gist(), $mime-types.elems()";
+  loop ( my Int $i = 0; $i < $size[0]; $i++ ) {
+#note "Mime type: ", $mime-types[$i];
+    $accept-ok = True if $mime-types[$i] ~~ m/ $test-mime /;
+  }
+
+  $accept-ok
+}}
+}
+
+#-------------------------------------------------------------------------------
+method get-mimetypes ( Gnome::Gdk4::Drop $drop --> Array ) {
+  my Gnome::Gdk4::N-ContentFormats() $formats = $drop.get-formats;
+  my $size = CArray[gsize].new(0);
+  my Array $mime-types = $formats.get-mime-types($size);
+
+  $mime-types
+}
+
+#-------------------------------------------------------------------------------
+method show-mimetypes ( Array $mime-types ) {
+  for @$mime-types -> $mime-type {
+    note "show-mimetypes: Mime type: $mime-type";
+  }
+}
+
+#-------------------------------------------------------------------------------
+method show-actions ( GFlag $actions ) {
+  for GDK_ACTION_COPY, GDK_ACTION_MOVE, GDK_ACTION_LINK -> $action {
+    note "Action $action found" if $actions &? $action;
+  }
+}
+
+#-------------------------------------------------------------------------------
+method check-mimetype ( Str $lookfor, Array $mime-types --> Bool ) {
+  my Bool $ok = False;
+  for @$mime-types -> $mime-type {
+    if $mime-types ~~ m/ $lookfor / {
+      $ok = True;
+      last;
+    }
+  }
+
+  $ok
 }
