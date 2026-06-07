@@ -61,11 +61,11 @@ my Helper $helper .= new;
 my GnomeTools::Gtk::DND $dnd .= new;
 
 my Gnome::Gtk4::Picture $red =
-  $dnd.set-dragsource( $helper, DATA_PATH ~ 'red-on-256.png');
+  $dnd.set-dragsource( $helper, DATA_PATH ~ 'red-on-256.png', 'rood');
 my Gnome::Gtk4::Picture $amber = 
-  $dnd.set-dragsource( $helper, DATA_PATH ~ 'amber-on-256.png');
+  $dnd.set-dragsource( $helper, DATA_PATH ~ 'amber-on-256.png', 'amber');
 my Gnome::Gtk4::Picture $green =
-  $dnd.set-dragsource( $helper, DATA_PATH ~ 'green-on-256.png');
+  $dnd.set-dragsource( $helper, DATA_PATH ~ 'green-on-256.png', 'groen');
 
 with my Gnome::Gtk4::Grid $grid .= new-grid {
   .attach( $red,      0, 0, 1, 1);
