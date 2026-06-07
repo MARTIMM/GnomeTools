@@ -15,30 +15,32 @@ use Gnome::N::N-Object:api<2>;
 use Gnome::N::X:api<2>;
 #Gnome::N::debug(:on);
 
-use Gnome::Gdk4::ContentProvider;
+use Gnome::Gdk4::ContentProvider:api<2>;
 use Gnome::Gdk4::Drag:api<2>;
 use Gnome::Gdk4::Drop:api<2>;
 use Gnome::Gdk4::ContentProvider:api<2>;
 use Gnome::Gdk4::N-ContentFormats:api<2>;
-use Gnome::Gdk4::T-contentformats:api<2>;
-#use Gnome::Gdk4::N-FileList:api<2>;
 use Gnome::Gdk4::T-enums:api<2>;
-use Gnome::Gdk4::T-drag:api<2>;
 
 use Gnome::Glib::N-Error:api<2>;
 use Gnome::Glib::T-error:api<2>;
 
 use Gnome::GObject::T-type:api<2>;
 
-#-------------------------------------------------------------------------------
-#submethod BUILD ( ) { }
+use Gnome::GObject::T-type:api<2>;
+use Gnome::GObject::N-Value:api<2>;
+use Gnome::GObject::T-value:api<2>;
 
 #-------------------------------------------------------------------------------
+has Array $!target-area;
+
+#-------------------------------------------------------------------------------
+#submethod BUILD ( ) { }
 
 
 #-------------------------------------------------------------------------------
 method set-dragsource (
-  $object, Str $pic-file, *%options
+  $object, Str $pic-file, Str $drag-content, *%options
   --> Gnome::Gtk4::Picture
 ) {
   my Gnome::Gtk4::Picture $pic;
@@ -62,7 +64,7 @@ method set-dragsource (
   # Set content. Can use multiple strings. Interface has variable list solved
   # by providing pairs of type/value. Inthis case gchar-ptr/$pic-file
   my Gnome::Gdk4::ContentProvider $cp .= new-typed(
-    G_TYPE_STRING, gchar-ptr, $pic-file
+    G_TYPE_STRING, gchar-ptr, $drag-content
   );
   $source.set-content($cp);
 
@@ -73,11 +75,8 @@ method set-dragsource (
 }
 
 #-------------------------------------------------------------------------------
-method set-droptarget (
-  $object, Str $pic-file, *%options
-  --> Gnome::Gtk4::Picture
-) {
-  my Gnome::Gtk4::Picture $pic;
+method set-droptarget ( $object, Gnome::Gtk4::Picture $target-pic, *%options ) {
+
   my Gnome::Gtk4::DropTarget $target;
   with $target .= new-droptarget( G_TYPE_STRING, GDK_ACTION_COPY) {
 #    .set-gtypes( CArray[GType].new($n-fl.get-class-gtype), 1);
@@ -101,36 +100,17 @@ method set-droptarget (
     .register-signal( $object, 'drag-motion', 'motion', |%options)
       if $object.^can('drag-motion');
 
-    $pic .= new-for-filename($pic-file);
-    $pic.add-controller($target);
+    $target-pic.add-controller($target);
     .clear-object;
   }
-
-  $pic
 }
 
 #-------------------------------------------------------------------------------
-method accept-test ( Gnome::Gdk4::Drop() $drop, Str $test-mime --> Bool ) {
-  my Bool $accept-ok = False;
-#    $drop.set-gtypes( CArray[GType].new($f.get-class-gtype), 1);
-
-#`{{
-  my Gnome::Gdk4::N-ContentFormats() $formats = $drop.get-formats;
-  my $size = CArray[gsize].new(0);
-  my Array $mime-types = $formats.get-mime-types($size);
-}}
+method check-accept ( Gnome::Gdk4::Drop() $drop, Str $test-mime --> Bool ) {
   my Array $mime-types = self.get-mimetypes($drop);
   self.show-mimetypes($mime-types);
-  self.check-mimetype( $test-mime, $mime-types)
-#`{{
-#note "\n\n$?LINE accept: $size.gist(), $mime-types.elems()";
-  loop ( my Int $i = 0; $i < $size[0]; $i++ ) {
-#note "Mime type: ", $mime-types[$i];
-    $accept-ok = True if $mime-types[$i] ~~ m/ $test-mime /;
-  }
 
-  $accept-ok
-}}
+  self.check-mimetype( $test-mime, $mime-types)
 }
 
 #-------------------------------------------------------------------------------
@@ -167,4 +147,18 @@ method check-mimetype ( Str $lookfor, Array $mime-types --> Bool ) {
   }
 
   $ok
+}
+
+#-------------------------------------------------------------------------------
+method get-dropped-value (
+  N-Value() $n-value, Gnome::Gtk4::DropTarget() $drop-target
+  --> List
+) {
+  my Gnome::GObject::N-Value $value .= new(:native-object($n-value));
+
+  my Gnome::Gdk4::Drop() $drop = $drop-target.get-current-drop;
+  my Gnome::Gdk4::Drag() $drag = $drop.get-drag;
+  my Bool $internal = $drag.is-valid;
+
+  ( $internal, $value.get-string )
 }
