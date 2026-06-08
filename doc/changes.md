@@ -1,3 +1,5 @@
+* 2026 06 08 0.8.0
+  * Add module **GnomeTools::Gtk::DND** to setup drag and drop. There are stil a few items to add but tests are promising.
 
 * 2026 06 02 0.7.0
   * Add module **GnomeTools::Gtk::Shortcut** to define shortcut keys and run callback method when pressed.
