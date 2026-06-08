@@ -11,6 +11,7 @@ The set of tools are Raku library modules to help the user with some common GUI 
 
 * **GnomeTools::Gtk::Application**. An application framework to make it a little bit more simple creating a full fledged program.
 * **GnomeTools::Gtk::Dialog**. The dialog is deprecated since version 4.10 of Gtk. I think it is deprecated because it is quite easy to create one yourself. It is still a necessary tool so it is provided in this library.
+* **GnomeTools::Gtk::DND**. A tool to setup drag and drop.
 * **GnomeTools::Gtk::DropDown**. A dropdown widget with some extra tooling around the widget.
 * **GnomeTools::Gtk::GridView**. A GridView is like a ListView. The difference is that when the window is not large enough, it wraps to the second column or row depending on its orientation.
 * **GnomeTools::Gtk::ListBox**. List boxes are used to show columns of information. The default case is to show text strings. With extra work you are able to show any kind of widget in each row of the listbox. This class needs some extra work to get everything right.
