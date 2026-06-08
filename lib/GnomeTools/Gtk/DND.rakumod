@@ -2,6 +2,13 @@ use v6;
 
 use NativeCall;
 
+=begin pod
+=TITLE GnomeTools::Gtk::DND
+=head1 Description
+
+The DND class is designed to simplify the Drag and Drop bussines.
+
+=end pod
 
 #-------------------------------------------------------------------------------
 unit class GnomeTools::Gtk::DND;
@@ -9,6 +16,7 @@ unit class GnomeTools::Gtk::DND;
 use Gnome::Gtk4::DropTarget:api<2>;
 use Gnome::Gtk4::DragSource:api<2>;
 use Gnome::Gtk4::Picture:api<2>;
+use Gnome::Gtk4::Widget:api<2>;
 
 use Gnome::N::GlibToRakuTypes:api<2>;
 use Gnome::N::N-Object:api<2>;
@@ -35,17 +43,35 @@ use Gnome::GObject::T-value:api<2>;
 has Array $!target-area;
 
 #-------------------------------------------------------------------------------
+=begin pod
+=head1 Methods
+
+=end pod
+
 #submethod BUILD ( ) { }
 
-
 #-------------------------------------------------------------------------------
+=begin pod
+=head2 set-dragsource
+
+Set up a source widget from where to drag from.
+
+=begin code
 method set-dragsource (
   $object, Str $pic-file, Str $drag-content, *%options
-  --> Gnome::Gtk4::Picture
+)
+=end code
+
+=item $object; The object where methods 
+=item $pic-file;
+=item $drag-content;
+=item %options;
+
+=end pod
+
+method set-dragsource (
+  $object, Gnome::Gtk4::Widget $widget, Str $drag-content, *%options
 ) {
-  my Gnome::Gtk4::Picture $pic;
-  $pic .= new-for-filename($pic-file);
-  $pic.set-size-request( 100, 100);
   with my Gnome::Gtk4::DragSource $source .= new-dragsource {
     # Possible to set content provider in 'prepare()' or below.
     .register-signal(
@@ -58,20 +84,18 @@ method set-dragsource (
     .register-signal( $object, 'drag-cancel', 'drag-cancel', |%options)
       if $object.^can('drag-cancel');
 
-    .set-icon( $pic.get-paintable, -20, 20);
+    #.set-icon( $pic.get-paintable, -20, 20);
   }
 
   # Set content. Can use multiple strings. Interface has variable list solved
-  # by providing pairs of type/value. Inthis case gchar-ptr/$pic-file
+  # by providing pairs of type/value. In this case gchar-ptr/$drag-content
   my Gnome::Gdk4::ContentProvider $cp .= new-typed(
     G_TYPE_STRING, gchar-ptr, $drag-content
   );
   $source.set-content($cp);
 
-  $pic.add-controller($source);
+  $widget.add-controller($source);
   $source.clear-object;
-
-  $pic
 }
 
 #-------------------------------------------------------------------------------
