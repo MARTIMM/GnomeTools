@@ -19,6 +19,7 @@ use Gnome::Glib::N-MainLoop:api<2>;
 
 use Gnome::Gtk4::Window:api<2>;
 use Gnome::Gtk4::Grid:api<2>;
+use Gnome::Gtk4::Label:api<2>;
 use Gnome::Gtk4::Picture:api<2>;
 use Gnome::Gtk4::DragSource:api<2>;
 
@@ -30,6 +31,56 @@ my Gnome::Glib::N-MainLoop $main-loop .= new-mainloop( N-Object, True);
 
 #-------------------------------------------------------------------------------
 class Helper {
+  has GnomeTools::Gtk::DND $!dnd;
+  has Gnome::Gtk4::Window $!window;
+
+  #-----------------------------------------------------------------------------
+  submethod BUILD ( ) {
+
+    # Setup the interface showing 3 images of leds and a label. Just to show
+    # that different types of widgets can be used to drag from.
+    my Gnome::Gtk4::Picture $red = self.make-picture('red-on-256.png');
+    my Gnome::Gtk4::Picture $amber = self.make-picture('amber-on-256.png');
+    my Gnome::Gtk4::Picture $green = self.make-picture('green-on-256.png');
+    my Gnome::Gtk4::Label $purple .= new-label;
+    $purple.set-markup('<b>Purple</b>');
+
+    # Place leds in the grid
+    with my Gnome::Gtk4::Grid $grid .= new-grid {
+      .attach( $red,      0, 0, 1, 1);
+      .attach( $green,    1, 0, 1, 1);
+      .attach( $amber,    2, 0, 1, 1);
+      .attach( $purple,   3, 0, 1, 1);
+    }
+
+    # And the grid in a window
+    with my Gnome::Gtk4::Window $window .= new-window {
+      .set-title('Drag and Drop test');
+      .set-child($grid);
+
+      .register-signal( self, 'exit', 'close-request');
+      .present;
+    }
+
+    # Now make a drag source of each of the led displays and attach the content
+    # with it. These are the Dutch words for the colors in use.
+    $!dnd .= new;
+    $!dnd.set-dragsource( self, $red, 'rood');
+    $!dnd.set-dragsource( self, $amber, 'amber');
+    $!dnd.set-dragsource( self, $green, 'groen');
+    $!dnd.set-dragsource( self, $purple, 'paars');
+  }
+
+  #-----------------------------------------------------------------------------
+  method make-picture ( Str $filename --> Gnome::Gtk4::Picture ) {
+    my Gnome::Gtk4::Picture $pic;
+    $pic .= new-for-filename(DATA_PATH ~ $filename);
+    $pic.set-size-request( 100, 100);
+
+    $pic
+  }
+
+  #-----------------------------------------------------------------------------
   method exit ( ) {
     $main-loop.quit;
   }
@@ -58,28 +109,6 @@ class Helper {
 
 #-------------------------------------------------------------------------------
 my Helper $helper .= new;
-my GnomeTools::Gtk::DND $dnd .= new;
-
-my Gnome::Gtk4::Picture $red =
-  $dnd.set-dragsource( $helper, DATA_PATH ~ 'red-on-256.png', 'rood');
-my Gnome::Gtk4::Picture $amber = 
-  $dnd.set-dragsource( $helper, DATA_PATH ~ 'amber-on-256.png', 'amber');
-my Gnome::Gtk4::Picture $green =
-  $dnd.set-dragsource( $helper, DATA_PATH ~ 'green-on-256.png', 'groen');
-
-with my Gnome::Gtk4::Grid $grid .= new-grid {
-  .attach( $red,      0, 0, 1, 1);
-  .attach( $green,    1, 0, 1, 1);
-  .attach( $amber,    2, 0, 1, 1);
-}
-
-with my Gnome::Gtk4::Window $window .= new-window {
-  .set-title('Drag and Drop test');
-  .set-child($grid);
-
-  .register-signal( $helper, 'exit', 'close-request');
-  .present;
-}
 
 $main-loop.run;
 say 'done it';
