@@ -7,20 +7,15 @@ use GnomeTools::Gtk::DND;
 
 use Gnome::Glib::N-MainLoop:api<2>;
 
-use Gnome::Gtk4::DropTarget:api<2>;
+use Gnome::Gtk4::EventController:api<2>;
 use Gnome::Gtk4::Window:api<2>;
 use Gnome::Gtk4::Picture:api<2>;
 use Gnome::Gtk4::Grid:api<2>;
 
-use Gnome::Gdk4::Drop:api<2>;
 use Gnome::Gdk4::T-enums:api<2>;
-use Gnome::Gdk4::ContentProvider:api<2>;
-use Gnome::Gdk4::N-ContentFormats:api<2>;
-use Gnome::Gdk4::T-contentformats:api<2>;
 use Gnome::Gdk4::T-enums:api<2>;
-use Gnome::Gdk4::T-drag:api<2>;
 
-use Gnome::N::GlibToRakuTypes:api<2>;
+#use Gnome::N::GlibToRakuTypes:api<2>;
 use Gnome::N::N-Object:api<2>;
 use Gnome::N::X:api<2>;
 #Gnome::N::debug(:on);
@@ -28,23 +23,25 @@ use Gnome::N::X:api<2>;
 use Gnome::GObject::T-value:api<2>;
 
 #-------------------------------------------------------------------------------
-my Gnome::Glib::N-MainLoop $main-loop .= new-mainloop( N-Object, True);
 
 #-------------------------------------------------------------------------------
 class Helper {
   constant DATA_PATH =
     $*HOME ~ '/Languages/Raku/Projects/gnome-source-skim-tool/xt/Other/data/';
+  has Gnome::Glib::N-MainLoop $!main-loop;
   has GnomeTools::Gtk::DND $!dnd;
   has Gnome::Gtk4::Picture $!bullseye;
+  has Bool $!async;
 
   #-----------------------------------------------------------------------------
-  submethod BUILD ( ) {
+  submethod BUILD ( Bool :$!async ) {
+    $!main-loop .= new-mainloop( N-Object, True);
 
     $!bullseye .= new-for-filename(DATA_PATH ~ 'bullseye.jpg');
     $!bullseye.set-size-request( 100, 100);
 
     $!dnd .= new;
-    $!dnd.set-droptarget( self, $!bullseye);
+    $!dnd.set-droptarget( self, $!bullseye, :$!async);
 
     with my Gnome::Gtk4::Grid $grid .= new-grid {
       .attach( $!bullseye, 0, 1, 3, 3);
@@ -57,63 +54,103 @@ class Helper {
       .register-signal( self, 'exit', 'close-request');
       .present;
     }
+
+    $!main-loop.run;
   }
 
   #-----------------------------------------------------------------------------
    method exit ( ) {
-    $main-loop.quit;
+    $!main-loop.quit;
   }
 
   #-----------------------------------------------------------------------------
-  method drag-accept (
-    Gnome::Gdk4::Drop() $drop, 
-    Gnome::Gtk4::DropTarget() :_native-object($dt),
-    --> gboolean
+  method drop-accept (
+    Gnome::Gdk4::Drop() $drop,
+    Gnome::Gtk4::EventController() :_native-object($dt)
+    --> Bool
   ) {
-    note "\n$?LINE accept";
-    $dt.set-preload(False);
+    note "\nDrop may be accepted";
+    $dt.set-preload(False)  unless $!async;
     $!dnd.check-accept( $drop, 'text');
   }
 
   #-----------------------------------------------------------------------------
-  method drag-drop (
+  method drop (
     N-Value() $n-value, Rat() $x, Rat() $y,
-    Gnome::Gtk4::DropTarget() :_native-object($dt),
-    --> gboolean
+    Gnome::Gtk4::EventController() :_native-object($dt)
+    --> Bool
   ) {
-    note "\n$?LINE drop, x, y = $x, $y";
+#note "\n$?LINE drop, x, y = $x, $y";
+    my ( Bool $internal, Str $value );
+    ( $internal, $value ) = $!dnd.get-dropped-value( $n-value, $dt);
 
-    my ( Bool $internal, Str $value ) = $!dnd.get-dropped-value( $n-value, $dt);
-    note "Internal drop: $internal\nDropped value: $value";
+    note "Internal drop: $internal\nDropped value(s):";
+    note '  ', $value.split("\n").join("\n  ");
 
-    True;
+    True
   }
 
   #-----------------------------------------------------------------------------
-  method drag-enter (
-    Rat() $x, Rat() $y --> GFlag
-  ) {
+  method drop-enter ( Rat() $x, Rat() $y --> UInt ) {
     note "Enter at $x, $y";
     GDK_ACTION_COPY;# +| GDK_ACTION_MOVE +| GDK_ACTION_LINK
   }
 
   #-----------------------------------------------------------------------------
-  method drag-leave ( ) {
+  method drop-leave ( ) {
     note "Left";
   }
 
   #-----------------------------------------------------------------------------
-  method drag-motion (
-    Rat() $x, Rat() $y --> GFlag
-  ) {
+  method drop-motion ( Rat() $x, Rat() $y --> UInt ) {
     note "move to $x, $y";
+    GDK_ACTION_COPY; # +| GDK_ACTION_MOVE +| GDK_ACTION_LINK
+  }
+
+  #-----------------------------------------------------------------------------
+  method drop-async (
+    Gnome::Gdk4::Drop() $drop, Rat() $x, Rat() $y,
+    --> Bool
+  ) {
+#note "\n$?LINE drop, x, y = $x, $y";
+    $!dnd.get-dropped-value-async( self, 'process-value', $drop, 1, $x, $y);
+
+    True;
+  }
+
+  #-----------------------------------------------------------------------------
+  method process-value ( Bool $internal, Str $value ) {
+    note "Dropped values:";
+
+    note "Internal drop: $internal\nDropped value(s):";
+    note '  ', $value.split("\n").join("\n  ");
+  }
+
+  #-----------------------------------------------------------------------------
+  method drop-enter-async (
+    Gnome::Gdk4::Drop() $drop, Rat() $x, Rat() $y --> UInt
+  ) {
+    note "Enter dropzone at $x, $y";
+    GDK_ACTION_COPY;# +| GDK_ACTION_MOVE +| GDK_ACTION_LINK
+  }
+
+  #-----------------------------------------------------------------------------
+  method drop-leave-async ( Gnome::Gdk4::Drop() $drop ) {
+    note "Left dropzone";
+  }
+
+  #-----------------------------------------------------------------------------
+  method drop-motion-async (
+    Gnome::Gdk4::Drop() $drop, Rat() $x, Rat() $y --> UInt
+  ) {
+    note "move to $x, $y in dropzone";
     GDK_ACTION_COPY; # +| GDK_ACTION_MOVE +| GDK_ACTION_LINK
   }
 }
 
-
-my Helper $helper .= new;
-#Gnome::N::debug(:on);
-
-$main-loop.run;
-say 'done it';
+#-------------------------------------------------------------------------------
+ sub MAIN ( Bool :$async ) {
+  my Helper $helper .= new(:$async);
+  #Gnome::N::debug(:on);
+  say 'done it';
+}
