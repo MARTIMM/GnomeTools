@@ -1,8 +1,8 @@
 *2026 06 09 0.8.1
-  * Can do async dropping
+  * Can do asynchronous dropping now. Objects can be dragged from a `firefox` browser, all gnome applications like `files` (originally called `nautilus`) but not from any QT based applications like `konqueror` or `dolphin`. There are different opinions how to send the data. This is seen on a linux Fedora system version 43 and a KDE desktop with x11 support.
 
 * 2026 06 08 0.8.0
-  * Add module **GnomeTools::Gtk::DND** to setup drag and drop. There are stil a few items to add but tests are promising.
+  * Add module **GnomeTools::Gtk::DND** to setup drag and drop. There are still a few items to add but tests are promising.
 
 * 2026 06 02 0.7.0
   * Add module **GnomeTools::Gtk::Shortcut** to define shortcut keys and run callback method when pressed.
