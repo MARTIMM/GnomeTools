@@ -59,12 +59,16 @@ Set up a source widget from where to drag from.
 
 =begin code
 method set-dragsource (
-  $object, Str $pic-file, Str $drag-content, *%options
+  $object, Gnome::Gtk4::Widget $widget, Str $drag-content, *%options
 )
 =end code
 
-=item $object; The object where methods 
-=item $pic-file;
+=item $object; The object where callback methods are to be found when defined. The possible methods are;
+=item2 drag-prepare; Prepare a drag operation. It is meant to return a B<Gnome::Gdk4::ContentProvider> with a content to send at a later time. The callback api must be C<:( Rat() $x, Rat() $y, *%options --> N-Object )>. For all callbacks %options are the options given to C<.set-dragsource()>.
+=item2 drag-begin;
+=item2 drag-end;
+=item2 drag-cancel;
+=item $widget;
 =item $drag-content;
 =item %options;
 
@@ -91,7 +95,7 @@ method set-dragsource (
   # Set content. Can use multiple strings. Interface has variable list solved
   # by providing pairs of type/value. In this case gchar-ptr/$drag-content
   my Gnome::Gdk4::ContentProvider $cp .= new-typed(
-    G_TYPE_STRING, gchar-ptr, $drag-content
+    G_TYPE_STRING, gchar-ptr, $drag-content // ''
   );
   $source.set-content($cp);
 
@@ -139,11 +143,11 @@ method set-droptarget (
     if $async {
       .register-signal( $object, 'drop-async', 'drop', |%options)
         if $object.^can('drop-async');
-      .register-signal( $object, 'drop-enter-async', 'enter', |%options)
+      .register-signal( $object, 'drop-enter-async', 'drag-enter', |%options)
         if $object.^can('drop-enter-async');
-      .register-signal( $object, 'drop-leave-async', 'leave', |%options)
+      .register-signal( $object, 'drop-leave-async', 'drag-leave', |%options)
         if $object.^can('drop-leave-async');
-      .register-signal( $object, 'drop-motion-async', 'motion', |%options)
+      .register-signal( $object, 'drop-motion-async', 'drag-motion', |%options)
         if $object.^can('drop-motion-async');
     }
 
@@ -208,7 +212,7 @@ method check-mimetype ( Str $lookfor, Array $mime-types --> Bool ) {
 
 #-------------------------------------------------------------------------------
 method get-dropped-value (
-  N-Value() $n-value, Gnome::Gtk4::DropTarget() $drop-target
+  N-Value $n-value, Gnome::Gtk4::DropTarget $drop-target
   --> List
 ) {
   my Gnome::GObject::N-Value $value .= new(:native-object($n-value));
