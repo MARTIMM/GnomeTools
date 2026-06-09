@@ -7,15 +7,13 @@ use GnomeTools::Gtk::DND;
 
 use Gnome::Glib::N-MainLoop:api<2>;
 
-use Gnome::Gtk4::EventController:api<2>;
+use Gnome::Gtk4::DropTarget:api<2>;
 use Gnome::Gtk4::Window:api<2>;
 use Gnome::Gtk4::Picture:api<2>;
 use Gnome::Gtk4::Grid:api<2>;
 
 use Gnome::Gdk4::T-enums:api<2>;
-use Gnome::Gdk4::T-enums:api<2>;
 
-#use Gnome::N::GlibToRakuTypes:api<2>;
 use Gnome::N::N-Object:api<2>;
 use Gnome::N::X:api<2>;
 #Gnome::N::debug(:on);
@@ -63,21 +61,32 @@ class Helper {
     $!main-loop.quit;
   }
 
+#`{{ Works!
+# commented because data content type is set below
   #-----------------------------------------------------------------------------
-  method drop-accept (
-    Gnome::Gdk4::Drop() $drop,
-    Gnome::Gtk4::EventController() :_native-object($dt)
-    --> Bool
+  method drag-prepare (
+    Rat() $x, Rat() $y --> N-Object
   ) {
-    note "\nDrop may be accepted";
-    $dt.set-preload(False)  unless $!async;
-    $!dnd.check-accept( $drop, 'text');
+    my Gnome::Gdk4::ContentProvider $cp .= new-typed(
+      G_TYPE_STRING, gchar-ptr, $color
+    );
+
+    # Must return a native content provider object
+    $cp.get-native-object-no-reffing
+  }
+}}
+
+  #-----------------------------------------------------------------------------
+  method drop-accept ( Gnome::Gdk4::Drop() $drop --> Bool ) {
+    my Bool $accept = $!dnd.check-accept( $drop, 'text');
+    note "\nDrop can be accepted:" if $accept;
+    $accept
   }
 
   #-----------------------------------------------------------------------------
   method drop (
     N-Value() $n-value, Rat() $x, Rat() $y,
-    Gnome::Gtk4::EventController() :_native-object($dt)
+    Gnome::Gtk4::DropTarget() :_native-object($dt)
     --> Bool
   ) {
 #note "\n$?LINE drop, x, y = $x, $y";
@@ -92,13 +101,13 @@ class Helper {
 
   #-----------------------------------------------------------------------------
   method drop-enter ( Rat() $x, Rat() $y --> UInt ) {
-    note "Enter at $x, $y";
+    note "Enter dropzone at $x, $y";
     GDK_ACTION_COPY;# +| GDK_ACTION_MOVE +| GDK_ACTION_LINK
   }
 
   #-----------------------------------------------------------------------------
   method drop-leave ( ) {
-    note "Left";
+    note "Left dropzone";
   }
 
   #-----------------------------------------------------------------------------
