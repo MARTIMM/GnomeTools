@@ -1,3 +1,6 @@
+*2026 06 09 0.8.1
+  * Can do async dropping
+
 * 2026 06 08 0.8.0
   * Add module **GnomeTools::Gtk::DND** to setup drag and drop. There are stil a few items to add but tests are promising.
 
