@@ -13,7 +13,9 @@ The DND class is designed to simplify the Drag and Drop bussines.
 #-------------------------------------------------------------------------------
 unit class GnomeTools::Gtk::DND;
 
+use Gnome::Gtk4::EventController:api<2>;
 use Gnome::Gtk4::DropTarget:api<2>;
+use Gnome::Gtk4::DropTargetAsync:api<2>;
 use Gnome::Gtk4::DragSource:api<2>;
 use Gnome::Gtk4::Picture:api<2>;
 use Gnome::Gtk4::Widget:api<2>;
@@ -23,7 +25,6 @@ use Gnome::N::N-Object:api<2>;
 use Gnome::N::X:api<2>;
 #Gnome::N::debug(:on);
 
-use Gnome::Gdk4::ContentProvider:api<2>;
 use Gnome::Gdk4::Drag:api<2>;
 use Gnome::Gdk4::Drop:api<2>;
 use Gnome::Gdk4::ContentProvider:api<2>;
@@ -34,10 +35,10 @@ use Gnome::Glib::N-Error:api<2>;
 use Gnome::Glib::T-error:api<2>;
 
 use Gnome::GObject::T-type:api<2>;
-
-use Gnome::GObject::T-type:api<2>;
 use Gnome::GObject::N-Value:api<2>;
 use Gnome::GObject::T-value:api<2>;
+
+use Gnome::Gio::Task:api<2>;
 
 #-------------------------------------------------------------------------------
 has Array $!target-area;
@@ -99,10 +100,29 @@ method set-dragsource (
 }
 
 #-------------------------------------------------------------------------------
-method set-droptarget ( $object, Gnome::Gtk4::Picture $target-pic, *%options ) {
+method set-droptarget (
+  $object, Gnome::Gtk4::Widget $target-widget, Bool :$async = False, *%options
+) {
 
-  my Gnome::Gtk4::DropTarget $target;
-  with $target .= new-droptarget( G_TYPE_STRING, GDK_ACTION_COPY) {
+  my Gnome::Gtk4::EventController $target;
+  if $async {
+  # The data may be of the content type
+    my Gnome::Gdk4::N-ContentFormats $formats .= new-contentformats(
+      CArray[Str].new(<text/uri-list text/plain>), 1
+    );
+
+    $target = Gnome::Gtk4::DropTargetAsync.new-droptargetasync(
+      $formats, GDK_ACTION_COPY +| GDK_ACTION_MOVE +| GDK_ACTION_LINK
+    );
+  }
+
+  else {
+    $target = Gnome::Gtk4::DropTarget.new-droptarget(
+      G_TYPE_STRING, GDK_ACTION_COPY +| GDK_ACTION_MOVE +| GDK_ACTION_LINK
+    );
+  }
+
+  with $target {
 #    .set-gtypes( CArray[GType].new($n-fl.get-class-gtype), 1);
 
     my Gnome::Gdk4::N-ContentFormats() $formats = .get-formats;
@@ -113,18 +133,32 @@ method set-droptarget ( $object, Gnome::Gtk4::Picture $target-pic, *%options ) {
       note "Mime type: ", $mime-types[$i];
     }
 
-    .register-signal( $object, 'drag-accept', 'accept', |%options)
-      if $object.^can('drag-accept');
-    .register-signal( $object, 'drag-drop', 'drop', |%options)
-      if $object.^can('drag-drop');
-    .register-signal( $object, 'drag-enter', 'enter', |%options)
-      if $object.^can('drag-enter');
-    .register-signal( $object, 'drag-leave', 'leave', |%options)
-      if $object.^can('drag-leave');
-    .register-signal( $object, 'drag-motion', 'motion', |%options)
-      if $object.^can('drag-motion');
+    .register-signal( $object, 'drop-accept', 'accept', |%options)
+      if $object.^can('drop-accept');
 
-    $target-pic.add-controller($target);
+    if $async {
+      .register-signal( $object, 'drop-async', 'drop', |%options)
+        if $object.^can('drop-async');
+      .register-signal( $object, 'drop-enter-async', 'enter', |%options)
+        if $object.^can('drop-enter-async');
+      .register-signal( $object, 'drop-leave-async', 'leave', |%options)
+        if $object.^can('drop-leave-async');
+      .register-signal( $object, 'drop-motion-async', 'motion', |%options)
+        if $object.^can('drop-motion-async');
+    }
+
+    else {
+      .register-signal( $object, 'drop', 'drop', |%options)
+        if $object.^can('drop');
+      .register-signal( $object, 'drop-enter', 'enter', |%options)
+        if $object.^can('drop-enter');
+      .register-signal( $object, 'drop-leave', 'leave', |%options)
+        if $object.^can('drop-leave');
+      .register-signal( $object, 'drop-motion', 'motion', |%options)
+        if $object.^can('drop-motion');
+    }
+
+    $target-widget.add-controller($target);
     .clear-object;
   }
 }
@@ -132,8 +166,7 @@ method set-droptarget ( $object, Gnome::Gtk4::Picture $target-pic, *%options ) {
 #-------------------------------------------------------------------------------
 method check-accept ( Gnome::Gdk4::Drop() $drop, Str $test-mime --> Bool ) {
   my Array $mime-types = self.get-mimetypes($drop);
-  self.show-mimetypes($mime-types);
-
+#  self.show-mimetypes($mime-types);
   self.check-mimetype( $test-mime, $mime-types)
 }
 
@@ -185,4 +218,37 @@ method get-dropped-value (
   my Bool $internal = $drag.is-valid;
 
   ( $internal, $value.get-string )
+}
+
+#-------------------------------------------------------------------------------
+method get-dropped-value-async (
+  $object, Str $method, Gnome::Gdk4::Drop $drop,
+  UInt $priority, Rat $x, Rat $y
+) {
+  die "Not useful if method '$method' is not defined"
+    unless $object.^can($method); 
+  $drop.read-value-async(
+    G_TYPE_STRING, $priority, gpointer,
+    sub ( Gnome::Gdk4::Drop() $drop, Gnome::Gio::Task() $result, gpointer $ ) {
+      my $e = CArray[N-Error].new(N-Error);
+      my N-Value $nv = nativecast(
+        N-Value, $drop.read-value-finish( $result, $e)
+      );
+      if $e[0].defined {
+        note "Dnd error: ", $e[0].message;
+      }
+
+      else {
+        my Gnome::GObject::N-Value $v .= new(:native-object($nv));
+#        note "Dropped values:";
+#        note '  ', $v.get-string.split("\n").join("\n  ");
+        my Gnome::Gdk4::Drag() $drag = $drop.get-drag;
+        my Bool $internal = $drag.is-valid;
+        $object."$method"( $internal, $v.get-string);
+      }
+
+      $drop.finish(GDK_ACTION_COPY);
+
+    }, gpointer
+  );
 }
