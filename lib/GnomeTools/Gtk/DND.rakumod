@@ -59,13 +59,13 @@ Set up a source widget from where to drag from.
 
 =begin code
 method set-dragsource (
-  $object, Gnome::Gtk4::Widget $widget, Str $drag-content, *%options
+  $object, Gnome::Gtk4::Widget $widget, Str $drag-content = '', *%options
 )
 =end code
 
-=item $object; The object where callback methods are to be found when defined. The possible methods are;
-=item2 drag-prepare; Prepare a drag operation. It is meant to return a B<Gnome::Gdk4::ContentProvider> with a content to send at a later time. The callback api must be C<:( Rat() $x, Rat() $y, *%options --> N-Object )>. For all callbacks %options are the options given to C<.set-dragsource()>.
-=item2 drag-begin;
+=item $object; The object where callback methods are to be found when defined. The possible callback methods are;
+=item2 drag-prepare; Prepare a drag operation. An optional callback which is meant to return a B<Gnome::Gdk4::ContentProvider> with a content to send, It returns the GdkContentProvider to use for the drag that is about to start. The default handler for this signal returns the value of the GtkDragSource:content property in a `ContentProvider`, so if you set up that property ahead of time, you don’t need to connect to this signal. The callback api must be C<:( Rat() $x, Rat() $y, *%options --> N-Object )>. For all callbacks %options are the options given to C<.set-dragsource()>.
+=item2 drag-begin; It can be used to e.g. set a custom drag icon with gtk_drag_source_set_icon().
 =item2 drag-end;
 =item2 drag-cancel;
 =item $widget;
@@ -75,7 +75,7 @@ method set-dragsource (
 =end pod
 
 method set-dragsource (
-  $object, Gnome::Gtk4::Widget $widget, Str $drag-content, *%options
+  $object, Gnome::Gtk4::Widget $widget, Str $drag-content = '', *%options
 ) {
   with my Gnome::Gtk4::DragSource $source .= new-dragsource {
     # Possible to set content provider in 'prepare()' or below.
@@ -95,7 +95,7 @@ method set-dragsource (
   # Set content. Can use multiple strings. Interface has variable list solved
   # by providing pairs of type/value. In this case gchar-ptr/$drag-content
   my Gnome::Gdk4::ContentProvider $cp .= new-typed(
-    G_TYPE_STRING, gchar-ptr, $drag-content // ''
+    G_TYPE_STRING, gchar-ptr, $drag-content
   );
   $source.set-content($cp);
 
