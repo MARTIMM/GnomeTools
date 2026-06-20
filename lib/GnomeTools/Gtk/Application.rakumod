@@ -156,7 +156,9 @@ unit class GnomeTools::Gtk::Application;
 has Gnome::Gtk4::Application $!application handles <
     activate quit add-action set-accels-for-action
     >;
-has Gnome::Gtk4::ApplicationWindow $!application-window;
+has Gnome::Gtk4::ApplicationWindow $!application-window handles <
+    set-title add-controller
+    >;
 
 #-------------------------------------------------------------------------------
 =begin pod
@@ -304,6 +306,11 @@ method set-window-content (
     .present;
   }
 }
+
+#-------------------------------------------------------------------------------
+#method set-window-title ( Str $title ) {
+#  $!application-window.set-title($title);
+#}
 
 #-------------------------------------------------------------------------------
 method run ( ) {
