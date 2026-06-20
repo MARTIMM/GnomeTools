@@ -138,6 +138,7 @@ method item (
   my Str $objectname = $object.^name;
   $objectname ~~ s:g/ '::' //;
   my Str $actionname = "app.$objectname$method";
+note "$?LINE $name, $method, $objectname";
 
   # Make a menu entry
   my Gnome::Gio::MenuItem $menu-item .= new-menuitem( $name, $actionname);
