@@ -156,9 +156,7 @@ unit class GnomeTools::Gtk::Application;
 has Gnome::Gtk4::Application $!application handles <
     activate quit add-action set-accels-for-action
     >;
-has Gnome::Gtk4::ApplicationWindow $!application-window handles <
-    set-title add-controller
-    >;
+has Gnome::Gtk4::ApplicationWindow $!application-window;
 
 #-------------------------------------------------------------------------------
 =begin pod
@@ -339,4 +337,14 @@ method run ( ) {
 
   # Start the program with the arguments
   $!application.run( $argc, $argv);
+}
+
+#-------------------------------------------------------------------------------
+# method to access the application window. calls must be correct because it
+# cannot be checked. handles cannot be used on that object.
+method call-appwindow-method ( Str $method, *@arguments ) {
+  # Test if object is alive
+  if ?$!application-window and $!application-window.is-valid {
+    $!application-window."$method"(| @arguments );
+  }
 }
