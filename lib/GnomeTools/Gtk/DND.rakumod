@@ -42,7 +42,7 @@ use Gnome::Gio::Task:api<2>;
 
 #-------------------------------------------------------------------------------
 has Array $!target-area;
-
+has
 #-------------------------------------------------------------------------------
 =begin pod
 =head1 Methods
@@ -65,9 +65,10 @@ method set-dragsource (
 
 =item $object; The object where callback methods are to be found when defined. The possible callback methods are;
 =item2 drag-prepare; Prepare a drag operation. An optional callback which is meant to return a B<Gnome::Gdk4::ContentProvider> with a content to send, It returns the GdkContentProvider to use for the drag that is about to start. The default handler for this signal returns the value of the GtkDragSource:content property in a `ContentProvider`, so if you set up that property ahead of time, you don’t need to connect to this signal. The callback api must be C<:( Rat() $x, Rat() $y, *%options --> N-Object )>. For all callbacks %options are the options given to C<.set-dragsource()>.
-=item2 drag-begin; It can be used to e.g. set a custom drag icon with gtk_drag_source_set_icon().
+=item2 drag-begin; It can be used to e.g. set a custom drag icon with gtk_drag_source_set_icon(). Callback API is C<:()>.
 =item2 drag-end;
 =item2 drag-cancel;
+
 =item $widget;
 =item $drag-content;
 =item %options;
