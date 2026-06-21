@@ -156,7 +156,7 @@ unit class GnomeTools::Gtk::Application;
 has Gnome::Gtk4::Application $!application handles <
     activate quit add-action set-accels-for-action
     >;
-has Gnome::Gtk4::ApplicationWindow $!application-window;
+has Gnome::Gtk4::ApplicationWindow $.application-window;
 
 #-------------------------------------------------------------------------------
 =begin pod
@@ -282,10 +282,11 @@ method remote-options (
 }
 
 #-------------------------------------------------------------------------------
-method set-window-content (
+multi method set-window-content (
   Gnome::Gtk4::Widget:D $content, GnomeTools::Gio::Menu $menu,
   Str :$title = $*PROGRAM-NAME,
 ) {
+  # Remove the application window first be fore creating a new one
   if ?$!application-window and $!application-window.is-valid {
     $!application.remove-window($!application-window);
     $!application-window.destroy;
@@ -300,6 +301,37 @@ method set-window-content (
     }
 
     .set-title($title);
+    .set-child($content);
+    .present;
+  }
+}
+
+#-------------------------------------------------------------------------------
+multi method set-window-content (
+  $widget-helper-object, Str $widget-helper-method,
+  $menu-helper-object, Str $menu-helper-method,
+  *%options
+) {
+  # Remove the application window first be fore creating a new one
+  if ?$!application-window and $!application-window.is-valid {
+    $!application.remove-window($!application-window);
+    $!application-window.destroy;
+    $!application-window.clear-object;
+  }
+
+  with $!application-window .= new-applicationwindow($!application) {
+    my Gnome::Gtk4::Widget:D $content =
+      $widget-helper-object."$widget-helper-method"(| %options);
+
+    my GnomeTools::Gio::Menu $menu =
+      $menu-helper-object."$menu-helper-method"(| %options);
+
+    if ?$menu {
+      $menu.set-actions($!application);
+      $!application.set-menubar($menu.get-menu);
+      .set-show-menubar(True);
+    }
+
     .set-child($content);
     .present;
   }
@@ -339,6 +371,7 @@ method run ( ) {
   $!application.run( $argc, $argv);
 }
 
+#`{{
 #-------------------------------------------------------------------------------
 # method to access the application window. calls must be correct because it
 # cannot be checked. handles cannot be used on that object.
@@ -348,3 +381,4 @@ method call-appwindow-method ( Str $method, *@arguments ) {
     $!application-window."$method"(| @arguments );
   }
 }
+}}
