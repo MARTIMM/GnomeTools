@@ -132,8 +132,9 @@ method get-menu ( --> Gnome::Gio::Menu ) {
 
 #-------------------------------------------------------------------------------
 method item (
-  Str:D $name, Mu:D $object, Str:D $method, Bool :$checkbox = False,
-  *%options
+  Str:D $name, Mu:D $object, Str:D $method,
+  Bool :$checkbox = False, *%options
+  --> Str
 ) {
   my Str $objectname = $object.^name;
   $objectname ~~ s:g/ '::' //;
@@ -150,6 +151,8 @@ method item (
 
   $action.register-signal( $object, $method, 'activate', :$action, |%options);
   $actions.push: $action;
+
+  $actionname
 }
 
 #-------------------------------------------------------------------------------
