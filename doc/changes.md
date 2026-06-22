@@ -10,6 +10,7 @@
     ```
     This method makes shure that the application-window exists before content and menu is asked for.
   * Let **GnomeTools::Gtk::Application** handle `.add-action()` and `.set-accels-for-action()` methods.
+  * The `.item()` method in **GnomeTools::Gio::Menu** returns the action name for other purposes. E.g. using it to define a toolbar button coupled to the same action.
 
 * 2026 06 09 0.8.1
   * Can do asynchronous dropping now. Objects can be dragged from a `firefox` browser, all gnome applications like `files` (originally called `nautilus`) but not from any QT based applications like `konqueror` or `dolphin`. There are different opinions how to send the data. This is seen on a linux Fedora system version 43 and a KDE desktop with x11 support. Wayland (not only x11) is said to improve on the problems about this issue. There will be no effort in improving on x11.
