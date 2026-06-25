@@ -42,7 +42,8 @@ use Gnome::Gio::Task:api<2>;
 
 #-------------------------------------------------------------------------------
 has Array $!target-area;
-has
+has Gnome::Gtk4::DragSource $!source;
+
 #-------------------------------------------------------------------------------
 =begin pod
 =head1 Methods
@@ -65,20 +66,20 @@ method set-dragsource (
 
 =item $object; The object where callback methods are to be found when defined. The possible callback methods are;
 =item2 drag-prepare; Prepare a drag operation. An optional callback which is meant to return a B<Gnome::Gdk4::ContentProvider> with a content to send, It returns the GdkContentProvider to use for the drag that is about to start. The default handler for this signal returns the value of the GtkDragSource:content property in a `ContentProvider`, so if you set up that property ahead of time, you don’t need to connect to this signal. The callback api must be C<:( Rat() $x, Rat() $y, *%options --> N-Object )>. For all callbacks %options are the options given to C<.set-dragsource()>.
-=item2 drag-begin; It can be used to e.g. set a custom drag icon with gtk_drag_source_set_icon(). Callback API is C<:()>.
-=item2 drag-end;
-=item2 drag-cancel;
+=item2 drag-begin; It can be used to e.g. set a custom drag icon with gtk_drag_source_set_icon(). Callback API is C<:(Gnome::Gdk4::Drag() $drag, *%options)>.
+=item2 drag-end; A typical reason to connect to this signal is to undo things done in C<prepare> or C<drag-begin> handlers. Callback API is C<:(Gnome::Gdk4::Drag() $drag, Bool() $delete-data, *%options)>.
+=item2 drag-cancel; The signal handler may handle a failed drag operation based on the type of error. It should return TRUE if the failure has been handled and the default “drag operation failed” animation should not be shown. Callback API is C<:(Gnome::Gdk4::Drag() $drag, UInt $reason, *%options --> Bool)>.
 
-=item $widget;
-=item $drag-content;
-=item %options;
+=item $widget; The widget to become the drag source
+=item $drag-content; The content to drag to the receiver.
+=item %options; Any options given to the callback methods.
 
 =end pod
 
 method set-dragsource (
   $object, Gnome::Gtk4::Widget $widget, Str $drag-content = '', *%options
 ) {
-  with my Gnome::Gtk4::DragSource $source .= new-dragsource {
+  with $!source .= new-dragsource {
     # Possible to set content provider in 'prepare()' or below.
     .register-signal(
       $object, 'drag-prepare', 'prepare', |%options
@@ -89,8 +90,6 @@ method set-dragsource (
       if $object.^can('drag-end');
     .register-signal( $object, 'drag-cancel', 'drag-cancel', |%options)
       if $object.^can('drag-cancel');
-
-    #.set-icon( $pic.get-paintable, -20, 20);
   }
 
   # Set content. Can use multiple strings. Interface has variable list solved
@@ -98,10 +97,25 @@ method set-dragsource (
   my Gnome::Gdk4::ContentProvider $cp .= new-typed(
     G_TYPE_STRING, gchar-ptr, $drag-content
   );
-  $source.set-content($cp);
+  $!source.set-content($cp);
 
-  $widget.add-controller($source);
-  $source.clear-object;
+  $widget.add-controller($!source);
+#  $source.clear-object;
+}
+
+#-------------------------------------------------------------------------------
+method set-dragsource-event (
+  $object, $method,
+  $event where $event ~~ any(<prepare drag-begin drag-end drag-cancel>),
+  *%options
+) {
+  die "Cannot find method $method in given object" unless $object.^can($method);
+  $!source.register-signal( $object, $method, $event, |%options);
+}
+
+#-------------------------------------------------------------------------------
+method set-drag-icon ( Gnome::Gtk4::Picture $icon, Int :$x = 0, Int :$y = 0 ) {
+  $!source.set-icon( $icon.get-paintable, -20, 20);
 }
 
 #-------------------------------------------------------------------------------
@@ -166,6 +180,24 @@ method set-droptarget (
     $target-widget.add-controller($target);
     .clear-object;
   }
+}
+
+#-------------------------------------------------------------------------------
+method set-droptarget-event (
+  $object, $method,
+  $event where $event ~~ any(<>),
+  *%options
+) {
+  $!source.register-signal( $object, $method, $event, |%options)
+}
+
+#-------------------------------------------------------------------------------
+method set-droptarget-async-event (
+  $object, $method,
+  $event where $event ~~ any(<>),
+  *%options
+) {
+  $!source.register-signal( $object, $method, $event, |%options)
 }
 
 #-------------------------------------------------------------------------------
