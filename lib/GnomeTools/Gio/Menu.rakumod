@@ -66,7 +66,7 @@ my Array $actions = [];
 =head1 Constructing
 
 There are 4 ways to build a menu.
-=item A toplevel menu does not have a 'parent' menu and it serves as a menubar in most cases. So create such is without any options. All other menus have at least parent menu.
+=item A toplevel menu does not have a 'parent' menu and it serves as a menubar in most cases. So create such a menubar is C<.new()> without any options. All other menus have at least parent menu.
 =item A second level menu uses a name which will be visible in a menubar.
 =item A sub menu is started with a subname option. That name is visible in a menu. Clicking on that name will show the submenu.
 =item A section is started with a section option. The name of the section is visible as a header in the parent menu when not empty, otherwise a space is visible. Clicking on that name will show the submenu.
