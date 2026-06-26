@@ -43,6 +43,7 @@ use Gnome::Gio::Task:api<2>;
 #-------------------------------------------------------------------------------
 has Array $!target-area;
 has Gnome::Gtk4::DragSource $!source;
+has Gnome::Gtk4::EventController $!target;
 
 #-------------------------------------------------------------------------------
 =begin pod
@@ -122,26 +123,24 @@ method set-drag-icon ( Gnome::Gtk4::Picture $icon, Int :$x = 0, Int :$y = 0 ) {
 method set-droptarget (
   $object, Gnome::Gtk4::Widget $target-widget, Bool :$async = False, *%options
 ) {
-
-  my Gnome::Gtk4::EventController $target;
   if $async {
   # The data may be of the content type
     my Gnome::Gdk4::N-ContentFormats $formats .= new-contentformats(
       CArray[Str].new(<text/uri-list text/plain>), 1
     );
 
-    $target = Gnome::Gtk4::DropTargetAsync.new-droptargetasync(
+    $!target = Gnome::Gtk4::DropTargetAsync.new-droptargetasync(
       $formats, GDK_ACTION_COPY +| GDK_ACTION_MOVE +| GDK_ACTION_LINK
     );
   }
 
   else {
-    $target = Gnome::Gtk4::DropTarget.new-droptarget(
+    $!target = Gnome::Gtk4::DropTarget.new-droptarget(
       G_TYPE_STRING, GDK_ACTION_COPY +| GDK_ACTION_MOVE +| GDK_ACTION_LINK
     );
   }
 
-  with $target {
+  with $!target {
 #    .set-gtypes( CArray[GType].new($n-fl.get-class-gtype), 1);
 
     my Gnome::Gdk4::N-ContentFormats() $formats = .get-formats;
@@ -177,27 +176,27 @@ method set-droptarget (
         if $object.^can('drop-motion');
     }
 
-    $target-widget.add-controller($target);
-    .clear-object;
+    $target-widget.add-controller($!target);
+#    .clear-object;
   }
 }
 
 #-------------------------------------------------------------------------------
 method set-droptarget-event (
   $object, $method,
-  $event where $event ~~ any(<>),
+  $event where $event ~~ any(<drop enter leave motion>),
   *%options
 ) {
-  $!source.register-signal( $object, $method, $event, |%options)
+  $!target.register-signal( $object, $method, $event, |%options)
 }
 
 #-------------------------------------------------------------------------------
 method set-droptarget-async-event (
   $object, $method,
-  $event where $event ~~ any(<>),
+  $event where $event ~~ any(<drop drag-enter drag-leave drag-motion>),
   *%options
 ) {
-  $!source.register-signal( $object, $method, $event, |%options)
+  $!target.register-signal( $object, $method, $event, |%options)
 }
 
 #-------------------------------------------------------------------------------
