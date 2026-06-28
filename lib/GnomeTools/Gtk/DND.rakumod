@@ -78,7 +78,7 @@ method set-dragsource (
 =end pod
 
 method set-dragsource (
-  $object, Gnome::Gtk4::Widget $widget, Str $drag-content = '', *%options
+  $object, Gnome::Gtk4::Widget $drag-widget, Str $drag-content = '', *%options
 ) {
   with $!source .= new-dragsource {
     # Possible to set content provider in 'prepare()' or below.
@@ -100,7 +100,7 @@ method set-dragsource (
   );
   $!source.set-content($cp);
 
-  $widget.add-controller($!source);
+  $drag-widget.add-controller($!source);
 #  $source.clear-object;
 }
 
