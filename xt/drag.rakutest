@@ -101,7 +101,7 @@ class Helper {
   }
 
   #-----------------------------------------------------------------------------
-  method drag-cancel ( Gnome::Gdk4::Drag() $drag, UInt $reason ) {
+  method drag-cancel ( Gnome::Gdk4::Drag() $drag, UInt $reason --> Bool ) {
     note "drag-cancel: $reason";
   }
 }}
