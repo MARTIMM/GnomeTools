@@ -78,27 +78,30 @@ method set-dragsource (
 =end pod
 
 method set-dragsource (
-  $object, Gnome::Gtk4::Widget $drag-widget, Str $drag-content = '', *%options
+  $object, Gnome::Gtk4::Widget $drag-widget,
+  Str $drag-content = '', *%options
 ) {
   with $!source .= new-dragsource {
     # Possible to set content provider in 'prepare()' or below.
     .register-signal(
       $object, 'drag-prepare', 'prepare', |%options
-    ) if $object.^can('drag-prepare');
+    ) if ?$object and $object.^can('drag-prepare');
     .register-signal( $object, 'drag-begin', 'drag-begin', |%options)
-      if $object.^can('drag-begin');
+      if ?$object and $object.^can('drag-begin');
     .register-signal( $object, 'drag-end', 'drag-end', |%options)
-      if $object.^can('drag-end');
+      if ?$object and $object.^can('drag-end');
     .register-signal( $object, 'drag-cancel', 'drag-cancel', |%options)
-      if $object.^can('drag-cancel');
+      if ?$object and $object.^can('drag-cancel');
   }
 
   # Set content. Can use multiple strings. Interface has variable list solved
   # by providing pairs of type/value. In this case gchar-ptr/$drag-content
-  my Gnome::Gdk4::ContentProvider $cp .= new-typed(
-    G_TYPE_STRING, gchar-ptr, $drag-content
-  );
-  $!source.set-content($cp);
+  if ?$drag-content {
+    my Gnome::Gdk4::ContentProvider $cp .= new-typed(
+      G_TYPE_STRING, gchar-ptr, $drag-content
+    );
+    $!source.set-content($cp);
+  }
 
   $drag-widget.add-controller($!source);
 #  $source.clear-object;
@@ -152,28 +155,28 @@ method set-droptarget (
     }
 
     .register-signal( $object, 'drop-accept', 'accept', |%options)
-      if $object.^can('drop-accept');
+      if ?$object and $object.^can('drop-accept');
 
     if $async {
       .register-signal( $object, 'drop-async', 'drop', |%options)
-        if $object.^can('drop-async');
+        if ?$object and $object.^can('drop-async');
       .register-signal( $object, 'drop-enter-async', 'drag-enter', |%options)
-        if $object.^can('drop-enter-async');
+        if ?$object and $object.^can('drop-enter-async');
       .register-signal( $object, 'drop-leave-async', 'drag-leave', |%options)
-        if $object.^can('drop-leave-async');
+        if ?$object and $object.^can('drop-leave-async');
       .register-signal( $object, 'drop-motion-async', 'drag-motion', |%options)
-        if $object.^can('drop-motion-async');
+        if ?$object and $object.^can('drop-motion-async');
     }
 
     else {
       .register-signal( $object, 'drop', 'drop', |%options)
-        if $object.^can('drop');
+        if ?$object and $object.^can('drop');
       .register-signal( $object, 'drop-enter', 'enter', |%options)
-        if $object.^can('drop-enter');
+        if ?$object and $object.^can('drop-enter');
       .register-signal( $object, 'drop-leave', 'leave', |%options)
-        if $object.^can('drop-leave');
+        if ?$object and $object.^can('drop-leave');
       .register-signal( $object, 'drop-motion', 'motion', |%options)
-        if $object.^can('drop-motion');
+        if ?$object and $object.^can('drop-motion');
     }
 
     $target-widget.add-controller($!target);
@@ -184,7 +187,7 @@ method set-droptarget (
 #-------------------------------------------------------------------------------
 method set-droptarget-event (
   $object, $method,
-  $event where $event ~~ any(<drop enter leave motion>),
+  $event where $event ~~ any(<accept drop enter leave motion>),
   *%options
 ) {
   $!target.register-signal( $object, $method, $event, |%options)
@@ -193,7 +196,7 @@ method set-droptarget-event (
 #-------------------------------------------------------------------------------
 method set-droptarget-async-event (
   $object, $method,
-  $event where $event ~~ any(<drop drag-enter drag-leave drag-motion>),
+  $event where $event ~~ any(<accept drop drag-enter drag-leave drag-motion>),
   *%options
 ) {
   $!target.register-signal( $object, $method, $event, |%options)
