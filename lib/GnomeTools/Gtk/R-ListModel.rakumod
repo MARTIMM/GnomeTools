@@ -57,35 +57,35 @@ method set-events ( ) {
 }
 
 #-------------------------------------------------------------------------------
-method set-setup ( Any:D $object, Str:D $method, *%options ) {
+method set-setup ( Mu:D $object, Str:D $method, *%options ) {
   $!signal-factory.register-signal(
     self, 'setup', 'setup', :$object, :$method, |%options
   );
 }
 
 #-------------------------------------------------------------------------------
-method set-bind ( Any:D $object, Str:D $method, *%options ) {
+method set-bind ( Mu:D $object, Str:D $method, *%options ) {
   $!signal-factory.register-signal(
     self, 'bind', 'bind', :$object, :$method, |%options
   );
 }
 
 #-------------------------------------------------------------------------------
-method set-unbind ( Any:D $object, Str:D $method, *%options ) {
+method set-unbind ( Mu:D $object, Str:D $method, *%options ) {
   $!signal-factory.register-signal(
     self, 'unbind', 'unbind', :$object, :$method, |%options
   );
 }
 
 #-------------------------------------------------------------------------------
-method set-teardown ( Any:D $object, Str:D $method, *%options ) {
+method set-teardown ( Mu:D $object, Str:D $method, *%options ) {
   $!signal-factory.register-signal(
     self, 'teardown', 'teardown', :$object, :$method, |%options
   );
 }
 
 #-------------------------------------------------------------------------------
-method set-selection-changed ( Any:D $object, Str:D $method, *%options ) {
+method set-selection-changed ( Mu:D $object, Str:D $method, *%options ) {
   $!selection-type.register-signal(
     self, 'selection-changed', 'selection-changed',
     :$object, :$method, |%options
@@ -98,7 +98,7 @@ method set-selection-changed ( Any:D $object, Str:D $method, *%options ) {
 # is placed in the list item. Later, on bind event, the values must be filled
 # in.
 method setup (
-  Gnome::Gtk4::ListItem() $list-item, :$object, Str :$method, *%options
+  Gnome::Gtk4::ListItem() $list-item, Mu :$object, Str :$method, *%options
 ) {
   # If object and method exists, call the method to let the widget
   # be created by the user.
@@ -123,7 +123,7 @@ method setup (
 # When bind event fires, the listview wants to show the item but must
 # be filled first
 method bind (
-  Gnome::Gtk4::ListItem() $list-item, :$object, Str :$method, *%options
+  Gnome::Gtk4::ListItem() $list-item, Mu :$object, Str :$method, *%options
 ) {
 # TODO Coersion error:
 # my Gnome::Gtk4::StringObject() $string-object = $list-item.get-item;
@@ -155,7 +155,7 @@ method bind (
 # and method .unbind-list-item() is not defined.
 # There is no need to unbind a Label value.
 method unbind (
-  Gnome::Gtk4::ListItem() $list-item, :$object, Str :$method, *%options
+  Gnome::Gtk4::ListItem() $list-item, Mu :$object, Str :$method, *%options
 ) {
   my Gnome::Gtk4::StringObject $string-object;
   $string-object .=  new(:native-object($list-item.get-item));
@@ -166,7 +166,7 @@ method unbind (
 #-------------------------------------------------------------------------------
 # When teardown event fires, the listview wants to remove the widget entirely.
 method teardown (
-  Gnome::Gtk4::ListItem() $list-item, :$object, Str :$method, *%options
+  Gnome::Gtk4::ListItem() $list-item, Mu :$object, Str :$method, *%options
 ) {
   if ?$object and $object.^can($method) {
     $object."$method"( $list-item.get-child, |%options);
@@ -180,7 +180,7 @@ method teardown (
 
 #-------------------------------------------------------------------------------
 method selection-changed (
-  UInt $position, UInt $n-items, :$object, :$method, *%options
+  UInt $position, UInt $n-items, Mu :$object, :$method, *%options
 ) {
   $object."$method"( $position, self.get-selection, |%options);
 }

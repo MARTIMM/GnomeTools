@@ -209,26 +209,26 @@ method set-activate ( Any:D $object, Str:D $method ) {
 =end pod
 
 
-method set-activate ( Any:D $object, Str:D $method ) {
+method set-activate ( Mu:D $object, Str:D $method ) {
   $!application.register-signal( $object, $method, 'activate');
 }
 
 #-------------------------------------------------------------------------------
 # The startup signal is emitted on the primary instance immediately after
 # registration.
-method set-startup ( Any:D $object, Str:D $method ) {
+method set-startup ( Mu:D $object, Str:D $method ) {
   $!application.register-signal( $object, $method, 'startup');
 }
 
 #-------------------------------------------------------------------------------
 # The shutdown signal is emitted only on the registered primary instance
 # immediately after the main loop terminates.
-method set-shutdown ( Any:D $object, Str:D $method ) {
+method set-shutdown ( Mu:D $object, Str:D $method ) {
   $!application.register-signal( $object, $method, 'shutdown');
 }
 
 #-------------------------------------------------------------------------------
-method process-local-options ( Any:D $object, Str:D $method ) {
+method process-local-options ( Mu:D $object, Str:D $method ) {
   $!application.register-signal(
     self, 'local-options', 'handle-local-options', :$object, :$method
   );
@@ -237,7 +237,7 @@ method process-local-options ( Any:D $object, Str:D $method ) {
 #-------------------------------------------------------------------------------
 # private!
 method local-options (
-  N-Object $no-vd, Any:D :$object, Str:D :$method --> Int
+  N-Object $no-vd, Mu:D :$object, Str:D :$method --> Int
 ) {
   my Int $exit-code = $object."$method"();
 
@@ -250,7 +250,7 @@ method local-options (
 }
 
 #-------------------------------------------------------------------------------
-method process-remote-options ( Any:D $object, Str:D $method ) {
+method process-remote-options ( Mu:D $object, Str:D $method ) {
   $!application.register-signal(
     self, 'remote-options', 'command-line', :$object, :$method
   );
@@ -259,7 +259,7 @@ method process-remote-options ( Any:D $object, Str:D $method ) {
 #-------------------------------------------------------------------------------
 # private!
 method remote-options (
-  Gnome::Gio::ApplicationCommandLine() $cl, Any:D :$object, Str:D :$method
+  Gnome::Gio::ApplicationCommandLine() $cl, Mu:D :$object, Str:D :$method
   --> Int
 ) {
   my Array $args = $cl.get-arguments;
@@ -283,7 +283,7 @@ method remote-options (
 
 #-------------------------------------------------------------------------------
 multi method set-window-content (
-  Gnome::Gtk4::Widget:D $content, GnomeTools::Gio::Menu $menu,
+  Mu:D $content, GnomeTools::Gio::Menu $menu,
   Str :$title = $*PROGRAM-NAME,
 ) {
   # Remove the application window first be fore creating a new one
@@ -308,7 +308,7 @@ multi method set-window-content (
 
 #-------------------------------------------------------------------------------
 multi method set-window-content (
-  $widget-helper-object, Str $widget-helper-method,
+  Mu:D $widget-helper-object, Str $widget-helper-method,
   $menu-helper-object, Str $menu-helper-method,
   *%options
 ) {

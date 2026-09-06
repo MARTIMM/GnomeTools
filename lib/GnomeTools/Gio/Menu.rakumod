@@ -132,8 +132,7 @@ method get-menu ( --> Gnome::Gio::Menu ) {
 
 #-------------------------------------------------------------------------------
 method item (
-  Str:D $name, Mu:D $object, Str:D $method,
-  Bool :$checkbox = False, *%options
+  Str:D $name, Mu:D $object, Str:D $method, Bool :$checkbox = False, *%options
   --> Str
 ) {
   my Str $objectname = $object.^name;
@@ -156,7 +155,7 @@ method item (
 }
 
 #-------------------------------------------------------------------------------
-method set-actions ( Gnome::Gtk4::Application:D $application ) {
+method set-actions ( Mu:D $application ) {
   for @$actions -> $action {
     $application.add-action($action);
   }

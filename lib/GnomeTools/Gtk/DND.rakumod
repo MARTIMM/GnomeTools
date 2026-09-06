@@ -78,7 +78,7 @@ method set-dragsource (
 =end pod
 
 method set-dragsource (
-  $object, Gnome::Gtk4::Widget $drag-widget,
+  Mu $object, Gnome::Gtk4::Widget $drag-widget,
   Str $drag-content = '', *%options
 ) {
   with $!source .= new-dragsource {
@@ -109,7 +109,7 @@ method set-dragsource (
 
 #-------------------------------------------------------------------------------
 method set-dragsource-event (
-  $object, $method,
+  Mu:D $object, $method,
   $event where $event ~~ any(<prepare drag-begin drag-end drag-cancel>),
   *%options
 ) {
@@ -124,7 +124,8 @@ method set-drag-icon ( Gnome::Gtk4::Picture $icon, Int :$x = 0, Int :$y = 0 ) {
 
 #-------------------------------------------------------------------------------
 method set-droptarget (
-  $object, Gnome::Gtk4::Widget $target-widget, Bool :$async = False, *%options
+  Mu $object, Gnome::Gtk4::Widget $target-widget,
+  Bool :$async = False, *%options
 ) {
   if $async {
   # The data may be of the content type
@@ -186,7 +187,7 @@ method set-droptarget (
 
 #-------------------------------------------------------------------------------
 method set-droptarget-event (
-  $object, $method,
+  Mu $object, $method,
   $event where $event ~~ any(<accept drop enter leave motion>),
   *%options
 ) {
@@ -195,7 +196,7 @@ method set-droptarget-event (
 
 #-------------------------------------------------------------------------------
 method set-droptarget-async-event (
-  $object, $method,
+  Mu $object, $method,
   $event where $event ~~ any(<accept drop drag-enter drag-leave drag-motion>),
   *%options
 ) {
@@ -261,11 +262,12 @@ method get-dropped-value (
 
 #-------------------------------------------------------------------------------
 method get-dropped-value-async (
-  $object, Str $method, Gnome::Gdk4::Drop $drop,
+  Mu:D $object, Str:D $method, Gnome::Gdk4::Drop $drop,
   UInt $priority, Rat $x, Rat $y
 ) {
-  die "Not useful if method '$method' is not defined"
-    unless $object.^can($method); 
+#  die "Not useful if method '$method' is not defined"
+#    unless $object.^can($method); 
+
   $drop.read-value-async(
     G_TYPE_STRING, $priority, gpointer,
     sub ( Gnome::Gdk4::Drop() $drop, Gnome::Gio::Task() $result, gpointer $ ) {

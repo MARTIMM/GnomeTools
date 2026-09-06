@@ -17,6 +17,8 @@ use Gnome::Gio::SimpleAction:api<2>;
 
 use Gnome::Glib::N-MainLoop:api<2>;
 
+use Gnome::GObject::Object:api<2>;
+
 #-------------------------------------------------------------------------------
 unit class GnomeTools::Gtk::Shortcut;
 
@@ -25,7 +27,7 @@ unit class GnomeTools::Gtk::Shortcut;
 
 #-------------------------------------------------------------------------------
 multi method set-shortcut (
-  Str $shortcut-string, Gnome::Gtk4::Widget $widget, $object, $method, *%options
+  Str $shortcut-string, Mu:D $widget, Mu:D $object, $method, *%options
 ) {
   my Gnome::Gtk4::ShortcutTrigger $st .= parse-string($shortcut-string);
   my Gnome::Gtk4::CallbackAction $ca .= new-callbackaction(
@@ -47,8 +49,7 @@ multi method set-shortcut (
 
 #-------------------------------------------------------------------------------
 multi method set-shortcut (
-  Gnome::Gtk4::Widget $application, Str $shortcut-string,
-  $object, $method, *%options
+  Mu:D $application, Str $shortcut-string, Mu:D $object, $method, *%options
 ) {
   my Gnome::Gio::SimpleAction $action;
   $action .= new-simpleaction( $method, gpointer);

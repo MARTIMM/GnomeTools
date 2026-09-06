@@ -58,7 +58,7 @@ submethod BUILD (
 }
 
 #-------------------------------------------------------------------------------
-method set-activate( Any:D $object, Str:D $method, *%options ) {
+method set-activate( Mu:D $object, Str:D $method, *%options ) {
   $!gridview.register-signal(
     self, 'activate-list-item', 'activate', :$object, :$method, |%options
   )
@@ -67,7 +67,7 @@ method set-activate( Any:D $object, Str:D $method, *%options ) {
 #-------------------------------------------------------------------------------
 # callback private
 method activate-list-item (
-  UInt $position, :$object, Str :$method, *%options
+  UInt:D $position, Mu:D :$object, Str :$method, *%options
 ) {
   $object."$method"( $position, self.get-selection, |%options);
 }
