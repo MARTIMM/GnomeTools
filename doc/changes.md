@@ -1,3 +1,7 @@
+* 2026 09 06 0.8.3
+  * The $object objects used in the declarations of callbacks must be `Mu` instead of `Any`. It is possible to get a user object which inherits a Gtk4 class and therefore isn't an `Any`.
+  * Also the supposed expected widget in `.set-shortcut()` can be just a user object containing an application object and which directs calls to the object using `handle`. Also that is set to the `Mu` class.
+
 * 2026 06 21 0.8.2
   * Make variable $!application-window readable. 
   * make a 2nd method `.set-window-content()` in **GnomeTools::Gtk::Application.
