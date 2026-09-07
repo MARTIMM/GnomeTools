@@ -12,7 +12,7 @@ use Gnome::N::X:api<2>;
 
 use GnomeTools::Gtk::DND;
 
-#use Gnome::Gdk4::Drag:api<2>;
+use Gnome::Gdk4::Drag:api<2>;
 #use Gnome::Gdk4::Drop:api<2>;
 
 use Gnome::Glib::N-MainLoop:api<2>;
