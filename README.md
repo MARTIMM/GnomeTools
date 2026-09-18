@@ -19,7 +19,7 @@ The set of tools are Raku library modules to help the user with some common GUI 
 * **GnomeTools::Gtk::MessageDialog**. The message dialog is based on the dialog class.
 * **GnomeTools::Gtk::Shortcut**. Define shortcut keys and run callback method when pressed.
 * **GnomeTools::Gtk::Statusbar**. The statusbar is deprecated since version 4.10 of Gtk. With a bit less facilities then the original, it is just like a label widget which takes the total width of its container.
-* **GnomeTools::Gtk::Theming**. A small toolbox to set css class names on widgets and to read a css file or text and set the context for all widgets.
+* **GnomeTools::Gtk::Theming**. A small class to add or remove css class names on widgets and to read a css file or text and set the context for all widgets. Also shows errors when parsing finds problems in text or file.
 
 ## Modules based on Gio
 
