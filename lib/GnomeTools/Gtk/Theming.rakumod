@@ -33,8 +33,7 @@ multi submethod BUILD ( Str:D :$css-text ) {
 
 #-------------------------------------------------------------------------------
 method add-css-class ( Gnome::Gtk4::Widget $context, Str:D $css-class ) {
-  self.check-provider;
-
+#`{{
   my Gnome::Gdk4::Display() $display .= new;
   $display .= get-default;
   
@@ -44,6 +43,33 @@ method add-css-class ( Gnome::Gtk4::Widget $context, Str:D $css-class ) {
   );
 
   $context.add-css-class($css-class);
+}}
+
+  # It may be defined but has it text?
+  return unless ?$css-class;
+
+  self.check-provider;
+
+  my Gnome::Gtk4::StyleContext $style-context .= new(:native-object($context));
+  $style-context.add-provider(
+    $css-provider, GTK_STYLE_PROVIDER_PRIORITY_USER
+  );
+  $style-context.add-class($css-class);
+}
+
+#-------------------------------------------------------------------------------
+method remove-css-class ( Gnome::Gtk4::Widget $context, Str:D $css-class ) {
+
+  # It may be defined but has it text?
+  return unless ?$css-class;
+
+  self.check-provider;
+
+  my Gnome::Gtk4::StyleContext $style-context .= new(:native-object($context));
+  $style-context.add-provider(
+    $css-provider, GTK_STYLE_PROVIDER_PRIORITY_USER
+  );
+  $style-context.remove-class($css-class);
 }
 
 #-------------------------------------------------------------------------------
