@@ -48,8 +48,7 @@ $theme.add-css-class( $label, 'my-strange-label');
 unit class GnomeTools::Gtk::Theming;
 
 my Gnome::Gtk4::CssProvider $css-provider .= new-cssprovider;
-
-has Bool $!catch-parser-errors = False;
+my Bool $catch-parser-errors = False;
 
 #-------------------------------------------------------------------------------
 =begin pod
@@ -78,7 +77,6 @@ See also the example shown above
 =end pod
 
 multi submethod BUILD ( ) {
-#  self.check-provider;
 }
 
 #-------------------------------------------------------------------------------
@@ -92,30 +90,55 @@ multi submethod BUILD ( Str:D :$css-text ) {
 }
 
 #-------------------------------------------------------------------------------
+=begin pod
+
+=head2 load-css
+
+There are two method to load stylesheets. One to read the sheet from a string and one to read from a file.
+
+  multi method load-css ( Str:D :$css-text )
+  
+  multi method load-css ( Str:D :$css-path )
+
+=item $css-text; The stylesheet text in a string
+=item $css-path; The path to a file which contains the stylesheet
+=end pod
+
 multi method load-css ( Str:D :$css-path ) {
-  self.process-parse-errors($css-path.IO.basename);
+  self!process-parse-errors($css-path.IO.basename);
   $css-provider.load-from-path($css-path);
 }
 
 #-------------------------------------------------------------------------------
 multi method load-css ( Str:D :$css-text ) {
-  self.process-parse-errors;
+  self!process-parse-errors;
   $css-provider.load-from-string($css-text);
 }
 
 #-------------------------------------------------------------------------------
-method process-parse-errors ( Str $file = '' ) {
-  $!catch-parser-errors //= False;
-  if !$!catch-parser-errors {
+method !process-parse-errors ( Str $file = '' ) {
+  if !$catch-parser-errors {
     $css-provider.register-signal(
       self, 'log-css-parsing', 'parsing-error', :$file
     );
-    $!catch-parser-errors = True;
+    $catch-parser-errors = True;
   }
 }
 
 #-------------------------------------------------------------------------------
-method add-css-class ( Gnome::Gtk4::Widget $context, Str:D $css-class ) {
+=begin pod
+
+=head2 add-css-class
+
+Set a css class on a widget.
+
+  method add-css-class ( Gnome::Gtk4::Widget $widget, Str:D $css-class )
+
+=item $widget; The widget to whic the class must be added.
+=item $css-class; The name of the class.
+=end pod
+
+method add-css-class ( Gnome::Gtk4::Widget $widget, Str:D $css-class ) {
 
   # It may be defined but has it text?
   return unless ?$css-class;
@@ -128,11 +151,23 @@ method add-css-class ( Gnome::Gtk4::Widget $context, Str:D $css-class ) {
     $display, $css-provider, GTK_STYLE_PROVIDER_PRIORITY_USER
   );
 
-  $context.add-css-class($css-class);
+  $widget.add-css-class($css-class);
 }
 
 #-------------------------------------------------------------------------------
-method remove-css-class ( Gnome::Gtk4::Widget $context, Str:D $css-class ) {
+=begin pod
+
+=head2 remove-css-class
+
+Remove a css class from a widget.
+
+  method remove-css-class ( Gnome::Gtk4::Widget $widget, Str:D $css-class )
+
+=item $widget; The widget to whic the class must be added.
+=item $css-class; The name of the class.
+=end pod
+
+method remove-css-class ( Gnome::Gtk4::Widget $widget, Str:D $css-class ) {
 
   # It may be defined but has it text?
   return unless ?$css-class;
@@ -145,7 +180,7 @@ method remove-css-class ( Gnome::Gtk4::Widget $context, Str:D $css-class ) {
     $display, $css-provider, GTK_STYLE_PROVIDER_PRIORITY_USER
   );
 
-  $context.remove-css-class($css-class);
+  $widget.remove-css-class($css-class);
 }
 
 #-------------------------------------------------------------------------------
