@@ -1,3 +1,8 @@
+* 2026 09 20 0.8.5
+  * Add method load-css() to **GnomeTools::Gtk::Theming** class.
+  * Write documentation for the Theming class.
+  * Logging of CSS errors from stylesheet file/text displayed in window widget
+
 * 2026 09 18 0.8.4
   * Add method `remove-css-class()` in **GnomeTools::Gtk::Theming** class.
   * Show css errors on commandline when there are parsing errors.
