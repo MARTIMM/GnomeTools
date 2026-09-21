@@ -186,7 +186,10 @@ method selection-changed (
 }
 
 #-------------------------------------------------------------------------------
-method get-selection ( Bool :$rows = False --> List ) {
+method get-selection (
+  Bool :$rows, :$get-positions is copy = False --> List
+) {
+  $get-positions = $rows if $rows.defined;
 
 #note "$?LINE $!selection-type.gist()";
   return () unless ?$!selection-type;
@@ -199,7 +202,7 @@ method get-selection ( Bool :$rows = False --> List ) {
   my Int $n = $bitset.get-size;
 #note "$?LINE $bitset.gist(), $n";
   for ^$n -> $i {
-    if $rows {
+    if $get-positions {
       @selections.push: $bitset.get-nth($i);
     }
 

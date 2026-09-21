@@ -51,9 +51,9 @@ Returns the number of items in the list.
 Get the list of currently selected items.
 
 =begin code
-method get-selection ( Bool :$rows = False --> List )
+method get-selection ( Bool :$get-positions = False --> List )
 =end code
-=item $rows; When set, return the positions in the list, otherwise return a list of item strings.
+=item $get-positions; When set, return the positions in the list, otherwise return a list of item strings. Previously the option was named C<rows> and still is recognized until next version.
 
 Returns the list of currently selected items.
 
