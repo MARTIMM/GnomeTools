@@ -1,3 +1,6 @@
+* 2026 01 10 0.8.7
+  * Add method `get-object()` in **GnomeTools::Gtk::R-ListModel**.
+
 * 2026 09 21 0.8.6
   * Named argument `$get-positions` of method `get-selection()` in role **GnomeTools::Gtk::R-ListModel** seems a better choice than `$row` because the list can be placed horizontal which in that case should be called columns. Also other method accept or return positions.
 * 2026 09 20 0.8.5
