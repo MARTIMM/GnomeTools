@@ -187,7 +187,7 @@ method selection-changed (
 
 #-------------------------------------------------------------------------------
 method get-selection (
-  Bool :$rows, :$get-positions is copy = False --> List
+  Bool :$rows, Bool :$get-positions is copy = False --> List
 ) {
   $get-positions = $rows if $rows.defined;
 
@@ -235,6 +235,11 @@ method set-selection ( *@pos ) {
 #-------------------------------------------------------------------------------
 method get-n-items ( --> UInt ) {
   $!list-objects.get-n-items;
+}
+
+#-------------------------------------------------------------------------------
+method get-listview-object ( UInt $pos --> Mu ) {
+  $!selection-type.get-object($pos)
 }
 
 #-------------------------------------------------------------------------------
