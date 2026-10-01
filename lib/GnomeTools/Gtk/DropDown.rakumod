@@ -93,7 +93,9 @@ method set-selection-changed ( Mu:D $object, Str:D $method, *%options ) {
 }
 
 #-------------------------------------------------------------------------------
-method this-selection-changed ( N-Object $, :$object, :$method, *%options ) {
+method this-selection-changed (
+  N-Object $, Mu:D :$object, Str:D :$method, *%options
+) {
   $object."$method"(|%options);
 }
 
