@@ -238,11 +238,6 @@ method get-n-items ( --> UInt ) {
 }
 
 #-------------------------------------------------------------------------------
-method get-listview-object ( UInt $pos --> Mu ) {
-  $!selection-type.get-object($pos)
-}
-
-#-------------------------------------------------------------------------------
 method append ( *@list-item ) {
   for @list-item -> $list-item {
     $!list-objects.append($list-item);
