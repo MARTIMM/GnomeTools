@@ -1,8 +1,9 @@
 * 2026 01 10 0.8.7
-  * Add method `get-object()` in **GnomeTools::Gtk::R-ListModel**.
+  * Failed to get widget from list in R-ListModel. The only object returned is a string object which is already covered with `.get-string()`. So, when you want to modify the widgets in a list row, you must substitute the entry with `.splice( $pos, 1, $entry-id-of-pos)`. The `unbind` event is then triggered followed by a `teardown` to remove the entry. Then `setup` is called to make a new entry followed by a `bind` event to fill it with values.
 
 * 2026 09 21 0.8.6
   * Named argument `$get-positions` of method `get-selection()` in role **GnomeTools::Gtk::R-ListModel** seems a better choice than `$row` because the list can be placed horizontal which in that case should be called columns. Also other method accept or return positions.
+
 * 2026 09 20 0.8.5
   * Add method load-css() to **GnomeTools::Gtk::Theming** class.
   * Write documentation for the Theming class.
