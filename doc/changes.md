@@ -1,5 +1,5 @@
 * 2026 01 10 0.8.7
-  * Failed to get widget from list in R-ListModel. The only object returned is a string object which is already covered with `.get-string()`. So, when you want to modify the widgets in a list row, you must substitute the entry with `.splice( $pos, 1, $entry-id-of-pos)`. The `unbind` event is then triggered followed by a `teardown` to remove the entry. Then `setup` is called to make a new entry followed by a `bind` event to fill it with values.
+  * Failed to get widget from a list entry in a R-ListModel. The only type of object returned is a string object. This is already covered with `.get-string()` which returns a string. So, when you want to modify the widgets in a list row, you must substitute the entry with `.splice( $pos, 1, $entry-id-of-pos)`. The `unbind` event is then triggered followed by a `teardown` to remove the entry. Then `setup` is called to make a new entry followed by a `bind` event to fill it with new values.
 
 * 2026 09 21 0.8.6
   * Named argument `$get-positions` of method `get-selection()` in role **GnomeTools::Gtk::R-ListModel** seems a better choice than `$row` because the list can be placed horizontal which in that case should be called columns. Also other method accept or return positions.
